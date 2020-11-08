@@ -2,8 +2,8 @@
   Port = 50000
   Timeout = 5000
   ConnectRetries = 10
-  Labels = [ 'Gyro_Protocol' ]
-  StartupMsg = 'Example gyro device service started'
+  Labels = [ 'MQTT_Protocol' ,'MODBUS_Protocol' ]
+  StartupMsg = 'mqtt modbus device service started'
   CheckInterval = '10s'
 
 [Clients]
@@ -25,17 +25,9 @@
   LogLevel = 'DEBUG'
 
 [[DeviceList]]
-  Name = 'Gyro_device_1'
-  Profile = 'Gyro_profile_common'
-  Description = 'An Example Gyro Device1'
-  [DeviceList.Protocols]
-    [DeviceList.Protocols.Gyro]
-
-
-[[DeviceList]]
-  Name = 'Gyro_device_2'
-  Profile = 'Gyro_profile_common'
-  Description = 'An Example Gyro Device2'
+  Name = 'modbus-01_hangzhou-temperature_device-1'
+  Profile = 'modbus_temperature_device_profile_common'
+  Description = 'An temperature device'
   [DeviceList.Protocols]
     [DeviceList.Protocols.modbus-rtu]
       Address = '/tmp/slave'
@@ -45,25 +37,31 @@
       Parity = 'N'
       UnitID = 1
   [[DeviceList.AutoEvents]]
-    Resource = 'Xrotation'
+    Resource = 'temperature'
     OnChange = false
     Frequency = '10s'
+  [[DeviceList.AutoEvents]]
+    Resource = 'humidity'
+    OnChange = true
+    Frequency = '15000ms'
 
 [[DeviceList]]
-  Name = 'Gyro_device_3'
-  Profile = 'Gyro_profile_common'
-  Description = 'An Example Gyro Device3'
-  [DeviceList.Protocols.Other]
-    Address = 'someSensorEndpoint'
+  Name = 'modbus-01_hangzhou-temperature_device-2'
+  Profile = 'modbus_temperature_device_profile_common'
+  Description = 'An temperature device'
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.modbus-rtu]
+      Address = '/tmp/slave'
+      BaudRate = 9600
+      DataBits = 8
+      StopBits = 1
+      Parity = 'N'
+      UnitID = 2
   [[DeviceList.AutoEvents]]
-    Resource = 'Xrotation'
-    OnChange = true
-    Frequency = '15000ms'
+    Resource = 'temperature'
+    OnChange = false
+    Frequency = '10s'
   [[DeviceList.AutoEvents]]
-    Resource = 'Yrotation'
-    OnChange = true
-    Frequency = '15000ms'
-  [[DeviceList.AutoEvents]]
-    Resource = 'Zrotation'
+    Resource = 'humidity'
     OnChange = true
     Frequency = '15000ms'

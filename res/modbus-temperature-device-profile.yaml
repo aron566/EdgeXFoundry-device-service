@@ -1,0 +1,50 @@
+name: "modbus_temperature_device_profile_common"
+manufacturer: "IoTechSystems"
+model: "IoT4"
+description: "Temperature & Humidity Device Profile Common"
+labels:
+  - "temperature_sensor"
+  - "modbus_protocol"
+
+deviceResources:
+  -
+    name: temperature
+    description: "temperature realtime value"
+    attributes:
+      { parameter: "temperature" }
+    properties:
+      value:
+      { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "100.00", maximum: "0.00", floatEncoding: "Base64" }
+      units:
+      { type: "String", readWrite: "R", defaultValue: "-99.99" }
+  -
+    name: humidity
+    description: "humidity realtime value"
+    attributes:
+      { parameter: "humidity" }
+    properties:
+      value:
+      { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "100.00", maximum: "0.00", floatEncoding: "Base64" }
+      units:
+      { type: "String", readWrite: "R", defaultValue: "-99.99" }
+
+deviceCommands:
+  -
+    name: modbus_temperature_device
+    get:
+      - { deviceResource: "temperature" }
+      - { deviceResource: "humidity" }
+
+coreCommands:
+  -
+    name: modbus_temperature_device
+    get:
+      path: "/api/v1/device/{deviceId}/modbus_temperature_device"
+      responses:
+      - code: "200"
+        description: "Successfully read the modbus_temperature_device sensors."
+        expectedValues: [ "temperature", "humidity" ]
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+

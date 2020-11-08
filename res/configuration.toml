@@ -1,0 +1,69 @@
+[Service]
+  Port = 50000
+  Timeout = 5000
+  ConnectRetries = 10
+  Labels = [ 'Gyro_Protocol' ]
+  StartupMsg = 'Example gyro device service started'
+  CheckInterval = '10s'
+
+[Clients]
+  [Clients.Data]
+    Host = 'localhost'
+    Port = 48080
+
+  [Clients.Metadata]
+    Host = 'localhost'
+    Port = 48081
+
+[Device]
+  DataTransform = false
+  Discovery = false
+  MaxCmdOps = 128
+  MaxCmdResultLen = 256
+
+[Logging]
+  LogLevel = 'DEBUG'
+
+[[DeviceList]]
+  Name = 'Gyro_device_1'
+  Profile = 'Gyro_profile_common'
+  Description = 'An Example Gyro Device1'
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.Gyro]
+
+
+[[DeviceList]]
+  Name = 'Gyro_device_2'
+  Profile = 'Gyro_profile_common'
+  Description = 'An Example Gyro Device2'
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.modbus-rtu]
+      Address = '/tmp/slave'
+      BaudRate = 9600
+      DataBits = 8
+      StopBits = 1
+      Parity = 'N'
+      UnitID = 1
+  [[DeviceList.AutoEvents]]
+    Resource = 'Xrotation'
+    OnChange = false
+    Frequency = '10s'
+
+[[DeviceList]]
+  Name = 'Gyro_device_3'
+  Profile = 'Gyro_profile_common'
+  Description = 'An Example Gyro Device3'
+  [DeviceList.Protocols.Other]
+    Address = 'someSensorEndpoint'
+  [[DeviceList.AutoEvents]]
+    Resource = 'Xrotation'
+    OnChange = true
+    Frequency = '15000ms'
+  [[DeviceList.AutoEvents]]
+    Resource = 'Yrotation'
+    OnChange = true
+    Frequency = '15000ms'
+  [[DeviceList.AutoEvents]]
+    Resource = 'Zrotation'
+    OnChange = true
+    Frequency = '15000ms'

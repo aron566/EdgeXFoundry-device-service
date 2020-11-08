@@ -1,0 +1,11 @@
+{
+    "editor.fontSize": 18,
+    "editor.fontFamily": "'monospace', 'monospace', monospace, 'monospace'",
+    "C_Cpp.default.systemIncludePath": [],
+    "C_Cpp.default.macFrameworkPath": [],
+    "C_Cpp.default.includePath": [
+        "/home/aron566/Workspace/C_SDK/device-sdk-c/include",
+    ],
+    "C_Cpp.default.cStandard": "gnu99",
+    "C_Cpp.default.cppStandard": "c++11"
+}

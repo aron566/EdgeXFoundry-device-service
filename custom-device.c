@@ -99,12 +99,12 @@ static bool custom_device_init(void * impl, struct iot_logger_t * lc, const iot_
 static bool custom_device_get_handler(
   void * impl,                            /**< 自定义数据*/
   const char * devname,                   /**< 设备名称*/
-  const devsdk_protocols * protocols,     /**< 协议链表*/
+  const devsdk_protocols * protocols,     /**< 请求设备所归属的协议*/
   uint32_t nreadings,                     /**< 请求类型的数量*/
   const devsdk_commandrequest * requests, /**< 请求参数列表*/
-  devsdk_commandresult * readings,        /**< 返回结果给Edge*/
-  const devsdk_nvpairs * qparams,
-  iot_data_t ** exception)
+  devsdk_commandresult * readings,        /**< 返回结果给Edge控制台*/
+  const devsdk_nvpairs * qparams,         /**< 请求的附加参数*/
+  iot_data_t ** exception)                /**< 返回请求结果说明信息*/
 {
   custom_device_driver * driver = (custom_device_driver *) impl;
   char * buff;
@@ -120,18 +120,20 @@ static bool custom_device_get_handler(
       return false;
     }
 
-    /*参数来自.yaml中deviceResources列表中attributes定义*/
+    /*参数来自.yaml中deviceResources列表中attributes项parameter键值*/
+
     if (strcmp (param, "xrot") == 0)
     {
-      readings[i].value = iot_data_alloc_i32 ((random () % 501) - 250);
-    }
-    else if (strcmp (param, "yrot") == 0)
-    {
-      readings[i].value = iot_data_alloc_i32 ((random () % 501) - 250);
-    }
-    else if (strcmp (param, "zrot") == 0)
-    {
-      readings[i].value = iot_data_alloc_i32 ((random () % 501) - 250);
+    //   readings[i].value = iot_data_alloc_i32 ((random () % 501) - 250);
+    // }
+    // else if (strcmp (param, "yrot") == 0)
+    // {
+    //   readings[i].value = iot_data_alloc_i32 ((random () % 501) - 250);
+    // }
+    // else if (strcmp (param, "zrot") == 0)
+    // {
+    //   readings[i].value = iot_data_alloc_i32 ((random () % 501) - 250);
+      
     }
     else
     {

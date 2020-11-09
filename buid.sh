@@ -7,10 +7,10 @@ SDK_INC_DIR=/home/aron566/Workspace/C_SDK/device-sdk-c/include
 SDK_LIB_DIR=/home/aron566/Workspace/C_SDK/device-sdk-c/build/release/_CPack_Packages/Linux/TGZ/csdk-1.3.0/lib
 
 #定义编译生成的APP名称
-TARGET_APP_NAME=custom_device_driver
+TARGET_APP_NAME=custom_devices_service
 
 #定义源码文件名称
-SOURCE_FILE_NAME=custom-device.c
+SOURCE_FILE_NAME=devices_service/custom-device.c
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SDK_LIB_DIR
 

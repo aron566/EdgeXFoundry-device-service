@@ -50,7 +50,6 @@ typedef enum
     VALUE_TYPE_MAX,
 }VALUE_Type_t;  
 
-
 /*协议类型*/
 typedef enum
 {

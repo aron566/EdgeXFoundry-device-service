@@ -24,7 +24,7 @@ extern "C" {
 /** Private includes ---------------------------------------------------------*/
 #include "devsdk/devsdk.h"    
 #include "service_component/custom-common.h"
-#include "relay_device.h"                                    
+#include "device_driver_list_config.h"                                   
 /** Private defines ----------------------------------------------------------*/
                                                                     
 /** Exported typedefines -----------------------------------------------------*/

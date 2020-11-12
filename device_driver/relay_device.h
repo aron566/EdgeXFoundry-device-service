@@ -1,16 +1,16 @@
 /**                                                                             
- *  @file relay_device_driver.h                                                    
+ *  @file relay_device.h                                                    
  *                                                                              
  *  @date 2020年11月08日 20:28:50 星期天
  *                                                                              
  *  @author aron566                                                             
  *                                                                              
- *  @brief None.                                                                
+ *  @brief 继电器设备驱动.                                                                
  *                                                                              
  *  @version V1.0                                                               
  */                                                                             
-#ifndef RELAY_DEVICE_DRIVER_H                                                          
-#define RELAY_DEVICE_DRIVER_H                                                          
+#ifndef RELAY_DEVICE_H                                                          
+#define RELAY_DEVICE_H                                                          
 #ifdef __cplusplus ///<use C compiler                                           
 extern "C" {                                                                   
 #endif                                                                          
@@ -23,7 +23,8 @@ extern "C" {
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
 #include "devsdk/devsdk.h"    
-#include "service_component/custom-common.h"                                                                            
+#include "service_component/custom-common.h"
+#include "relay_device.h"                                    
 /** Private defines ----------------------------------------------------------*/
                                                                     
 /** Exported typedefines -----------------------------------------------------*/

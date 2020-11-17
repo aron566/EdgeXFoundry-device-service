@@ -282,7 +282,7 @@ NODE_TYPE_STRUCT *list_find_node(LIST_Type_t type ,MAJOR_KEY major_key)
         if(it->node.major_key == major_key)
         {
             return &it->node;
-        }   
+        }
         it = it->next; 
     }
     return NULL;

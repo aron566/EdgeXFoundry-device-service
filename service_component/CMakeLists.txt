@@ -1,4 +1,5 @@
 aux_source_directory(. DIR_SRCS)
+aux_source_directory(3third_party/tomlc99/ DIR_SRCS)
 
 string(REGEX REPLACE ".*/(.*)" "\\1" LIB_NAME ${CMAKE_CURRENT_SOURCE_DIR}) 
 
@@ -9,7 +10,7 @@ if (DIR_SRCS)
 
             add_library(${libname} STATIC ${DIR_SRCS})
 
-            target_link_libraries(${libname} "csdk")
+            target_link_libraries(${libname} "csdk" "yaml")
         endif()
     endforeach()
 

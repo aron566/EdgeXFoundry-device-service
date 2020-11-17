@@ -22,7 +22,7 @@ extern "C" {
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
-                                                                                
+#include "../service_component/custom-common.h"                                                                                
 /** Private defines ----------------------------------------------------------*/
                                                                      
 /** Exported typedefines -----------------------------------------------------*/

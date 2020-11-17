@@ -63,8 +63,8 @@ typedef enum
 typedef struct dev_node_func { 
     void (*get_dev_value_callback)(void *input_data, void *out_data, VALUE_Type_t type);/**< 设备读取接口*/
     void (*set_dev_value_callback)(void *input_data, void *out_data, VALUE_Type_t type);/**< 设备设置接口*/
-    PROTOCOL_Type_t major_key;/**< 设备协议信息*/
-    char dev_addr[128];/**< 设备地址信息*/
+    PROTOCOL_Type_t major_key;  /**< 设备协议信息*/
+    char dev_name[256];         /**< 设备完整名称*/
 }DEV_NODE_FUNC_Type_t;
 /** Exported constants -------------------------------------------------------*/
                                                                                 

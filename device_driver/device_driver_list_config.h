@@ -9,9 +9,9 @@
  *                                                                              
  *  @version V1.0                                                               
  */                                                                             
-#ifndef DEVICE_DRIVER_LIST_CONFIG_H                                                          
-#define DEVICE_DRIVER_LIST_CONFIG_H                                                          
-#ifdef __cplusplus ///<use C compiler                                           
+#ifndef DEVICE_DRIVER_LIST_CONFIG_H
+#define DEVICE_DRIVER_LIST_CONFIG_H
+#ifdef __cplusplus ///<use C compiler
 extern "C" {                                                                   
 #endif                                                                          
 /** Includes -----------------------------------------------------------------*/

@@ -45,27 +45,36 @@ struct node_t {
 node_t stack[20];
 int stacktop = 0;
 
+static void print_array_of_tables(toml_array_t* arr, const char* key);
+static void print_array(toml_array_t* arr);
 
+/**
+ * @brief 打印表名
+ * 
+ * @param arrname 数组名或者是表名
+ */
 static void print_table_title(const char* arrname)
 {
     int i;
     printf("%s", arrname ? "[[" : "[");
+	/*打印上级*/
     for (i = 1; i < stacktop; i++) {
 	printf("%s", stack[i].key);
 	if (i + 1 < stacktop)
 	    printf(".");
     }
+	/*打印尾部*/
     if (arrname)
 	printf(".%s]]\n", arrname);
     else
 	printf("]\n");
 }
 
-
-static void print_array_of_tables(toml_array_t* arr, const char* key);
-static void print_array(toml_array_t* arr);
-
-
+/**
+ * @brief 打印表
+ * 
+ * @param curtab 
+ */
 static void print_table(toml_table_t* curtab)
 {
     int i;
@@ -74,21 +83,25 @@ static void print_table(toml_table_t* curtab)
     toml_array_t* arr;
     toml_table_t* tab;
 
-	/*轮询K = V*/
+	/*轮询KEY*/
     for (i = 0; 0 != (key = toml_key_in(curtab, i)); i++) {
-		/*轮询K = V 中V值*/
+		/*如果是KV则打印*/
 	if (0 != (raw = toml_raw_in(curtab, key))) {
 	    printf("%s = %s\n", key, raw);
+		/*如果是表中数组或者KV型数组*/
 	} else if (0 != (arr = toml_array_in(curtab, key))) {
+		/*[[key]]数组*/
 	    if (toml_array_kind(arr) == 't') {
 		print_array_of_tables(arr, key);
 	    }
 	    else {
+			/*KV型数组*/
 		printf("%s = [\n", key);/*xx = [ss,sss]*/
 		print_array(arr);
 		printf("    ]\n");
 	    }
 	} else if (0 != (tab = toml_table_in(curtab, key))) {
+		/*如果是[tab.tab]则分解*/
 	    stack[stacktop].key = key;
 	    stack[stacktop].tab = tab;
 	    stacktop++;
@@ -101,19 +114,30 @@ static void print_table(toml_table_t* curtab)
     }
 }
 
+/**
+ * @brief 打印标表中数组
+ * 
+ * @param arr 数组指针
+ * @param key 数组名
+ */
 static void print_array_of_tables(toml_array_t* arr, const char* key)
 {
     int i;
     toml_table_t* tab;
     printf("\n");
+	/*轮询表中数组*/
     for (i = 0; 0 != (tab = toml_table_at(arr, i)); i++) {
-	print_table_title(key);
+	print_table_title(key);//[[key]]
 	print_table(tab);
 	printf("\n");
     }
 }
 
-
+/**
+ * @brief 打印数组
+ * 
+ * @param curarr 
+ */
 static void print_array(toml_array_t* curarr)
 {
     toml_array_t* arr;
@@ -174,8 +198,11 @@ static void print_array(toml_array_t* curarr)
     }
 }
 
-
-
+/**
+ * @brief 解析打印toml文件
+ * 
+ * @param fp 
+ */
 static void cat(FILE* fp)
 {
     char  errbuf[200];

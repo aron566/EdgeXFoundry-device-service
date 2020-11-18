@@ -14,6 +14,6 @@ else()
                            "$<$<C_COMPILER_ID:GNU>:-std=c99>")
 endif()
 
-foreach(findlib ${LIBNAMES})
+foreach(findlib ${APP_LINK_LIBS})
     target_link_libraries(${TARGETS} PRIVATE ${findlib})
 endforeach()

@@ -22,6 +22,7 @@ extern "C" {
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
+#include "device_driver_list_config.h"
 #include "../service_component/custom-common.h"                                                                                
 /** Private defines ----------------------------------------------------------*/
                                                                      
@@ -43,13 +44,16 @@ typedef enum
     READ_WRITE,
     UNKNOW,
 }PERMISSIONS_TYPE;
+
+/*设备服务*/
 typedef struct 
 {
     const char *const par_name; /**< 设备服务名称*/
     uint8_t command;            /**< 设备控制命令*/
     uint16_t command_addr;      /**< 设备参数地址*/
     PERMISSIONS_TYPE permissions;/**< 命令权限*/     
-}DEV_DRIVER_INTERFACE_Typedef_t;                                                                      
+}DEV_DRIVER_INTERFACE_Typedef_t;    
+
 /** Exported constants -------------------------------------------------------*/
                                                                                 
 /** Exported macros-----------------------------------------------------------*/

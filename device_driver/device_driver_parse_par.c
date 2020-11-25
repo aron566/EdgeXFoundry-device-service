@@ -344,7 +344,7 @@ static int get_event_interval(const char *interval_str, INTERVAL_TIME_Typedef_t 
         return -1;
     }
     char unit_name[8];
-    int ret = sscanf(interval_str, "%d%s", time_par->interval_time, unit_name);
+    int ret = sscanf(interval_str, "%d%s", &time_par->interval_time, unit_name);
     if(ret < 2)
     {
         printf("parse time unit error.\n");
@@ -454,25 +454,25 @@ static int parse_event_par_update(toml_table_t *tab, DEV_INFO_Typedef_t *dev_inf
  */
 static toml_table_t* load_service_config(void)
 {
-	FILE* fp;
-	char errbuf[200];
-	fp = fopen(SERVICE_CONFIG_FILE, "r");
-	if (!fp) 
-	{
-		fprintf(stderr, "ERROR: cannot open configuration.toml - %s\n", strerror(errno));
-		exit(1);
-	}
+    FILE* fp;
+    char errbuf[200];
+    fp = fopen(SERVICE_CONFIG_FILE, "r");
+    if (!fp) 
+    {
+        fprintf(stderr, "ERROR: cannot open configuration.toml - %s\n", strerror(errno));
+        exit(1);
+    }
 
-	toml_table_t* conf = toml_parse_file(fp, errbuf, sizeof(errbuf));
-	fclose(fp);
+    toml_table_t* conf = toml_parse_file(fp, errbuf, sizeof(errbuf));
+    fclose(fp);
 
-	if(!conf)
-	{
-		fprintf(stderr, "ERROR: cannot parse - %s\n", errbuf);
-		return NULL;
-	}
-	
-	return conf;
+    if(!conf)
+    {
+        fprintf(stderr, "ERROR: cannot parse - %s\n", errbuf);
+        return NULL;
+    }
+
+    return conf;
 }
 
 /**
@@ -502,7 +502,7 @@ static int parse_service_config(void)
         return -1;
     }
 
-	/*轮询DeviceList数组中的表*/
+    /*轮询DeviceList数组中的表*/
     toml_table_t *array_of_tab = NULL;
     toml_table_t *tab_of_array = NULL;
     toml_array_t *sub_array_of_array = NULL;

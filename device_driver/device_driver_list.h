@@ -25,7 +25,8 @@ extern "C" {
 #include "device_driver_list_config.h"  /**< 链表的数据结构配置文件*/                                                                
 /** Private defines ----------------------------------------------------------*/
 #define LIST_TYPE_MAX   DEV_TYPE_MAX    /**< 链表的最大分类*/
-#define MAJOR_KEY   PROTOCOL_Type_t     /**< 查找节点的唯一键值标识*/
+#define MAJOR_KEY_1     PROTOCOL_Type_t /**< 查找节点的唯一键值标识*/
+#define MAJOR_KEY_2     uint32_t        /**< 查找节点的第二键值标识*/
 /** Exported typedefines -----------------------------------------------------*/
 /*链表分类*/
 typedef DEVICE_Typedef_t LIST_Type_t;
@@ -54,7 +55,7 @@ void list_add_to_list(NODE_Typedef_t *node ,LIST_Type_t type);
 void list_dele_list(LIST_Type_t type);
 
 /*找到指定节点*/
-NODE_TYPE_STRUCT *list_find_node(LIST_Type_t type ,MAJOR_KEY major_key); 
+NODE_TYPE_STRUCT *list_find_node(LIST_Type_t type ,MAJOR_KEY_1 major_key_1, MAJOR_KEY_2 major_key_2); 
 
 /*获取链表长度*/
 int list_get_size(LIST_Type_t type);

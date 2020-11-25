@@ -270,7 +270,7 @@ void list_dele_list(LIST_Type_t type)
   * @date    2020-11-12
   ******************************************************************
   */
-NODE_TYPE_STRUCT *list_find_node(LIST_Type_t type ,MAJOR_KEY major_key)
+NODE_TYPE_STRUCT *list_find_node(LIST_Type_t type ,MAJOR_KEY_1 major_key_1, MAJOR_KEY_2 major_key_2)
 {
     if(type >= LIST_TYPE_MAX || type < 0)
     {
@@ -279,7 +279,7 @@ NODE_TYPE_STRUCT *list_find_node(LIST_Type_t type ,MAJOR_KEY major_key)
     NODE_Typedef_t *it = all_list_head[type];
     while(it != NULL)
     {
-        if(it->node.major_key == major_key)
+        if(it->node.major_key_1 == major_key_1 && it->node.major_key_2 == major_key_2)
         {
             return &it->node;
         }

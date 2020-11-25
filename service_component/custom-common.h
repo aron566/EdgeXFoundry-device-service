@@ -47,6 +47,10 @@ int toml2json(char *toml_str, char *outbuf);
 
 /*toml文件打印输出*/
 int toml_file_cat(const char *toml_filename);
+
+/*过滤指定字符*/
+int common_filter_special_char(char ch, const char *str, char *out_str, int size);
+
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               
 #endif                                                                          

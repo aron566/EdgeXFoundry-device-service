@@ -85,12 +85,15 @@ typedef struct
 }DEV_COMMUNICATION_PAR_Typedef_t;
 
 /*设备驱动同一接口*/
+typedef void (*GET_DEV_VALUE_CALLBACK)(void *input_data, void *out_data, VALUE_Type_t type);/**< 设备读取接口*/
+typedef void (*SET_DEV_VALUE_CALLBACK)(void *input_data, void *out_data, VALUE_Type_t type);/**< 设备设置接口*/
 typedef struct dev_node_func { 
-    void (*get_dev_value_callback)(void *input_data, void *out_data, VALUE_Type_t type);/**< 设备读取接口*/
-    void (*set_dev_value_callback)(void *input_data, void *out_data, VALUE_Type_t type);/**< 设备设置接口*/
+    GET_DEV_VALUE_CALLBACK get_dev_value_callback;/**< 设备读取接口*/
+    SET_DEV_VALUE_CALLBACK set_dev_value_callback;/**< 设备设置接口*/
     DEV_COMMUNICATION_PAR_Typedef_t communication_par;/**< 设备通讯参数信息*/
-    PROTOCOL_Type_t major_key;  /**< 设备协议信息*/
-    char dev_name[256];         /**< 设备完整名称*/
+    PROTOCOL_Type_t major_key_1;  /**< 设备采用的协议类型*/
+    // char dev_name[256];         /**< 设备完整名称*/
+    uint32_t major_key_2;         /**< 设备地址或者序号，此值在同类设备中唯一*/
 }DEV_NODE_FUNC_Type_t;
 /** Exported constants -------------------------------------------------------*/
                                                                                 

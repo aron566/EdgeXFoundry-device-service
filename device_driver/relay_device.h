@@ -35,7 +35,13 @@ extern "C" {
 /** Exported macros-----------------------------------------------------------*/
 /** Exported variables -------------------------------------------------------*/
 /** Exported functions prototypes --------------------------------------------*/
-                                                                                
+
+/*继电器设备驱动注册*/
+int relay_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATION_PAR_Typedef_t *communication_par);       
+
+/*获取继电器设备资源表*/
+DEV_DRIVER_INTERFACE_Typedef_t *get_relay_device_resource(void);
+
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               
 #endif                                                                          

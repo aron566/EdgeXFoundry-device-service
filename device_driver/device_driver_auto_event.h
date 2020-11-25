@@ -1,16 +1,16 @@
 /**                                                                             
- *  @file gateway_device.h                                                    
+ *  @file device_driver_auto_event.h                                                    
  *                                                                              
- *  @date 2020年11月10日 10:23:35 星期二
+ *  @date 2020年11月24日 11:33:41 星期二
  *                                                                              
  *  @author aron566                                                             
  *                                                                              
- *  @brief 网关设备驱动.                                                                
+ *  @brief None.                                                                
  *                                                                              
  *  @version V1.0                                                               
  */                                                                             
-#ifndef GATEWAY_DEVICE_H                                                          
-#define GATEWAY_DEVICE_H                                                          
+#ifndef DEVICE_DRIVER_AUTO_EVENT_H                                                          
+#define DEVICE_DRIVER_AUTO_EVENT_H                                                          
 #ifdef __cplusplus ///<use C compiler                                           
 extern "C" {                                                                   
 #endif                                                                          
@@ -22,25 +22,16 @@ extern "C" {
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
-#include "devsdk/devsdk.h"  
-#include "service_component/custom-common.h"
-#include "device_driver_list_config.h"     
-#include "device_driver_opt.h"                                    
+
 /** Private defines ----------------------------------------------------------*/
-                                                                   
+
 /** Exported typedefines -----------------------------------------------------*/
-                                                                      
+
 /** Exported constants -------------------------------------------------------*/
-                                                                                
+
 /** Exported macros-----------------------------------------------------------*/
 /** Exported variables -------------------------------------------------------*/
 /** Exported functions prototypes --------------------------------------------*/
-
-/*网关设备注册*/
-int gateway_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATION_PAR_Typedef_t *communication_par);
-
-/*获取网关设备资源表*/
-DEV_DRIVER_INTERFACE_Typedef_t *get_gateway_device_resource(void);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

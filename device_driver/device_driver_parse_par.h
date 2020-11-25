@@ -22,7 +22,7 @@ extern "C" {
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
-                                                                                
+#include "device_driver_list.h"                                                                         
 /** Private defines ----------------------------------------------------------*/
                                                                       
 /** Exported typedefines -----------------------------------------------------*/
@@ -32,7 +32,13 @@ extern "C" {
 /** Exported macros-----------------------------------------------------------*/
 /** Exported variables -------------------------------------------------------*/
 /** Exported functions prototypes --------------------------------------------*/
-                                                                                
+
+/*获取设备协议类型*/
+PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info);
+
+/*获取设备类型*/
+DEVICE_Typedef_t get_device_type(DEV_INFO_Typedef_t *dev_info);  
+
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               
 #endif                                                                          

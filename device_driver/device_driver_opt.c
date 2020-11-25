@@ -64,7 +64,7 @@ void device_driver_opt_init(void)
     list_table_init();
 
     /*注册设备驱动*/
-    
+    register_device_driver
 
 }
 #ifdef __cplusplus ///<end extern c                                             

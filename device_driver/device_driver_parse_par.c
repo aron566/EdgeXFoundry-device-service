@@ -70,7 +70,7 @@ static int parse_modbus_rtu_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef
 static int parse_private_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t *par);
 
 /*解析配置中设备事件*/
-static DEV_DRIVER_INTERFACE_Typedef_t *parse_event_par(toml_table_t *tab, DEV_INFO_Typedef_t *dev_info);
+static int parse_event_par_update(toml_table_t *tab, DEV_INFO_Typedef_t *dev_info);
 static EVENT_REPORT_TIME_UNIT get_event_time_unit(const char *unit_name);
 static int get_event_interval(const char *interval_str, INTERVAL_TIME_Typedef_t *time_par);
 /** Private variables --------------------------------------------------------*/
@@ -360,7 +360,7 @@ static int get_event_interval(const char *interval_str, INTERVAL_TIME_Typedef_t 
 
 /**
  ******************************************************************
- * @brief   解析设备事件参数
+ * @brief   解析设备事件参数并更新
  * @param   [in]tab 事件表
  * @param   [in]dev_info 设备解析结构信息
  * @retval  解析正确返回0，错误-1
@@ -369,7 +369,7 @@ static int get_event_interval(const char *interval_str, INTERVAL_TIME_Typedef_t 
  * @date    2020-11-09
  ******************************************************************
  */
-static DEV_DRIVER_INTERFACE_Typedef_t *parse_event_par(toml_table_t *tab, DEV_INFO_Typedef_t *dev_info)
+static int parse_event_par_update(toml_table_t *tab, DEV_INFO_Typedef_t *dev_info)
 {
     if(dev_info == NULL || tab == NULL)
     {
@@ -385,7 +385,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t *parse_event_par(toml_table_t *tab, DEV_IN
     DEVICE_Typedef_t dev_type = get_device_type(dev_info);
     if(dev_type == DEV_TYPE_MAX)
     {
-        return NULL;
+        return -1;
     }
     if(0 != (resource_name = toml_raw_in(tab, "Resource")))
     {
@@ -393,6 +393,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t *parse_event_par(toml_table_t *tab, DEV_IN
         if(ret < 0)
         {
             printf("filter str error.\n");
+            return -1;
         }
         else
         {
@@ -546,7 +547,7 @@ static int parse_service_config(void)
             /*更新设备资源表的事件*/
             for (int y = 0; 0 != (tab_of_sub_array = toml_table_at(sub_array_of_array, y)); y++) 
             {
-                parse_event_par(tab_of_sub_array, &dev_info);
+                parse_event_par_update(tab_of_sub_array, &dev_info);
             }
         }
         

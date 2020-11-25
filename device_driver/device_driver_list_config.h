@@ -57,6 +57,7 @@ typedef enum
     MODBUS_RTU_PROTO,
     PRIVATE_PROTO,
     UNKNOW_PROTO,
+    PROTO_MAX,
 }PROTOCOL_Type_t;
 
 /*设备通讯地址*/

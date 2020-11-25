@@ -1,7 +1,7 @@
 /**                                                                             
- *  @file device_driver_opt.h                                                    
+ *  @file device_driver_port.h                                                    
  *                                                                              
- *  @date 2020年11月10日 10:12:01 星期二
+ *  @date 2020年11月25日 16:04:14 星期三
  *                                                                              
  *  @author aron566                                                             
  *                                                                              
@@ -9,8 +9,8 @@
  *                                                                              
  *  @version V1.0                                                               
  */                                                                             
-#ifndef DEVICE_DRIVER_OPT_H                                                          
-#define DEVICE_DRIVER_OPT_H                                                          
+#ifndef DEVICE_DRIVER_PORT_H                                                          
+#define DEVICE_DRIVER_PORT_H                                                          
 #ifdef __cplusplus ///<use C compiler                                           
 extern "C" {                                                                   
 #endif                                                                          
@@ -22,76 +22,29 @@ extern "C" {
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
-#include "device_driver_list_config.h"
-#include "../service_component/custom-common.h"                                                                                
+#include "device_driver_list_config.h"                                                                                
 /** Private defines ----------------------------------------------------------*/
                                                                      
 /** Exported typedefines -----------------------------------------------------*/
-/*设备名称解析*/
-typedef struct 
-{
-    char protocol_str[64];      /**< 协议名*/
-    char location_str[128];     /**< 设备位置信息*/
-    char dev_type_name[64];     /**< 设备类型名称*/
-    char dev_address[16];       /**< 设备地址号*/
-}DEV_INFO_Typedef_t;
-
-/*设备接口数据结构*/
-typedef enum
-{
-    READ_ONLY = 0,
-    WRITE_ONLY,
-    READ_WRITE,
-    UNKNOW,
-}PERMISSIONS_TYPE;
-
-/*设备服务*/
-typedef enum
-{
-    T_MS = 0,                           /**< 毫秒单位*/
-    T_S,                                /**< 秒*/
-    T_MIN,                              /**< 分*/
-    T_H,                                /**< 时*/
-    T_D,                                /**< 天*/
-    T_MTH,                              /**< 月*/
-    T_YER,                              /**< 年*/
-    T_MAX
-}EVENT_REPORT_TIME_UNIT;
-typedef struct 
-{
-    const char *const par_name;         /**< 设备服务名称*/
-    uint8_t command;                    /**< 设备控制命令*/
-    uint16_t command_addr;              /**< 设备参数地址*/
-    PERMISSIONS_TYPE permissions;       /**< 命令权限*/
-    bool enable_event_flag;             /**< 开始事件标识*/
-    bool enable_on_change_flag;         /**< 数值改变时事件上报*/
-    uint64_t interval_time;             /**< 事件上报频率*/
-    EVENT_REPORT_TIME_UNIT unit;        /**< 事件上报时基*/
-}DEV_DRIVER_INTERFACE_Typedef_t;    
-
-typedef struct 
-{
-    uint64_t interval_time;             /**< 事件上报频率*/
-    EVENT_REPORT_TIME_UNIT unit;        /**< 事件上报时基*/    
-}INTERVAL_TIME_Typedef_t;
-
-/*协议解析器映射*/
-typedef struct 
-{
-  PROTOCOL_Type_t protocol_type;
-  GET_DEV_VALUE_CALLBACK get_callback;
-  SET_DEV_VALUE_CALLBACK set_callback;
-}PROTOCOL_DECODE_CALLBACK_Typedef_t;
-
+                                                                       
 /** Exported constants -------------------------------------------------------*/
                                                                                 
 /** Exported macros-----------------------------------------------------------*/
 /** Exported variables -------------------------------------------------------*/
 /** Exported functions prototypes --------------------------------------------*/
 
-/*设备驱动初始化*/
-void device_driver_opt_init(void);     
-                                                                          
+/*通讯初始化*/
+void device_driver_com_init_port(void);  
+
+/*获得指定通讯口fd*/
+int device_driver_com_get_fd(PROTOCOL_Type_t protocol_type);
+
+/*向指定通讯口发送数据*/
+int device_driver_send_data_port(uint8_t *data, PROTOCOL_Type_t protocol_type);
+
+/*关闭指定通讯口*/
+int device_driver_com_close(PROTOCOL_Type_t protocol_type);
+
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               
 #endif                                                                          

@@ -33,6 +33,9 @@ extern "C" {
 /** Exported variables -------------------------------------------------------*/
 /** Exported functions prototypes --------------------------------------------*/
 
+/*注册设备驱动*/
+void register_device_driver(void);
+
 /*获取设备协议类型*/
 PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info);
 

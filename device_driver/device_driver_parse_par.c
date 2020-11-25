@@ -73,6 +73,9 @@ static int parse_private_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t 
 static int parse_event_par_update(toml_table_t *tab, DEV_INFO_Typedef_t *dev_info);
 static EVENT_REPORT_TIME_UNIT get_event_time_unit(const char *unit_name);
 static int get_event_interval(const char *interval_str, INTERVAL_TIME_Typedef_t *time_par);
+
+/*注册*/
+static void register_dev_distribution(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATION_PAR_Typedef_t *communication_par);
 /** Private variables --------------------------------------------------------*/
 static PARSE_COM_PAR_MAP_Typedef_t parse_com_par_map[] = 
 {
@@ -427,6 +430,7 @@ static int parse_event_par_update(toml_table_t *tab, DEV_INFO_Typedef_t *dev_inf
                                     }
                                     else
                                     {
+                                        dev_resource[i].enable_event_flag = true;
                                         dev_resource[i].interval_time = time_par.interval_time;
                                         dev_resource[i].unit = time_par.unit;
                                     }
@@ -440,6 +444,32 @@ static int parse_event_par_update(toml_table_t *tab, DEV_INFO_Typedef_t *dev_inf
         }
     }
     return 0;
+}
+
+/**
+ ******************************************************************
+ * @brief   注册设备
+ * @param   [in]None.
+ * @retval  成功toml_table_t *失败NULL
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-11-15
+ ******************************************************************
+ */
+static void register_dev_distribution(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATION_PAR_Typedef_t *communication_par)
+{
+    if(dev_info == NULL || communication_par == NULL)
+    {
+        return;
+    }
+    for(int index = 0; device_type_map[index].dev_type != DEV_TYPE_MAX; index++)
+    {
+        if(strcmp(dev_info->dev_type_name, device_type_map[index].type_name) == 0)
+        {
+            device_type_map[index].register_func(dev_info, communication_par);
+            return;
+        }
+    }
 }
 
 /**
@@ -552,7 +582,7 @@ static int parse_service_config(void)
         }
         
         /*分配注册*/
-
+        register_dev_distribution(&dev_info, &communication_par);
     }
 
     toml_free(conf);
@@ -616,6 +646,28 @@ DEVICE_Typedef_t get_device_type(DEV_INFO_Typedef_t *dev_info)
     }
     return DEV_TYPE_MAX;
 }
+
+/**
+ ******************************************************************
+ * @brief   注册设备驱动
+ * @param   [in]None.
+ * @retval  None.
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-11-25
+ ******************************************************************
+ */
+void register_device_driver(void)
+{
+    /*解析设备服务文件*/
+    int ret = parse_service_config();
+    if(ret != 0)
+    {
+        printf("decode device service file faild.\n");
+        exit(-1);
+    }
+}
+
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               
 #endif                                                                          

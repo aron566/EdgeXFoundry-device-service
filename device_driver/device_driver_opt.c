@@ -21,6 +21,8 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 #include "device_driver_opt.h"
 #include "device_driver_list.h"
+#include "device_driver_port.h"
+#include "device_driver_parse_par.h"
 /** Private typedef ----------------------------------------------------------*/
                                                               
 /** Private macros -----------------------------------------------------------*/
@@ -63,8 +65,11 @@ void device_driver_opt_init(void)
     /*初始化链表*/
     list_table_init();
 
+    /*通讯端口初始化*/
+    device_driver_com_init_port();
+
     /*注册设备驱动*/
-    register_device_driver
+    register_device_driver();
 
 }
 #ifdef __cplusplus ///<end extern c                                             

@@ -221,7 +221,7 @@ int temperature_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNI
   node.set_dev_value_callback = get_set_callback(communication_par->protocol_type);
 
   /*注册*/
-
+  list_push_front(&node, TEMPERATURE_DEV_TYPE);
   return 0;
 }   
 #ifdef __cplusplus ///<end extern c                                             

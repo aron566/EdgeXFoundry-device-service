@@ -28,9 +28,9 @@ extern "C" {
 typedef int (*PARSE_COM_PAR_FUNC)(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t *par);
 typedef struct 
 {
-	const char *const communication_name;   /**< 通讯名称*/
+    const char *const communication_name;   /**< 通讯名称*/
     PROTOCOL_Type_t protocol_type;          /**< 协议类型*/
-	PARSE_COM_PAR_FUNC parse_func;          /**< 解析通讯参数函数*/
+    PARSE_COM_PAR_FUNC parse_func;          /**< 解析通讯参数函数*/
 }PARSE_COM_PAR_MAP_Typedef_t;
 
 /*设备类型列表*/
@@ -76,26 +76,26 @@ static int get_event_interval(const char *interval_str, INTERVAL_TIME_Typedef_t 
 /** Private variables --------------------------------------------------------*/
 static PARSE_COM_PAR_MAP_Typedef_t parse_com_par_map[] = 
 {
-	{
-		.communication_name = "mqtt",
+    {
+        .communication_name = "mqtt",
         .protocol_type      = MQTT_PROTO,
-		.parse_func         = parse_mqtt_par
-	},
-	{
-		.communication_name = "modbus-rtu",
+        .parse_func         = parse_mqtt_par
+    },
+    {
+        .communication_name = "modbus-rtu",
         .protocol_type      = MODBUS_RTU_PROTO,
-		.parse_func         = parse_modbus_rtu_par
-	},
-	{
-		.communication_name = "private",
+        .parse_func         = parse_modbus_rtu_par
+    },
+    {
+        .communication_name = "private",
         .protocol_type      = PRIVATE_PROTO,
-		.parse_func         = parse_private_par
-	},
-	{
-		.communication_name = NULL,
+        .parse_func         = parse_private_par
+    },
+    {
+        .communication_name = NULL,
         .protocol_type      = UNKNOW_PROTO,
-		.parse_func         = NULL
-	},
+        .parse_func         = NULL
+    },
 };   
 
 /*设备类型映射*/
@@ -487,47 +487,47 @@ static toml_table_t* load_service_config(void)
  */
 static int parse_service_config(void)
 {
-	toml_table_t* conf = load_service_config();
+    toml_table_t* conf = load_service_config();
     if(conf == NULL)
     {
         printf("parse config file error.\n");
         return -1;
     }
 
-	/*查找配置中[[DeviceList]]的数组*/
-	toml_array_t* DeviceList = toml_array_in(conf, "DeviceList");
-	if (!DeviceList) 
-	{
-		fprintf(stderr, "ERROR: missing [DeviceList]\n");
-		return -1;
-	}
+    /*查找配置中[[DeviceList]]的数组*/
+    toml_array_t* DeviceList = toml_array_in(conf, "DeviceList");
+    if (!DeviceList) 
+    {
+        fprintf(stderr, "ERROR: missing [DeviceList]\n");
+        return -1;
+    }
 
 	/*轮询DeviceList数组中的表*/
     toml_table_t *array_of_tab = NULL;
-	toml_table_t *tab_of_array = NULL;
+    toml_table_t *tab_of_array = NULL;
     toml_array_t *sub_array_of_array = NULL;
     toml_table_t *tab_of_sub_array = NULL;
     const char* dev_name;
     const char* resource_name;
-	DEV_INFO_Typedef_t dev_info;
-	DEV_COMMUNICATION_PAR_Typedef_t communication_par;
+    DEV_INFO_Typedef_t dev_info;
+    DEV_COMMUNICATION_PAR_Typedef_t communication_par;
     DEV_DRIVER_INTERFACE_Typedef_t event_par;
-	int ret = 0;
-	for (int i = 0; 0 != (array_of_tab = toml_table_at(DeviceList, i)); i++) 
-	{
-		if(0 != (dev_name = toml_raw_in(array_of_tab, "Name")))
-		{
-			printf("Name = %s\n", dev_name);
-			ret = parse_dev_name(dev_name, &dev_info);
-			if(ret != 0)
-			{
-				printf("parse dev name error skip one.\n");
-				continue;
-			}
-		}
+    int ret = 0;
+    for (int i = 0; 0 != (array_of_tab = toml_table_at(DeviceList, i)); i++) 
+    {
+        if(0 != (dev_name = toml_raw_in(array_of_tab, "Name")))
+        {
+            printf("Name = %s\n", dev_name);
+            ret = parse_dev_name(dev_name, &dev_info);
+            if(ret != 0)
+            {
+                printf("parse dev name error skip one.\n");
+                continue;
+            }
+        }
 
-		/*找到表中的子表*/
-		/*解析协议参数*/
+        /*找到表中的子表*/
+        /*解析协议参数*/
         for(int index = 0; parse_com_par_map[index].parse_func != NULL; index++)
         {
             if(0 != (tab_of_array = toml_table_in(array_of_tab, parse_com_par_map[index].communication_name)))
@@ -555,8 +555,8 @@ static int parse_service_config(void)
 
     }
 
-	toml_free(conf);
-	return 0;
+    toml_free(conf);
+    return 0;
 }
 /** Public application code --------------------------------------------------*/
 /*******************************************************************************
@@ -577,10 +577,10 @@ static int parse_service_config(void)
  */
 PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info)
 {
-	if(dev_info == NULL)
-	{
-		return UNKNOW_PROTO;
-	}
+    if(dev_info == NULL)
+    {
+        return UNKNOW_PROTO;
+    }
     for(int index = 0; parse_com_par_map[index].protocol_type != UNKNOW_PROTO; index++)
     {
         if(strcmp(dev_info->protocol_str, parse_com_par_map[index].communication_name) == 0)
@@ -588,7 +588,7 @@ PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info)
             return parse_com_par_map[index].protocol_type;
         }
     }
-	return UNKNOW_PROTO;
+    return UNKNOW_PROTO;
 }
 
 /**
@@ -603,10 +603,10 @@ PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info)
  */
 DEVICE_Typedef_t get_device_type(DEV_INFO_Typedef_t *dev_info)
 {
-	if(dev_info == NULL)
-	{
-		return DEV_TYPE_MAX;
-	}
+    if(dev_info == NULL)
+    {
+        return DEV_TYPE_MAX;
+    }
     for(int index = 0; device_type_map[index].dev_type != DEV_TYPE_MAX; index++)
     {
         if(strcmp(dev_info->dev_type_name, device_type_map[index].type_name) == 0)
@@ -614,7 +614,7 @@ DEVICE_Typedef_t get_device_type(DEV_INFO_Typedef_t *dev_info)
             return device_type_map[index].dev_type;
         }
     }
-	return DEV_TYPE_MAX;
+    return DEV_TYPE_MAX;
 }
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

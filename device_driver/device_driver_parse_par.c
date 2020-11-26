@@ -347,7 +347,7 @@ static int get_event_interval(const char *interval_str, INTERVAL_TIME_Typedef_t 
         return -1;
     }
     char unit_name[8];
-    int ret = sscanf(interval_str, "%d%s", &time_par->interval_time, unit_name);
+    int ret = sscanf(interval_str, "%lu%s", &time_par->interval_time, unit_name);
     if(ret < 2)
     {
         printf("parse time unit error.\n");
@@ -538,10 +538,9 @@ static int parse_service_config(void)
     toml_array_t *sub_array_of_array = NULL;
     toml_table_t *tab_of_sub_array = NULL;
     const char* dev_name;
-    const char* resource_name;
     DEV_INFO_Typedef_t dev_info;
     DEV_COMMUNICATION_PAR_Typedef_t communication_par;
-    DEV_DRIVER_INTERFACE_Typedef_t event_par;
+
     int ret = 0;
     for (int i = 0; 0 != (array_of_tab = toml_table_at(DeviceList, i)); i++) 
     {

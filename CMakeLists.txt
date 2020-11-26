@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.4.1)
 project(custom-device VERSION 1.0.0 LANGUAGES C)
 
 set(TARGETS "custom-device")
-set(INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} "/home/aron566/Workspace/C_SDK/device-sdk-c/include")
 set(LIB_DIRS "/home/aron566/Workspace/C_SDK/device-sdk-c/build/release/_CPack_Packages/Linux/TGZ/csdk-1.3.0/lib")
 set(LIBNAMES "csdk" "service_component" "device_driver")
 set(APP_LINK_LIBS "csdk" "device_driver")
 set(SUBDIRS "service_component" "devices_service" "device_driver")
+set(INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} "/home/aron566/Workspace/C_SDK/device-sdk-c/include" ${SUBDIRS})
 
 set(CMAKE_C_FLAGS "-Wall")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -O0 -g -ggdb")

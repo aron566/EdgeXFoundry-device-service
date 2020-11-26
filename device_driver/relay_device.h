@@ -21,11 +21,9 @@ extern "C" {
 #include <stdio.h>  /**< if need printf             */                          
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
-/** Private includes ---------------------------------------------------------*/
-#include "devsdk/devsdk.h"    
+/** Private includes ---------------------------------------------------------*/ 
 #include "service_component/custom-common.h"
-#include "device_driver_list_config.h"
-#include "device_driver_opt.h"                                      
+#include "device_driver_list_config.h"                                    
 /** Private defines ----------------------------------------------------------*/
                                                                     
 /** Exported typedefines -----------------------------------------------------*/

@@ -1,4 +1,5 @@
 aux_source_directory(. DIR_SRCS)
+include_directories(.)
 
 string(REGEX REPLACE ".*/(.*)" "\\1" LIB_NAME ${CMAKE_CURRENT_SOURCE_DIR}) 
 
@@ -9,7 +10,7 @@ if (DIR_SRCS)
 
             add_library(${libname} SHARED ${DIR_SRCS})
 
-            target_link_libraries(${libname} "csdk")
+            target_link_libraries(${libname} "service_component")
         endif()
     endforeach()
 

@@ -104,7 +104,7 @@ void list_add_to_list(NODE_Typedef_t *node ,LIST_Type_t type)
   * @date    2020-11-12
   ******************************************************************
   */
-void list_push_back(NODE_Typedef_t *node ,LIST_Type_t type)
+void list_push_back(NODE_TYPE_STRUCT *node ,LIST_Type_t type)
 {
     if(type >= LIST_TYPE_MAX || type < 0)
     {
@@ -139,7 +139,7 @@ void list_push_back(NODE_Typedef_t *node ,LIST_Type_t type)
   * @date    2020-11-12
   ******************************************************************
   */
-void list_push_front(NODE_Typedef_t *node ,LIST_Type_t type)
+void list_push_front(NODE_TYPE_STRUCT *node ,LIST_Type_t type)
 {
     if(type >= LIST_TYPE_MAX || type < 0)
     {
@@ -164,7 +164,7 @@ void list_push_front(NODE_Typedef_t *node ,LIST_Type_t type)
   * @date    2020-11-12
   ******************************************************************
   */
-void list_insert_node(NODE_Typedef_t *node ,LIST_Type_t type ,int index)
+void list_insert_node(NODE_TYPE_STRUCT *node ,LIST_Type_t type ,int index)
 {
     if(type >= LIST_TYPE_MAX || type < 0)
     {

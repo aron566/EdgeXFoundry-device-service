@@ -116,7 +116,7 @@ int device_driver_com_get_fd(PROTOCOL_Type_t protocol_type)
   */
 int device_driver_send_data_port(uint8_t *data, PROTOCOL_Type_t protocol_type)
 {
-    
+    return 0;
 }
 
 /**

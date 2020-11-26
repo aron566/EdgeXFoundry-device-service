@@ -23,7 +23,7 @@ extern "C" {
 #include <string.h>      
 #include <stdarg.h>                                                       
 /** Private includes ---------------------------------------------------------*/
-                                                                                
+#include "../device_driver/device_driver_opt.h"                                                                                
 /** Private defines ----------------------------------------------------------*/
                                                                       
 /** Exported typedefines -----------------------------------------------------*/

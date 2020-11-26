@@ -81,6 +81,10 @@ static bool custom_device_init(void * impl, struct iot_logger_t * lc, const iot_
 {
   custom_device_driver * driver = (custom_device_driver *)impl;
   driver->lc = lc;
+
+  /*初始化设备驱动*/
+  device_driver_opt_init(); 
+  
   return true;
 }
 

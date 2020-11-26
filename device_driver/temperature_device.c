@@ -20,6 +20,7 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 #include "temperature_device.h"
 #include "device_driver_list.h"
+#include "device_driver_parse_par.h"
 /** Private typedef ----------------------------------------------------------*/
 
 /** Private macros -----------------------------------------------------------*/
@@ -81,7 +82,9 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
 /** Public variables ---------------------------------------------------------*/
 /** Private function prototypes ----------------------------------------------*/
 static void get_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t type);
-static void set_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t type);   
+static void set_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t type);
+static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type);
+static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);   
 /** Private variables --------------------------------------------------------*/
 /*协议解析回调映射*/
 static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] = 
@@ -159,6 +162,59 @@ static void set_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t 
   * @date    2020-11-9
   ******************************************************************
   */
+
+
+/**
+  ******************************************************************
+  * @brief   分配协议解析器-set
+  * @param   [in]protocol_type 协议类型
+  * @retval  解析器.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-11-24
+  ******************************************************************
+  */
+static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type)
+{
+  if(protocol_type == UNKNOW_PROTO)
+  {
+      return NULL;
+  }
+  for(int index = 0; protocol_decoder_map[index].protocol_type != UNKNOW_PROTO; index++)
+  {
+    if(protocol_type == protocol_decoder_map[index].protocol_type)
+    {
+      return protocol_decoder_map[index].set_callback;
+    }
+  }
+  return NULL;
+}
+
+/**
+  ******************************************************************
+  * @brief   分配协议解析器-get
+  * @param   [in]protocol_type 协议类型
+  * @retval  解析器.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-11-24
+  ******************************************************************
+  */
+static SET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type)
+{
+  if(protocol_type == UNKNOW_PROTO)
+  {
+      return NULL;
+  }
+  for(int index = 0; protocol_decoder_map[index].protocol_type != UNKNOW_PROTO; index++)
+  {
+    if(protocol_type == protocol_decoder_map[index].protocol_type)
+    {
+      return protocol_decoder_map[index].get_callback;
+    }
+  }
+  return NULL;
+}
 /** Public application code --------------------------------------------------*/
 /*******************************************************************************
 *                                                                               
@@ -176,9 +232,9 @@ static void set_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t 
   * @date    2020-11-09
   ******************************************************************
   */
-iot_data_t *get_temperature_device_value(const char *dev_name, const char *req_param)
+void *get_temperature_device_value(const char *dev_name, const char *req_param)
 {
-
+  return NULL;
 }
 
 /**

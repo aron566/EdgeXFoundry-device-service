@@ -20,6 +20,7 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 #include "relay_device.h"
 #include "device_driver_list.h"
+#include "device_driver_parse_par.h"
 /** Private typedef ----------------------------------------------------------*/
 
 /** Private macros -----------------------------------------------------------*/

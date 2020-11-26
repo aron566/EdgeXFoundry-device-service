@@ -61,13 +61,13 @@ NODE_TYPE_STRUCT *list_find_node(LIST_Type_t type ,MAJOR_KEY_1 major_key_1, MAJO
 int list_get_size(LIST_Type_t type);
 
 /*插入数据到链表*/
-void list_insert_node(NODE_Typedef_t *node ,LIST_Type_t type ,int index);
+void list_insert_node(NODE_TYPE_STRUCT *node ,LIST_Type_t type ,int index);
 
 /*加入数据到链表头部*/
-void list_push_front(NODE_Typedef_t *node ,LIST_Type_t type);
+void list_push_front(NODE_TYPE_STRUCT *node ,LIST_Type_t type);
 
 /*加入数据到链表尾部*/
-void list_push_back(NODE_Typedef_t *node ,LIST_Type_t type);
+void list_push_back(NODE_TYPE_STRUCT *node ,LIST_Type_t type);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

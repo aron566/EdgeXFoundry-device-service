@@ -22,7 +22,10 @@ extern "C" {
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
-#include "3third_party/tomlc99/toml.h"                                                                                
+#include "devsdk/devsdk.h"
+#include "3third_party/tomlc99/toml.h"
+#include "3third_party/libyaml/yaml.h"
+#include "3third_party/libuv/include/uv.h"                         
 /** Private defines ----------------------------------------------------------*/
                                                                       
 /** Exported typedefines -----------------------------------------------------*/

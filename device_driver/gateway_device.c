@@ -327,6 +327,7 @@ int gateway_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATI
 
   /*注册*/
   list_push_front(&node, GATEWAY_DEV_TYPE);
+  printf("gatway device register.\n");
   return 0;
 }
 #ifdef __cplusplus ///<end extern c                                             

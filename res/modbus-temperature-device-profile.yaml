@@ -1,7 +1,7 @@
-name: "modbus_temperature_device_profile_common"
+name: "modbus_temperature_device_profile"
 manufacturer: "IoTechSystems"
-model: "IoT4"
-description: "Temperature & Humidity Device Profile Common"
+model: "IoT6"
+description: "Temperature & Humidity Device Profile"
 labels:
   - "temperature_sensor"
   - "modbus_protocol"
@@ -14,9 +14,9 @@ deviceResources:
       { parameter: "temperature" }
     properties:
       value:
-      { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "100.00", maximum: "0.00", floatEncoding: "Base64" }
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
       units:
-      { type: "String", readWrite: "R", defaultValue: "-99.99" }
+       { defaultValue: "-999.9" }
   -
     name: humidity
     description: "humidity realtime value"
@@ -24,9 +24,49 @@ deviceResources:
       { parameter: "humidity" }
     properties:
       value:
-      { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "100.00", maximum: "0.00", floatEncoding: "Base64" }
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
       units:
-      { type: "String", readWrite: "R", defaultValue: "-99.99" }
+       { defaultValue: "-999.9" }
+  -
+    name: humiditymin
+    description: "humidity min value"
+    attributes:
+      { parameter: "humiditymin" }
+    properties:
+      value:
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
+      units:
+       { defaultValue: "-999.9" }
+  -
+    name: temperaturemin
+    description: "temperature min value"
+    attributes:
+      { parameter: "temperaturemin" }
+    properties:
+      value:
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
+      units:
+       { defaultValue: "-999.9" }
+  -
+    name: humiditymax
+    description: "humidity max value"
+    attributes:
+      { parameter: "humiditymax" }
+    properties:
+      value:
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
+      units:
+       { defaultValue: "-999.9" }
+  -
+    name: temperaturemax
+    description: "temperature max value"
+    attributes:
+      { parameter: "temperaturemax" }
+    properties:
+      value:
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
+      units:
+       { defaultValue: "-999.9" }
 
 deviceCommands:
   -
@@ -34,7 +74,15 @@ deviceCommands:
     get:
       - { deviceResource: "temperature" }
       - { deviceResource: "humidity" }
-
+      - { deviceResource: "temperaturemin" }
+      - { deviceResource: "humiditymin" }
+      - { deviceResource: "temperaturemax" }
+      - { deviceResource: "humiditymax" }
+    set:
+      - { deviceResource: "temperaturemin" }
+      - { deviceResource: "humiditymin" }
+      - { deviceResource: "temperaturemax" }
+      - { deviceResource: "humiditymax" }
 coreCommands:
   -
     name: modbus_temperature_device
@@ -43,7 +91,17 @@ coreCommands:
       responses:
       - code: "200"
         description: "Successfully read the modbus_temperature_device sensors."
-        expectedValues: [ "temperature", "humidity" ]
+        expectedValues: [ "temperature", "humidity", "temperaturemin", "humiditymin", "temperaturemax", "humiditymax" ]
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+    put:
+      path: "/api/v1/device/{deviceId}/modbus_temperature_device"
+      parameterNames: [ "temperaturemin", "humiditymin", "temperaturemax", "humiditymax" ]
+      responses:
+      - code: "200"
+        description: "Successfully set the temperaturemin and humiditymin."
+        expectedValues: []
       - code: "503"
         description: "service unavailable"
         expectedValues: []

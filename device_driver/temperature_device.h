@@ -12,7 +12,7 @@
 #ifndef TEMPERATURE_DEVICE_H                                                          
 #define TEMPERATURE_DEVICE_H                                                          
 #ifdef __cplusplus ///<use C compiler                                           
-extern "C" {                                                                   
+extern "C" {
 #endif                                                                          
 /** Includes -----------------------------------------------------------------*/
 #include <stdint.h> /**< need definition of uint8_t */                          

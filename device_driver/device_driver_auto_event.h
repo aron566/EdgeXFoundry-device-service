@@ -22,7 +22,7 @@ extern "C" {
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
-
+#include "../service_component/custom-common.h"
 /** Private defines ----------------------------------------------------------*/
 
 /** Exported typedefines -----------------------------------------------------*/
@@ -32,6 +32,9 @@ extern "C" {
 /** Exported macros-----------------------------------------------------------*/
 /** Exported variables -------------------------------------------------------*/
 /** Exported functions prototypes --------------------------------------------*/
+
+/*事件检测轮询启动*/
+int device_driver_event_report_handler_start(void);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

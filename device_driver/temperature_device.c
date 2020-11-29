@@ -278,6 +278,7 @@ int temperature_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNI
 
   /*注册*/
   list_push_front(&node, TEMPERATURE_DEV_TYPE);
+  printf("temperature device register.\n");
   return 0;
 }   
 #ifdef __cplusplus ///<end extern c                                             

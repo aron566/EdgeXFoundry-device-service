@@ -42,6 +42,9 @@ PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info);
 /*获取设备类型*/
 DEVICE_Typedef_t get_device_type(DEV_INFO_Typedef_t *dev_info);  
 
+/*解析设备名包含的信息*/
+int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info);
+
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               
 #endif                                                                          

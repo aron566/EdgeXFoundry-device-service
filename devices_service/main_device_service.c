@@ -27,6 +27,7 @@ extern "C" {
 #include "devsdk/devsdk.h"
 #include "main_device_service.h"
 /** Private typedef ----------------------------------------------------------*/
+
 typedef struct custom_device_driver
 {
   iot_logger_t * lc;
@@ -83,8 +84,8 @@ static bool custom_device_init(void * impl, struct iot_logger_t * lc, const iot_
   driver->lc = lc;
 
   /*初始化设备驱动*/
-  device_driver_opt_init(); 
-  
+  device_driver_opt_init(lc, config);
+
   return true;
 }
 
@@ -110,42 +111,27 @@ static bool custom_device_get_handler(
   const devsdk_nvpairs * qparams,         /**< 请求的附加参数*/
   iot_data_t ** exception)                /**< 返回请求结果说明信息*/
 {
-  custom_device_driver * driver = (custom_device_driver *) impl;
-  char * buff;
+  int ret = 0;
+  const char *param;
 
-  for (uint32_t i = 0; i < nreadings; i++)
+  custom_device_driver * driver = (custom_device_driver *) impl;
+
+  for(uint32_t i = 0; i < nreadings; i++)
   {
     /*获取GET参数*/
-    const char * param = devsdk_nvpairs_value (requests[i].attributes, "parameter");
-    if (param == NULL)
+    /*参数来自.yaml中deviceResources列表中attributes项parameter键值*/
+    param = devsdk_nvpairs_value (requests[i].attributes, "parameter");
+    if(param == NULL)
     {
       iot_log_error (driver->lc, ERR_CUSTOM_DEVICE_NO_PARAM);
       * exception = iot_data_alloc_string (ERR_CUSTOM_DEVICE_NO_PARAM, IOT_DATA_REF);
       return false;
     }
 
-    /*参数来自.yaml中deviceResources列表中attributes项parameter键值*/
-
-    if (strcmp (param, "xrot") == 0)
+    ret = device_driver_opt_get(devname, param, &readings[i], driver->lc);
+    if(ret != 0)
     {
-      // readings[i].value = iot_data_alloc_i32 ((random () % 501) - 250);
-    // }
-    // else if (strcmp (param, "yrot") == 0)
-    // {
-    //   readings[i].value = iot_data_alloc_i32 ((random () % 501) - 250);
-    // }
-    // else if (strcmp (param, "zrot") == 0)
-    // {
-    //   readings[i].value = iot_data_alloc_i32 ((random () % 501) - 250);
-      
-    }
-    else
-    {
-      buff = malloc (ERR_BUFSZ);
-      snprintf (buff, ERR_BUFSZ, "Unknown parameter %s requested", param);
-      iot_log_error (driver->lc, buff);
-      * exception = iot_data_alloc_string (buff, IOT_DATA_TAKE);
-      return false;
+      iot_log_error(driver->lc, "get dev: %s par: error.", devname, param);
     }
   }
   return true;
@@ -171,10 +157,30 @@ static bool custom_device_put_handler(
   const iot_data_t * values[],
   iot_data_t ** exception)
 {
+  int ret = 0;
+  const char *param;
+
   custom_device_driver * driver = (custom_device_driver *) impl;
-  iot_log_error (driver->lc, ERR_CUSTOM_DEVICE_WRITE);
-  * exception = iot_data_alloc_string (ERR_CUSTOM_DEVICE_WRITE, IOT_DATA_REF);
-  return false;
+ 
+  for(uint32_t i = 0; i < nvalues; i++)
+  {
+    param = devsdk_nvpairs_value (requests[i].attributes, "parameter");
+    if(param == NULL)
+    {
+      iot_log_error (driver->lc, ERR_CUSTOM_DEVICE_NO_PARAM);
+      * exception = iot_data_alloc_string (ERR_CUSTOM_DEVICE_NO_PARAM, IOT_DATA_REF);
+      continue;
+    }
+
+    /*设置请求*/
+    ret = device_driver_opt_set(devname, param, values[i], driver->lc);
+    if(ret != 0)
+    {
+      iot_log_error(driver->lc, "set dev: %s par: error.", devname, param);
+    }
+    
+  }
+  return true;
 }
 
 /**
@@ -184,7 +190,9 @@ static bool custom_device_put_handler(
  */
 static void custom_device_reconfigure(void *impl, const iot_data_t *config)
 {
+  custom_device_driver * driver = (custom_device_driver *) impl;
 
+  device_driver_opt_reconfigure(driver->lc, config);
 }
 
 /**
@@ -194,7 +202,9 @@ static void custom_device_reconfigure(void *impl, const iot_data_t *config)
  */
 static void custom_device_discover(void *impl) 
 {
+  custom_device_driver * driver = (custom_device_driver *) impl;
 
+  device_driver_opt_discover(driver->lc);
 }
 
 /**
@@ -202,9 +212,12 @@ static void custom_device_discover(void *impl)
  * @param impl The context data passed in when the service was created.
  * @param force A 'force' stop has been requested. An unclean shutdown may be performed if necessary.
  */
-static void custom_device_stop(void * impl, bool force)
+static void custom_device_stop(void *impl, bool force)
 {
   /* Stop performs any final actions before the device service is terminated */
+  custom_device_driver * driver = (custom_device_driver *) impl;
+
+  device_driver_opt_stop(driver->lc, force);
 }
 
 /** Public application code --------------------------------------------------*/

@@ -56,13 +56,11 @@ typedef struct
     EVENT_REPORT_TIME_UNIT unit;    /**< 事件上报时基*/
 }EVENT_TIME_UNIT_MAP_Typedef_t;                                                               
 /** Private macros -----------------------------------------------------------*/
-#define SERVICE_CONFIG_FILE "res/configuration.toml"                                                                                
+#define SERVICE_CONFIG_FILE "res/configuration.toml"
 /** Private constants --------------------------------------------------------*/
 /** Public variables ---------------------------------------------------------*/
                                                                                
 /** Private function prototypes ----------------------------------------------*/
-/*解析设备名包含的信息*/
-static int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info);
 
 /*解析配置中通讯参数*/
 static int parse_mqtt_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t *par);
@@ -274,34 +272,6 @@ static int parse_private_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t 
         printf("cmd = %s\n", raw);
     }
     return 0;
-}
-
-/**
- ******************************************************************
- * @brief   解析设备名包含的信息
- * @param   [in]dev_name 设备完整名
- * @param   [out]dev_info 设备解析结构信息存储区
- * @retval  解析正确返回0，错误-1
- * @author  aron566
- * @version V1.0
- * @date    2020-11-09
- ******************************************************************
- */
-static int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info)
-{
-    // （协议-位置信息(应包含上级网关信息+地理位置)-设备名(可重复，形式：xxx_device)-地址号或者序号(同名设备不可重复)）
-    /*解析设备通讯协议*/
-    int ret = sscanf(dev_name, "'%[^-]-%[^-]-%[^-]-%[^']'", dev_info->protocol_str, 
-                    dev_info->location_str, dev_info->dev_type_name, dev_info->dev_address);
-    if(ret != 4)
-    {
-        printf("parse dev_name error.\r\n");
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
 }
 
 /**
@@ -537,23 +507,25 @@ static int parse_service_config(void)
     toml_table_t *tab_of_array = NULL;
     toml_array_t *sub_array_of_array = NULL;
     toml_table_t *tab_of_sub_array = NULL;
-    const char* dev_name;
+    toml_datum_t dev_name;
     DEV_INFO_Typedef_t dev_info;
     DEV_COMMUNICATION_PAR_Typedef_t communication_par;
 
     int ret = 0;
     for (int i = 0; 0 != (array_of_tab = toml_table_at(DeviceList, i)); i++) 
     {
-        if(0 != (dev_name = toml_raw_in(array_of_tab, "Name")))
+        dev_name = toml_string_in(array_of_tab, "Name");
+        if(dev_name.ok)
         {
-            printf("Name = %s\n", dev_name);
-            ret = parse_dev_name(dev_name, &dev_info);
+            printf("Name = %s\n", dev_name.u.s);
+            ret = parse_dev_name(dev_name.u.s, &dev_info);
             if(ret != 0)
             {
                 printf("parse dev name error skip one.\n");
                 continue;
             }
         }
+        free(dev_name.u.s);
 
         /*找到表中的子表*/
         /*解析协议参数*/
@@ -644,6 +616,34 @@ DEVICE_Typedef_t get_device_type(DEV_INFO_Typedef_t *dev_info)
         }
     }
     return DEV_TYPE_MAX;
+}
+
+/**
+ ******************************************************************
+ * @brief   解析设备名包含的信息
+ * @param   [in]dev_name 设备完整名
+ * @param   [out]dev_info 设备解析结构信息存储区
+ * @retval  解析正确返回0，错误-1
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-11-09
+ ******************************************************************
+ */
+int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info)
+{
+    // （协议-位置信息(应包含上级网关信息+地理位置)-设备名(可重复，形式：xxx_device)-地址号或者序号(同名设备不可重复)）
+    /*解析设备通讯协议*/
+    int ret = sscanf(dev_name, "%[^-]-%[^-]-%[^-]-%s", dev_info->protocol_str, 
+                    dev_info->location_str, dev_info->dev_type_name, dev_info->dev_address);
+    if(ret != 4)
+    {
+        printf("parse dev_name error.\r\n");
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 /**

@@ -1,5 +1,5 @@
 [Service]
-  Port = 50000
+  Port = 50001
   Timeout = 5000
   ConnectRetries = 10
   Labels = [ 'MQTT_Protocol' ,'MODBUS_Protocol' ]
@@ -25,8 +25,32 @@
   LogLevel = 'DEBUG'
 
 [[DeviceList]]
-  Name = 'modbus-01_hangzhou-temperature_device-1'
-  Profile = 'modbus_temperature_device_profile_common'
+  Name = 'mqtt-gateway_01_hangzhou-gateway_device-1'
+  Profile = 'mqtt_gateway_device_profile'
+  Description = 'An gatway device'
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.mqtt]
+      Schema = 'tcp'
+      Host = 'localhost'
+      Port = 1883
+      User = ''
+      Password = ''
+      ClientId = 1
+      Topic = ''
+      SubTopic = 'subcribe_test'
+      PubTopic = 'publish_test'
+  [[DeviceList.AutoEvents]]
+    Resource = 'temperature'
+    OnChange = false
+    Frequency = '10s'
+  [[DeviceList.AutoEvents]]
+    Resource = 'run_state'
+    OnChange = true
+    Frequency = '15000ms'
+
+[[DeviceList]]
+  Name = 'modbus_rtu-gateway_01_hangzhou-temperature_device-1'
+  Profile = 'modbus_temperature_device_profile'
   Description = 'An temperature device'
   [DeviceList.Protocols]
     [DeviceList.Protocols.modbus-rtu]
@@ -46,8 +70,8 @@
     Frequency = '15000ms'
 
 [[DeviceList]]
-  Name = 'modbus-01_hangzhou-temperature_device-2'
-  Profile = 'modbus_temperature_device_profile_common'
+  Name = 'modbus_rtu-gateway_01_hangzhou-temperature_device-2'
+  Profile = 'modbus_temperature_device_profile'
   Description = 'An temperature device'
   [DeviceList.Protocols]
     [DeviceList.Protocols.modbus-rtu]

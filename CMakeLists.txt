@@ -9,7 +9,7 @@ set(APP_LINK_LIBS "csdk" "device_driver")
 set(SUBDIRS "service_component" "devices_service" "device_driver")
 set(INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} "/home/aron566/Workspace/C_SDK/device-sdk-c/include" ${SUBDIRS})
 
-set(CMAKE_C_FLAGS "-Wall")
+set(CMAKE_C_FLAGS "-Wall -fPIC")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -O0 -g -ggdb")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O3 -DNDEBUG")
 

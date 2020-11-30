@@ -25,7 +25,10 @@ extern "C" {
 #include "devsdk/devsdk.h"
 #include "3third_party/tomlc99/toml.h"
 #include "3third_party/libyaml/yaml.h"
-#include "3third_party/libuv/include/uv.h"                         
+#include "3third_party/libuv/include/uv.h"
+#include "custom-common-utilities.h"
+#include "custom-common-file.h"    
+#include "custom-common-crc.h"               
 /** Private defines ----------------------------------------------------------*/
                                                                       
 /** Exported typedefines -----------------------------------------------------*/

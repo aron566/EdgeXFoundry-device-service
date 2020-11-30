@@ -1,5 +1,5 @@
 [Service]
-  Port = 50001
+  Port = 50000
   Timeout = 5000
   ConnectRetries = 10
   Labels = [ 'MQTT_Protocol' ,'MODBUS_Protocol' ]
@@ -47,7 +47,7 @@
     Resource = 'run_state'
     OnChange = true
     Frequency = '15000ms'
-
+    
 [[DeviceList]]
   Name = 'modbus_rtu-gateway_01_hangzhou-temperature_device-1'
   Profile = 'modbus_temperature_device_profile'

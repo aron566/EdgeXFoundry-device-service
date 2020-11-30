@@ -32,6 +32,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
     .par_name               = "r_service_ver",
     .command                = 0x03,
     .command_addr           = 0x0000,
+    .value_type             = STRING,
     .permissions            = READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -42,6 +43,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
     .par_name               = "r_driver_ver",
     .command                = 0x03,
     .command_addr           = 0x0001,
+    .value_type             = STRING,
     .permissions            = READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -52,6 +54,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
     .par_name               = "rw_driver",
     .command                = 0x03|0x10,
     .command_addr           = 0x0002,
+    .value_type             = STRING,
     .permissions            = READ_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -61,7 +64,8 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
   {         
     .par_name               = "rw_service_config",
     .command                = 0x03|0x10,
-    .command_addr           = 0x0002,
+    .command_addr           = 0x0003,
+    .value_type             = STRING,
     .permissions            = READ_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -71,7 +75,8 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
   {         
     .par_name               = NULL,
     .command                = 0x00,
-    .command_addr           = 0x0000,
+    .command_addr           = 0x0004,
+    .value_type             = STRING,
     .permissions            = UNKNOW,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -82,8 +87,8 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
 /** Public variables ---------------------------------------------------------*/
                                                                                 
 /** Private function prototypes ----------------------------------------------*/
-static void get_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t type);
-static void set_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t type);   
+static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
+static void set_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);   
 static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type);
 static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);              
 /** Private variables --------------------------------------------------------*/
@@ -132,7 +137,7 @@ static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] =
   * @date    2020-11-13
   ******************************************************************
   */
-static void get_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t type)
+static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
 {
 
 }
@@ -149,7 +154,7 @@ static void get_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t 
   * @date    2020-11-13
   ******************************************************************
   */
-static void set_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t type)
+static void set_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
 {
 
 } 

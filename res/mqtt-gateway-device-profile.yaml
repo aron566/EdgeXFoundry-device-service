@@ -1,0 +1,218 @@
+name: "mqtt_gateway_device_profile"
+manufacturer: "IoTechSystems"
+model: "IoT6"
+description: "Gateway Device Profile"
+labels:
+  - "Gateway"
+
+deviceResources:
+  -
+    name: temperature
+    description: "temperature realtime value"
+    attributes:
+      { parameter: "temperature" }
+    properties:
+      value:
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
+      units:
+       { defaultValue: "-999.9" }
+  -
+    name: run_state
+    description: "run state:update running stoped closed "
+    attributes:
+      { parameter: "run_state" }
+    properties:
+      value:
+       { type: "int32", size: "4", readWrite: "RW", defaultValue: "0", minimum: "0", maximum: "4" }
+      units:
+       { defaultValue: "0" }
+  -
+    name: update_progress
+    description: "device upgrade progress"
+    attributes:
+      { parameter: "update_progress" }
+    properties:
+      value:
+       { type: "int32", size: "4", readWrite: "R", defaultValue: "0", minimum: "0", maximum: "100" }
+      units:
+       { defaultValue: "0" }
+  -
+    name: temperaturemax
+    description: "temperature max value"
+    attributes:
+      { parameter: "temperaturemax" }
+    properties:
+      value:
+       { type: "Float32", size: "4", readWrite: "RW", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
+      units:
+       { defaultValue: "-999.9" }
+  -
+    name: upgrade_file
+    description: "The device driver upgrade file"
+    properties:
+        value:
+            { type: "binary", readWrite: "W", mediaType: "text/plain" }
+        units:
+            { defaultValue: "data" }
+  -
+    name: cmd
+    description: "The name of an activation command"
+    attributes:
+      { parameter: "cmd" }
+    properties:
+      value:
+        { type: "string", readWrite: "W" }
+      units:
+        { defaultValue: "text" }
+  -
+    name: version
+    description: "The software version"
+    attributes:
+      { parameter: "version" }
+    properties:
+      value:
+        { type: "string", readWrite: "R" }
+      units:
+        { defaultValue: "text" }
+
+
+deviceCommands:
+  -
+    name: gateway_temperature
+    get:
+      - { deviceResource: "temperature" }
+      - { deviceResource: "temperaturemax" }
+    set:
+      - { deviceResource: "run_state" }
+      - { deviceResource: "upgrade_file" }
+      - { deviceResource: "cmd" }
+      - { deviceResource: "temperaturemax" }
+
+coreCommands:
+  -
+    name: gateway_temperature
+    get:
+      path: "/api/v1/device/{deviceId}/gateway_temperature"
+      responses:
+      - code: "200"
+        description: "Successfully read the Gateway temperature parameter."
+        expectedValues: [ "temperature", "temperaturemax" ]
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+    put:
+      path: "/api/v1/device/{deviceId}/mqtt_gateway_device"
+      parameterNames: [ "run_state", "upgrade_file", "cmd", "temperaturemax" ]
+      responses:
+      - code: "200"
+        description: "Successfully set the Gateway parameter."
+        expectedValues: []
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+  -
+    name: temperature
+    get:
+      path: "/api/v1/device/{deviceId}/temperature"
+      responses:
+        -
+          code: "200"
+          description: "Get the temperature reading."
+          expectedValues: ["temperature"]
+        -
+          code: "503"
+          description: "service unavailable"
+          expectedValues: []
+  -
+    name: update_progress
+    get:
+      path: "/api/v1/device/{deviceId}/update_progress"
+      responses:
+        -
+          code: "200"
+          description: "Get the update_progress reading."
+          expectedValues: ["update_progress"]
+        -
+          code: "503"
+          description: "service unavailable"
+          expectedValues: []
+  -
+    name: version
+    get:
+      path: "/api/v1/device/{deviceId}/version"
+      responses:
+        -
+          code: "200"
+          description: "Get the version reading."
+          expectedValues: ["version"]
+        -
+          code: "503"
+          description: "service unavailable"
+          expectedValues: []
+  -
+    name: run_state
+    get:
+      path: "/api/v1/device/{deviceId}/run_state"
+      responses:
+      - code: "200"
+        description: "Get the run_state value."
+        expectedValues: ["run_state"]
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+    put:
+      path: "/api/v1/device/{deviceId}/run_state"
+      parameterNames: ["run_state"]
+      responses:
+      - code: "200"
+        description: "Successfully set the run_state value."
+        expectedValues: []
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+  -
+    name: upgrade_file
+    put:
+      path: "/api/v1/device/{deviceId}/upgrade_file"
+      parameterNames: ["upgrade_file"]
+      responses:
+      - code: "200"
+        description: "Successfully set the upgrade_file value."
+        expectedValues: []
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+  -
+    name: cmd
+    put:
+      path: "/api/v1/device/{deviceId}/cmd"
+      parameterNames: ["cmd"]
+      responses:
+      - code: "200"
+        description: "Successfully set the cmd value."
+        expectedValues: []
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+  -
+    name: temperaturemax
+    get:
+      path: "/api/v1/device/{deviceId}/temperaturemax"
+      responses:
+      - code: "200"
+        description: "Get the temperaturemax value."
+        expectedValues: ["temperaturemax"]
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+    put:
+      path: "/api/v1/device/{deviceId}/temperaturemax"
+      parameterNames: ["temperaturemax"]
+      responses:
+      - code: "200"
+        description: "Successfully set the temperaturemax value."
+        expectedValues: []
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+

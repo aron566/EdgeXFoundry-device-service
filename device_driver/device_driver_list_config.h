@@ -85,8 +85,8 @@ typedef struct
 }DEV_COMMUNICATION_PAR_Typedef_t;
 
 /*设备驱动同一接口*/
-typedef void (*GET_DEV_VALUE_CALLBACK)(void *input_data, void *out_data, VALUE_Type_t type);/**< 设备读取接口*/
-typedef void (*SET_DEV_VALUE_CALLBACK)(void *input_data, void *out_data, VALUE_Type_t type);/**< 设备设置接口*/
+typedef void (*GET_DEV_VALUE_CALLBACK)(const void *input_data, void *out_data, VALUE_Type_t *type);/**< 设备读取接口*/
+typedef void (*SET_DEV_VALUE_CALLBACK)(const void *input_data, void *out_data, VALUE_Type_t *type);/**< 设备设置接口*/
 typedef struct dev_node_func { 
     GET_DEV_VALUE_CALLBACK get_dev_value_callback;/**< 设备读取接口*/
     SET_DEV_VALUE_CALLBACK set_dev_value_callback;/**< 设备设置接口*/
@@ -131,6 +131,7 @@ typedef struct
     const char *const par_name;         /**< 设备服务名称*/
     uint8_t command;                    /**< 设备控制命令*/
     uint16_t command_addr;              /**< 设备参数地址*/
+    VALUE_Type_t value_type;            /**< 返回值类型*/
     PERMISSIONS_TYPE permissions;       /**< 命令权限*/
     bool enable_event_flag;             /**< 开始事件标识*/
     bool enable_on_change_flag;         /**< 数值改变时事件上报*/

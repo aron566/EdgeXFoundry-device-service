@@ -14,7 +14,7 @@ deviceResources:
       { parameter: "temperature" }
     properties:
       value:
-       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
        { defaultValue: "-999.9" }
   -
@@ -24,7 +24,7 @@ deviceResources:
       { parameter: "humidity" }
     properties:
       value:
-       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
        { defaultValue: "-999.9" }
   -
@@ -34,7 +34,7 @@ deviceResources:
       { parameter: "humiditymin" }
     properties:
       value:
-       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
+       { type: "Float32", size: "4", readWrite: "RW", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
        { defaultValue: "-999.9" }
   -
@@ -44,7 +44,7 @@ deviceResources:
       { parameter: "temperaturemin" }
     properties:
       value:
-       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
+       { type: "Float32", size: "4", readWrite: "RW", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
        { defaultValue: "-999.9" }
   -
@@ -54,7 +54,7 @@ deviceResources:
       { parameter: "humiditymax" }
     properties:
       value:
-       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
+       { type: "Float32", size: "4", readWrite: "RW", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
        { defaultValue: "-999.9" }
   -
@@ -64,7 +64,7 @@ deviceResources:
       { parameter: "temperaturemax" }
     properties:
       value:
-       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", floatEncoding: "Base64" }
+       { type: "Float32", size: "4", readWrite: "RW", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
        { defaultValue: "-999.9" }
 
@@ -85,9 +85,9 @@ deviceCommands:
       - { deviceResource: "humiditymax" }
 coreCommands:
   -
-    name: modbus_temperature_device
+    name: get_temperature_device_all
     get:
-      path: "/api/v1/device/{deviceId}/modbus_temperature_device"
+      path: "/api/v1/device/{deviceId}/get_temperature_device_all"
       responses:
       - code: "200"
         description: "Successfully read the modbus_temperature_device sensors."
@@ -96,7 +96,7 @@ coreCommands:
         description: "service unavailable"
         expectedValues: []
     put:
-      path: "/api/v1/device/{deviceId}/modbus_temperature_device"
+      path: "/api/v1/device/{deviceId}/get_temperature_device_all"
       parameterNames: [ "temperaturemin", "humiditymin", "temperaturemax", "humiditymax" ]
       responses:
       - code: "200"
@@ -105,4 +105,115 @@ coreCommands:
       - code: "503"
         description: "service unavailable"
         expectedValues: []
+  -
+    name: temperature
+    get:
+        path: "/api/v1/device/{deviceId}/temperature"
+        responses:
+          -
+            code: "200"
+            description: "Get the temperature reading."
+            expectedValues: ["temperature"]
+          -
+            code: "503"
+            description: "service unavailable"
+            expectedValues: []
 
+  -
+    name: humidity
+    get:
+      path: "/api/v1/device/{deviceId}/humidity"
+      responses:
+        -
+          code: "200"
+          description: "Get the humidity reading."
+          expectedValues: ["humidity"]
+        -
+          code: "503"
+          description: "service unavailable"
+          expectedValues: []
+
+  -
+    name: temperaturemin
+    get:
+      path: "/api/v1/device/{deviceId}/temperaturemin"
+      responses:
+      - code: "200"
+        description: "Get the temperaturemin value."
+        expectedValues: ["temperaturemin"]
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+    put:
+      path: "/api/v1/device/{deviceId}/temperaturemin"
+      parameterNames: ["temperaturemin"]
+      responses:
+      - code: "200"
+        description: "Successfully set the temperaturemin value."
+        expectedValues: []
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+  -
+    name: humiditymin
+    get:
+      path: "/api/v1/device/{deviceId}/humiditymin"
+      responses:
+      - code: "200"
+        description: "Get the humiditymin value."
+        expectedValues: ["humiditymin"]
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+    put:
+      path: "/api/v1/device/{deviceId}/humiditymin"
+      parameterNames: ["humiditymin"]
+      responses:
+      - code: "200"
+        description: "Successfully set the humiditymin value."
+        expectedValues: []
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+  -
+    name: temperaturemax
+    get:
+      path: "/api/v1/device/{deviceId}/temperaturemax"
+      responses:
+      - code: "200"
+        description: "Get the temperaturemax value."
+        expectedValues: ["temperaturemax"]
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+    put:
+      path: "/api/v1/device/{deviceId}/temperaturemax"
+      parameterNames: ["temperaturemax"]
+      responses:
+      - code: "200"
+        description: "Successfully set the temperaturemax value."
+        expectedValues: []
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+  -
+    name: humiditymax
+    get:
+      path: "/api/v1/device/{deviceId}/humiditymax"
+      responses:
+      - code: "200"
+        description: "Get the humiditymax value."
+        expectedValues: ["humiditymax"]
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+    put:
+      path: "/api/v1/device/{deviceId}/humiditymax"
+      parameterNames: ["humiditymax"]
+      responses:
+      - code: "200"
+        description: "Successfully set the humiditymax value."
+        expectedValues: []
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []

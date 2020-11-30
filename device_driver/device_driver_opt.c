@@ -66,30 +66,45 @@ extern "C" {
   */
 int device_driver_opt_get(const char *devname, const char *param, devsdk_commandresult *readings, iot_logger_t *lc)
 {
-  iot_log_info(lc, "call device_driver_opt_get.");
-    // if (strcmp (param, "xrot") == 0)
-    // {
-      // readings[i].value = iot_data_alloc_i32 ((random () % 501) - 250);
-    // }
-    // else if (strcmp (param, "yrot") == 0)
-    // {
-    //   readings[i].value = iot_data_alloc_i32 ((random () % 501) - 250);
-    // }
-    // else if (strcmp (param, "zrot") == 0)
-    // {
-      // readings[0].value = iot_data_alloc_i32 (250);
-    // 
-    // }
-    // else
-    // {
-    //   buff = malloc (ERR_BUFSZ);
-    //   snprintf (buff, ERR_BUFSZ, "Unknown parameter %s requested", param);
-    //   iot_log_error (driver->lc, buff);
-    //   * exception = iot_data_alloc_string (buff, IOT_DATA_TAKE);
-    //   return false;
-    // }
+  iot_log_info(lc, "call device_driver_opt_get par %s.", param);
+  NODE_TYPE_STRUCT *pnode = NULL;
+
+  /*解析设备类型*/
+  DEV_INFO_Typedef_t dev_info;
+  int ret = parse_dev_name(devname, &dev_info);
+  if(ret != 0)
+  {
+    iot_log__warn(lc, "can't parse dev name %s.", devname);
+    return -1;
+  }
+  DEVICE_Typedef_t dev_type = get_device_protocol_type(&dev_info);
+  if(dev_type == DEV_TYPE_MAX)
+  {
+    iot_log__warn(lc, "can't parse dev type %s.", devname);
+    return -1;
+  }
+
+  /*查找设备地址*/
+  MAJOR_KEY_1 major_key_1 = get_device_protocol_type(&dev_info);
+  MAJOR_KEY_2 major_key_2 = (uint32_t)atoi(dev_info.dev_address);
+  pnode = list_find_node(dev_type ,major_key_1, major_key_2);
+
+  /*查询设备get接口*/
+  if(pnode == NULL)
+  {
+    iot_log__warn(lc, "no find this device in the listtable.");
+    return -1;
+  }
+
+  if(pnode->get_dev_value_callback == NULL)
+  {
+    iot_log__warn(lc, "device have not get interface.");
+    return -1;
+  }
+  VALUE_Type_t value_type = VALUE_TYPE_MAX;
+  pnode->get_dev_value_callback(param, readings, &value_type);
     
-    return 0;    
+  return 0;    
 }
 
 /**

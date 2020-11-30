@@ -29,9 +29,10 @@ extern "C" {
 static DEV_DRIVER_INTERFACE_Typedef_t gateway_interface_par[] = 
 {
   {
-    .par_name               = "r_service_ver",
+    .par_name               = "version",
     .command                = 0x03,
     .command_addr           = 0x0000,
+    .value_type             = STRING,
     .permissions            = READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -39,9 +40,10 @@ static DEV_DRIVER_INTERFACE_Typedef_t gateway_interface_par[] =
     .unit                   = T_S
   },
   {
-    .par_name               = "r_driver_ver",
+    .par_name               = "temperature",
     .command                = 0x03,
     .command_addr           = 0x0001,
+    .value_type             = FLOAT32,
     .permissions            = READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -49,9 +51,10 @@ static DEV_DRIVER_INTERFACE_Typedef_t gateway_interface_par[] =
     .unit                   = T_S
   },          
   {         
-    .par_name               = "rw_driver",
+    .par_name               = "run_state",
     .command                = 0x03|0x10,
     .command_addr           = 0x0002,
+    .value_type             = INT32,
     .permissions            = READ_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -59,19 +62,54 @@ static DEV_DRIVER_INTERFACE_Typedef_t gateway_interface_par[] =
     .unit                   = T_S
   },          
   {         
-    .par_name               = "rw_service_config",
+    .par_name               = "update_progress",
     .command                = 0x03|0x10,
-    .command_addr           = 0x0002,
+    .command_addr           = 0x0003,
+    .value_type             = UINT32,
+    .permissions            = READ_ONLY,
+    .enable_event_flag      = false,
+    .enable_on_change_flag  = false,
+    .interval_time          = 0,
+    .unit                   = T_S
+  },   
+  {         
+    .par_name               = "temperaturemax",
+    .command                = 0x03|0x10,
+    .command_addr           = 0x0004,
+    .value_type             = FLOAT32,
     .permissions            = READ_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
     .interval_time          = 0,
     .unit                   = T_S
-  },          
+  },   
+  {         
+    .par_name               = "upgrade_file",
+    .command                = 0x03|0x10,
+    .command_addr           = 0x0005,
+    .value_type             = UINT8,
+    .permissions            = WRITE_ONLY,
+    .enable_event_flag      = false,
+    .enable_on_change_flag  = false,
+    .interval_time          = 0,
+    .unit                   = T_S
+  },  
+  {         
+    .par_name               = "cmd",
+    .command                = 0x03|0x10,
+    .command_addr           = 0x0006,
+    .value_type             = STRING,
+    .permissions            = WRITE_ONLY,
+    .enable_event_flag      = false,
+    .enable_on_change_flag  = false,
+    .interval_time          = 0,
+    .unit                   = T_S
+  },        
   {         
     .par_name               = NULL,
     .command                = 0x00,
     .command_addr           = 0x0000,
+    .value_type             = VALUE_TYPE_MAX,
     .permissions            = UNKNOW,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -82,12 +120,12 @@ static DEV_DRIVER_INTERFACE_Typedef_t gateway_interface_par[] =
 
 /** Public variables ---------------------------------------------------------*/                                                                          
 /** Private function prototypes ----------------------------------------------*/
-static void get_mqtt_dev_value(void *input_data, void *out_data, VALUE_Type_t type);
-static void set_mqtt_dev_value(void *input_data, void *out_data, VALUE_Type_t type);
-static void get_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t type);
-static void set_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t type);
-static void get_private_dev_value(void *input_data, void *out_data, VALUE_Type_t type);
-static void set_private_dev_value(void *input_data, void *out_data, VALUE_Type_t type);
+static void get_mqtt_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
+static void set_mqtt_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
+static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
+static void set_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
+static void get_private_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
+static void set_private_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
 static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type);
 static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);
 /** Private variables --------------------------------------------------------*/
@@ -137,9 +175,19 @@ static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] =
   * @date    2020-11-13
   ******************************************************************
   */
-static void get_mqtt_dev_value(void *input_data, void *out_data, VALUE_Type_t type)
+static void get_mqtt_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
 {
+  const char *parm = (const char *)input_data;
+  devsdk_commandresult *out_value = (devsdk_commandresult *)out_data;
+  for(int index = 0; gateway_interface_par[index].par_name != NULL; index++)
+  {
+    if(strcmp(parm, gateway_interface_par[index].par_name) == 0)
+    {
+      /*获取设备数据*/
 
+      // out_value->value = iot_data_alloc_i32 ((random () % 501) - 250);
+    }
+  }
 }
 
 /**
@@ -154,7 +202,7 @@ static void get_mqtt_dev_value(void *input_data, void *out_data, VALUE_Type_t ty
   * @date    2020-11-13
   ******************************************************************
   */
-static void set_mqtt_dev_value(void *input_data, void *out_data, VALUE_Type_t type)
+static void set_mqtt_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
 {
 
 }
@@ -171,9 +219,19 @@ static void set_mqtt_dev_value(void *input_data, void *out_data, VALUE_Type_t ty
   * @date    2020-11-13
   ******************************************************************
   */
-static void get_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t type)
+static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
 {
+  const char *parm = (const char *)input_data;
+  devsdk_commandresult *out_value = (devsdk_commandresult *)out_data;
+  for(int index = 0; gateway_interface_par[index].par_name != NULL; index++)
+  {
+    if(strcmp(parm, gateway_interface_par[index].par_name) == 0)
+    {
+      /*获取设备数据*/
 
+      // out_value->value = iot_data_alloc_i32 ((random () % 501) - 250);
+    }
+  }
 }
 
 /**
@@ -188,7 +246,7 @@ static void get_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t 
   * @date    2020-11-13
   ******************************************************************
   */
-static void set_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t type)
+static void set_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
 {
 
 }
@@ -205,9 +263,19 @@ static void set_modbus_dev_value(void *input_data, void *out_data, VALUE_Type_t 
   * @date    2020-11-13
   ******************************************************************
   */
-static void get_private_dev_value(void *input_data, void *out_data, VALUE_Type_t type)
+static void get_private_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
 {
+  const char *parm = (const char *)input_data;
+  devsdk_commandresult *out_value = (devsdk_commandresult *)out_data;
+  for(int index = 0; gateway_interface_par[index].par_name != NULL; index++)
+  {
+    if(strcmp(parm, gateway_interface_par[index].par_name) == 0)
+    {
+      /*获取设备数据*/
 
+      // out_value->value = iot_data_alloc_i32 ((random () % 501) - 250);
+    }
+  }
 }
 
 /**
@@ -222,9 +290,23 @@ static void get_private_dev_value(void *input_data, void *out_data, VALUE_Type_t
   * @date    2020-11-13
   ******************************************************************
   */
-static void set_private_dev_value(void *input_data, void *out_data, VALUE_Type_t type)
+static void set_private_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
 {
+  /* Load the file contents */
+  // uint8_t *data = file_readfile (fname, &size);
+  // if (data)
+  // {
+  //   /* Set up a commandresult. The deviceResource for our profiles is "File" */
+  //   devsdk_commandresult results[1];
+  //   iot_log_info (impl->lc, "File size: %" PRIu32, size);
+  //   results[0].origin = 0;
+  //   results[0].value = iot_data_alloc_array (data, size, IOT_DATA_UINT8, IOT_DATA_TAKE);
 
+  //   /* Trigger an event */
+  //   devsdk_post_readings (service, dname, "File", results);
+
+  //   /* Cleanup the value. Note that as we used IOT_DATA_TAKE, the buffer allocated in file_readfile is free'd here */
+  //   iot_data_free (results[0].value);
 }
 
 /**

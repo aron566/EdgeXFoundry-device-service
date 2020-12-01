@@ -24,7 +24,6 @@ extern "C" {
 /** Private typedef ----------------------------------------------------------*/
 
 /** Private macros -----------------------------------------------------------*/
- 
 /** Private constants --------------------------------------------------------*/
 static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] = 
 {
@@ -55,7 +54,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
     .command                = 0x03|0x10,
     .command_addr           = 0x0002,
     .value_type             = FLOAT32,
-    .permissions            = READ_WRITE,
+    .permissions            = PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
     .interval_time          = 0,
@@ -66,7 +65,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
     .command                = 0x03|0x10,
     .command_addr           = 0x0003,
     .value_type             = FLOAT32,
-    .permissions            = READ_WRITE,
+    .permissions            = PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
     .interval_time          = 0,
@@ -77,7 +76,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
     .command                = 0x03|0x10,
     .command_addr           = 0x0004,
     .value_type             = FLOAT32,
-    .permissions            = READ_WRITE,
+    .permissions            = PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
     .interval_time          = 0,
@@ -88,7 +87,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
     .command                = 0x03|0x10,
     .command_addr           = 0x0005,
     .value_type             = FLOAT32,
-    .permissions            = READ_WRITE,
+    .permissions            = PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
     .interval_time          = 0,
@@ -111,8 +110,11 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
 static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
 static void set_modbus_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type);
 static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type);
-static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);   
+static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);
+
+static void read_msg_callback(uv_work_t *req, int status);
 /** Private variables --------------------------------------------------------*/
+
 /*协议解析回调映射*/
 static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] = 
 {
@@ -146,6 +148,55 @@ static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] =
 *                                                                               
 ********************************************************************************
 */
+/**
+  ******************************************************************
+  * @brief   轮询设备数据完成回调接口
+  * @param   [in]req 请求参数
+  * @param   [in]status 状态
+  * @retval  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-01
+  ******************************************************************
+  */
+static void read_msg_callback(uv_work_t *req, int status) 
+{
+  debug_print((uint8_t *)req->data, 7);
+}
+
+/**
+  ******************************************************************
+  * @brief   解析温度数据
+  * @param   [in]input_data 请求参数
+  * @param   [out]out_data 返回数据
+  * @param   [out]type 数据类型
+  * @retval  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-01
+  ******************************************************************
+  */
+static void decode_temperature(uint8_t *data, )
+{
+  uint8_t crc_l = 0 ,crc_h = 0 ,data_crc_l = 0,data_crc_h = 0;
+  //校验CRC
+  return_check_crc(uint8_t *msg ,uint16_t len);
+
+  /*校验通过*/
+  int temp = *((unsigned char*) (cb->ptr + ((cb->read_offset+len-6)%cb->count)));
+  temp <<= 8;
+  temp |= *((unsigned char*) (cb->ptr + ((cb->read_offset+len-5)%cb->count)));
+
+  float CurrentTemperature = (float)temp/10.0;
+
+  temp = *((unsigned char*) (cb->ptr + ((cb->read_offset+len-4)%cb->count)));
+  temp <<= 8;
+  temp |= *((unsigned char*) (cb->ptr + ((cb->read_offset+len-3)%cb->count)));
+  float CurrentHumidity = (float)temp/10.0;
+
+  printf("CurrentTemperature:%.1f℃,CurrentHumidity:%.1f%%\n" ,CurrentTemperature ,CurrentHumidity);
+}
+
 /**
   ******************************************************************
   * @brief   读取modbus设备数值接口

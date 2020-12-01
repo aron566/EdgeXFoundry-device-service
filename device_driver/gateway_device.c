@@ -178,7 +178,7 @@ static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] =
 static void get_mqtt_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
 {
   const char *parm = (const char *)input_data;
-  devsdk_commandresult *out_value = (devsdk_commandresult *)out_data;
+  devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
   for(int index = 0; gateway_interface_par[index].par_name != NULL; index++)
   {
     if(strcmp(parm, gateway_interface_par[index].par_name) == 0)
@@ -205,7 +205,7 @@ static void get_mqtt_dev_value(const void *input_data, void *out_data, VALUE_Typ
 static void set_mqtt_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type)
 {
   const char *parm = (const char *)input_data;
-  devsdk_commandresult *out_value = (devsdk_commandresult *)out_data;
+  const iot_data_t *set_value = (const iot_data_t *)out_data;
   for(int index = 0; gateway_interface_par[index].par_name != NULL; index++)
   {
     if(strcmp(parm, gateway_interface_par[index].par_name) == 0)
@@ -232,7 +232,7 @@ static void set_mqtt_dev_value(const void *input_data, const void *out_data, VAL
 static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
 {
   const char *parm = (const char *)input_data;
-  devsdk_commandresult *out_value = (devsdk_commandresult *)out_data;
+  devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
   for(int index = 0; gateway_interface_par[index].par_name != NULL; index++)
   {
     if(strcmp(parm, gateway_interface_par[index].par_name) == 0)
@@ -276,7 +276,7 @@ static void set_modbus_dev_value(const void *input_data, const void *out_data, V
 static void get_private_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
 {
   const char *parm = (const char *)input_data;
-  devsdk_commandresult *out_value = (devsdk_commandresult *)out_data;
+  devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
   for(int index = 0; gateway_interface_par[index].par_name != NULL; index++)
   {
     if(strcmp(parm, gateway_interface_par[index].par_name) == 0)

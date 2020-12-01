@@ -28,12 +28,14 @@ typedef struct
 {
     int fd;
     PROTOCOL_Type_t protocol_type;
+    void (*read)(uint8_t *buf, uint32_t *size);
+    void (*write)(uint8_t *data, uint32_t len);
 }DEVICE_COM_FD_Typedef_t;
                                                                                 
 /** Private macros -----------------------------------------------------------*/
                                                                                 
 /** Private constants --------------------------------------------------------*/
-static DEVICE_COM_FD_Typedef_t device_com_fd[PROTO_MAX] = {0};/**< FD集合*/
+static DEVICE_COM_FD_Typedef_t device_com_par[PROTO_MAX] = {0};/**< FD集合*/
 /** Public variables ---------------------------------------------------------*/
 /** Private variables --------------------------------------------------------*/
                                                                                 
@@ -124,8 +126,8 @@ static int usart_init(const char *ttyx, int baudrate)
   */
 static void modbus_rtu_com_init(void)
 {
-  device_com_fd[MODBUS_RTU_PROTO].fd = usart_init("/dev/ttyS2", 9600);
-  device_com_fd[MODBUS_RTU_PROTO].protocol_type = MODBUS_RTU_PROTO;
+  device_com_par[MODBUS_RTU_PROTO].fd = usart_init("/dev/ttyS2", 9600);
+  device_com_par[MODBUS_RTU_PROTO].protocol_type = MODBUS_RTU_PROTO;
 }     
 
 /**
@@ -162,11 +164,11 @@ static void mqtt_com_init(void)
   */
 int device_driver_com_get_fd(PROTOCOL_Type_t protocol_type)
 {
-    if(protocol_type >= UNKNOW_PROTO)
-    {
-        return -1;
-    }
-    return device_com_fd[protocol_type].fd;
+  if(protocol_type >= UNKNOW_PROTO)
+  {
+      return -1;
+  }
+  return device_com_par[protocol_type].fd;
 }
 
 /**
@@ -183,7 +185,7 @@ int device_driver_com_get_fd(PROTOCOL_Type_t protocol_type)
   */
 int device_driver_send_data_port(uint8_t *data, uint32_t len, PROTOCOL_Type_t protocol_type)
 {
-    return 0;
+  return 0;
 }
 
 /**
@@ -198,11 +200,11 @@ int device_driver_send_data_port(uint8_t *data, uint32_t len, PROTOCOL_Type_t pr
   */
 int device_driver_com_close(PROTOCOL_Type_t protocol_type)
 {
-    if(protocol_type >= UNKNOW_PROTO)
-    {
-        return -1;
-    }
-    return close(device_com_fd[protocol_type].fd);
+  if(protocol_type >= UNKNOW_PROTO)
+  {
+      return -1;
+  }
+  return close(device_com_par[protocol_type].fd);
 }
 
 /**
@@ -217,9 +219,9 @@ int device_driver_com_close(PROTOCOL_Type_t protocol_type)
   */
 void device_driver_com_init_port(void)
 {
-    modbus_rtu_com_init();
+  modbus_rtu_com_init();
 
-    mqtt_com_init();
+  mqtt_com_init();
 }  
 
 #ifdef __cplusplus ///<end extern c                                             

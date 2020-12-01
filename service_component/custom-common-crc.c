@@ -176,17 +176,17 @@ bool get_crc_result(uint8_t *puchMsg ,uint16_t usDataLen)
 /**
  * @brief modbusCRC计算
  * 
- * @param Crc_Buf 带入CRC计算的数据起始
- * @param Crc_Len 带入CRC计算的数据长度
+ * @param data 带入CRC计算的数据起始
+ * @param data_len 带入CRC计算的数据长度
  * @return uint16_t 
  */
-uint16_t modbus_crc_return(uint8_t *Crc_Buf ,uint16_t Crc_Len)
+uint16_t modbus_crc_return(uint8_t *data ,uint16_t data_len)
 {
     uint16_t temp;
     uint16_t crc_ret = 0xFFFF;
-    for (temp = 0; temp < Crc_Len; temp++)
+    for (temp = 0; temp < data_len; temp++)
     {
-        crc_ret = crc_cal(Crc_Buf[temp], 0xA001, crc_ret);
+        crc_ret = crc_cal(data[temp], 0xA001, crc_ret);
     }
     return crc_ret;
 }

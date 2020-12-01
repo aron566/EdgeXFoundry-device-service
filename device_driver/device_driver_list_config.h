@@ -86,7 +86,7 @@ typedef struct
 
 /*设备驱动同一接口*/
 typedef void (*GET_DEV_VALUE_CALLBACK)(const void *input_data, void *out_data, VALUE_Type_t *type);/**< 设备读取接口*/
-typedef void (*SET_DEV_VALUE_CALLBACK)(const void *input_data, void *out_data, VALUE_Type_t *type);/**< 设备设置接口*/
+typedef void (*SET_DEV_VALUE_CALLBACK)(const void *input_data, const void *out_data, VALUE_Type_t *type);/**< 设备设置接口*/
 typedef struct dev_node_func { 
     GET_DEV_VALUE_CALLBACK get_dev_value_callback;/**< 设备读取接口*/
     SET_DEV_VALUE_CALLBACK set_dev_value_callback;/**< 设备设置接口*/

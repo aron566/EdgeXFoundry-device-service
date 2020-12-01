@@ -121,11 +121,11 @@ static DEV_DRIVER_INTERFACE_Typedef_t gateway_interface_par[] =
 /** Public variables ---------------------------------------------------------*/                                                                          
 /** Private function prototypes ----------------------------------------------*/
 static void get_mqtt_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
-static void set_mqtt_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
+static void set_mqtt_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type);
 static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
-static void set_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
+static void set_modbus_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type);
 static void get_private_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
-static void set_private_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
+static void set_private_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type);
 static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type);
 static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);
 /** Private variables --------------------------------------------------------*/
@@ -202,9 +202,19 @@ static void get_mqtt_dev_value(const void *input_data, void *out_data, VALUE_Typ
   * @date    2020-11-13
   ******************************************************************
   */
-static void set_mqtt_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
+static void set_mqtt_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type)
 {
+  const char *parm = (const char *)input_data;
+  devsdk_commandresult *out_value = (devsdk_commandresult *)out_data;
+  for(int index = 0; gateway_interface_par[index].par_name != NULL; index++)
+  {
+    if(strcmp(parm, gateway_interface_par[index].par_name) == 0)
+    {
+      /*获取设备数据*/
 
+      // out_value->value = iot_data_alloc_i32 ((random () % 501) - 250);
+    }
+  }
 }
 
 /**
@@ -246,7 +256,7 @@ static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_T
   * @date    2020-11-13
   ******************************************************************
   */
-static void set_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
+static void set_modbus_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type)
 {
 
 }
@@ -290,7 +300,7 @@ static void get_private_dev_value(const void *input_data, void *out_data, VALUE_
   * @date    2020-11-13
   ******************************************************************
   */
-static void set_private_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
+static void set_private_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type)
 {
   /* Load the file contents */
   // uint8_t *data = file_readfile (fname, &size);
@@ -345,7 +355,7 @@ static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type)
   * @date    2020-11-24
   ******************************************************************
   */
-static SET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type)
+static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type)
 {
   if(protocol_type == UNKNOW_PROTO)
   {

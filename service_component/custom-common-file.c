@@ -37,7 +37,7 @@ extern "C" {
 *       Static code                                                             
 *                                                                               
 ********************************************************************************
-*/                                                                              
+*/  
 
 /** Public application code --------------------------------------------------*/
 /*******************************************************************************
@@ -58,7 +58,80 @@ extern "C" {
   */
 int file_is_exist(const char *fimename)
 {
-	return access(fimename ,F_OK | W_OK | R_OK);
+    return access(fimename ,F_OK | W_OK | R_OK);
+}
+
+/**
+  ******************************************************************
+  * @brief   移动或重命名文件
+  * @param   [in]old_fimename 旧文件名
+  * @param   [in]new_filename 新文件名
+  * @retval  返回0移动成功，-1失败
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-01
+  ******************************************************************
+  */
+int file_move(const char *old_fimename, const char *new_filename)
+{
+  if(file_is_exist(old_fimename) != 0)
+  {
+    return -1;
+  }
+  return rename(old_fimename, new_filename);
+}
+
+/**
+  ******************************************************************
+  * @brief   删除文件
+  * @param   [in]fimename 文件名
+  * @retval  返回0删除成功，-1失败
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-01
+  ******************************************************************
+  */
+int file_delete(const char *fimename)
+{
+	if(file_is_exist(fimename) != 0)
+	{
+		return -1;
+	}
+	return remove(fimename);
+}
+
+/**
+  ******************************************************************
+  * @brief   复制文件
+  * @param   [in]source_fimename 源文件名
+  * @param   [in]dest_fimename 目标文件名
+  * @retval  返回0复制成功，-1失败
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-01
+  ******************************************************************
+  */
+int file_copy(const char *source_fimename, const char *dest_fimename)
+{
+	if(file_is_exist(source_fimename) != 0)
+	{
+		return -1;
+	}
+	uint32_t size = 0;
+	uint8_t *pdata = file_readfile_alloc(source_fimename, &size);
+	if(pdata == NULL)
+	{
+		return -1;
+	}
+	FILE *fp = file_open(dest_fimename ,READ_WRITE_CREAT_CLEAR_FILE);
+	if(fp == NULL)
+	{
+		return -1;
+	}
+	/*数据地址，数据总大小字节，单位数据大小字节，fp*/
+	fwrite(pdata ,size, 1, fp);
+	free(pdata);
+	return fclose(fp);
 }
 
 /**
@@ -114,7 +187,7 @@ int file_get_line_cnt(const char *filename)
 {
 	int cnt = 0;
 	char buf[256];
-	FILE *fp = file_open(filename ,READ_ONLY);
+	FILE *fp = file_open(filename ,READ_FILE_ONLY);
 	if(fp == NULL)
 	{
 		PRINT_ERRMSG("fopen");
@@ -163,7 +236,7 @@ size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
 	}
 
 	/*打开文件流*/
-	FILE *fp = file_open(filename ,READ_ONLY);
+	FILE *fp = file_open(filename ,READ_FILE_ONLY);
 	if(fp == NULL)
 	{
 		PRINT_ERRMSG("fopen");
@@ -273,6 +346,37 @@ size_t file_write(const char *filename ,const void* buffer ,size_t size ,size_t 
 	fflush(fp);
 	fclose(fp);
 	return cnt;
+}
+
+/**
+  ******************************************************************
+  * @brief   读取文件内容
+  * @param   [in]fimename 文件名
+  * @param   [out]size 文件大小
+  * @retval  文件内容，使用完必须释放
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-01
+  ******************************************************************
+  */                                                                            
+uint8_t *file_readfile_alloc(const char *filename, uint32_t *size)
+{
+  uint8_t *result = NULL;
+  FILE *fd = file_open(filename ,READ_FILE_ONLY);
+  if(fd)
+  {
+    fseek (fd, 0L, SEEK_END);
+    *size = ftell (fd);
+    rewind (fd);
+    result = malloc (*size);
+    if(fread(result, *size, 1, fd) != 1)
+    {
+      free(result);
+      result = NULL;
+    }
+    fclose(fd);
+  }
+  return result;
 }
 
 /**

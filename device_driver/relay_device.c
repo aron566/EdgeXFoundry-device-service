@@ -88,7 +88,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
                                                                                 
 /** Private function prototypes ----------------------------------------------*/
 static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
-static void set_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);   
+static void set_modbus_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type);   
 static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type);
 static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);              
 /** Private variables --------------------------------------------------------*/
@@ -154,7 +154,7 @@ static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_T
   * @date    2020-11-13
   ******************************************************************
   */
-static void set_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
+static void set_modbus_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type)
 {
 
 } 
@@ -195,7 +195,7 @@ static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type)
   * @date    2020-11-24
   ******************************************************************
   */
-static SET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type)
+static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type)
 {
   if(protocol_type == UNKNOW_PROTO)
   {

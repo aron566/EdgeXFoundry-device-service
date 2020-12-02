@@ -34,7 +34,7 @@ extern "C" {
 /** Exported functions prototypes --------------------------------------------*/
 
 /*事件检测轮询启动*/
-int device_driver_event_report_handler_start(void);
+int device_driver_uv_handler_start(void);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

@@ -75,7 +75,7 @@ void list_table_init(void)
   */
 void list_add_to_list(NODE_Typedef_t *node ,LIST_Type_t type)
 {
-    if(type >= LIST_TYPE_MAX || type < 0)
+    if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
     {
         return;
     }
@@ -106,7 +106,7 @@ void list_add_to_list(NODE_Typedef_t *node ,LIST_Type_t type)
   */
 void list_push_back(NODE_TYPE_STRUCT *node ,LIST_Type_t type)
 {
-    if(type >= LIST_TYPE_MAX || type < 0)
+    if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
     {
         return;
     }
@@ -141,7 +141,7 @@ void list_push_back(NODE_TYPE_STRUCT *node ,LIST_Type_t type)
   */
 void list_push_front(NODE_TYPE_STRUCT *node ,LIST_Type_t type)
 {
-    if(type >= LIST_TYPE_MAX || type < 0)
+    if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
     {
         return;
     }
@@ -166,7 +166,7 @@ void list_push_front(NODE_TYPE_STRUCT *node ,LIST_Type_t type)
   */
 void list_insert_node(NODE_TYPE_STRUCT *node ,LIST_Type_t type ,int index)
 {
-    if(type >= LIST_TYPE_MAX || type < 0)
+    if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
     {
         return;
     }

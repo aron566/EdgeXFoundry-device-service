@@ -134,27 +134,6 @@ typedef struct
     PRIVATE_Typedef_t private_par;
 }DEV_COMMUNICATION_PAR_Typedef_t;
 
-/*设备驱动同一接口*/
-typedef void (*GET_DEV_VALUE_CALLBACK)(const void *input_data, void *out_data, VALUE_Type_t *type);/**< 设备读取接口*/
-typedef void (*SET_DEV_VALUE_CALLBACK)(const void *input_data, const void *out_data, VALUE_Type_t *type);/**< 设备设置接口*/
-typedef struct dev_node_func { 
-    GET_DEV_VALUE_CALLBACK get_dev_value_callback;/**< 设备读取接口*/
-    SET_DEV_VALUE_CALLBACK set_dev_value_callback;/**< 设备设置接口*/
-    DEV_COMMUNICATION_PAR_Typedef_t communication_par;/**< 设备通讯参数信息*/
-    PROTOCOL_Type_t major_key_1;  /**< 设备采用的协议类型*/
-    // char dev_name[256];         /**< 设备完整名称*/
-    uint32_t major_key_2;         /**< 设备地址或者序号，此值在同类设备中唯一*/
-}DEV_NODE_FUNC_Type_t;
-
-/*设备名称解析*/
-typedef struct 
-{
-    char protocol_str[64];      /**< 协议名*/
-    char location_str[128];     /**< 设备位置信息*/
-    char dev_type_name[64];     /**< 设备类型名称*/
-    char dev_address[16];       /**< 设备地址号*/
-}DEV_INFO_Typedef_t;
-
 /*设备接口数据结构*/
 typedef enum
 {
@@ -196,6 +175,28 @@ typedef struct
     uint64_t interval_time;             /**< 事件上报频率*/
     EVENT_REPORT_TIME_UNIT unit;        /**< 事件上报时基*/    
 }INTERVAL_TIME_Typedef_t;
+
+/*设备驱动同一接口*/
+typedef void (*GET_DEV_VALUE_CALLBACK)(const void *input_data, void *out_data, VALUE_Type_t *type);/**< 设备读取接口*/
+typedef void (*SET_DEV_VALUE_CALLBACK)(const void *input_data, const void *out_data, VALUE_Type_t *type);/**< 设备设置接口*/
+typedef struct dev_node_func { 
+    GET_DEV_VALUE_CALLBACK get_dev_value_callback;/**< 设备读取接口*/
+    SET_DEV_VALUE_CALLBACK set_dev_value_callback;/**< 设备设置接口*/
+    DEV_COMMUNICATION_PAR_Typedef_t communication_par;/**< 设备通讯参数信息*/
+    PROTOCOL_Type_t major_key_1;  /**< 设备采用的协议类型*/
+    // char dev_name[256];         /**< 设备完整名称*/
+    uint32_t major_key_2;         /**< 设备地址或者序号，此值在同类设备中唯一*/
+    DEV_DRIVER_INTERFACE_Typedef_t dev_resource_par[];/**< 设备资源表*/
+}DEV_NODE_FUNC_Type_t;
+
+/*设备名称解析*/
+typedef struct 
+{
+    char protocol_str[64];      /**< 协议名*/
+    char location_str[128];     /**< 设备位置信息*/
+    char dev_type_name[64];     /**< 设备类型名称*/
+    char dev_address[16];       /**< 设备地址号*/
+}DEV_INFO_Typedef_t;
 
 /*协议解析器映射*/
 typedef struct 

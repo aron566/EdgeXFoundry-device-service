@@ -176,26 +176,26 @@ static void read_msg_callback(uv_work_t *req, int status)
   * @date    2020-12-01
   ******************************************************************
   */
-static void decode_temperature(uint8_t *data, )
-{
-  uint8_t crc_l = 0 ,crc_h = 0 ,data_crc_l = 0,data_crc_h = 0;
-  //校验CRC
-  return_check_crc(uint8_t *msg ,uint16_t len);
+// static void decode_temperature(uint8_t *data, )
+// {
+//   uint8_t crc_l = 0 ,crc_h = 0 ,data_crc_l = 0,data_crc_h = 0;
+//   //校验CRC
+//   return_check_crc(uint8_t *msg ,uint16_t len);
 
-  /*校验通过*/
-  int temp = *((unsigned char*) (cb->ptr + ((cb->read_offset+len-6)%cb->count)));
-  temp <<= 8;
-  temp |= *((unsigned char*) (cb->ptr + ((cb->read_offset+len-5)%cb->count)));
+//   /*校验通过*/
+//   int temp = *((unsigned char*) (cb->ptr + ((cb->read_offset+len-6)%cb->count)));
+//   temp <<= 8;
+//   temp |= *((unsigned char*) (cb->ptr + ((cb->read_offset+len-5)%cb->count)));
 
-  float CurrentTemperature = (float)temp/10.0;
+//   float CurrentTemperature = (float)temp/10.0;
 
-  temp = *((unsigned char*) (cb->ptr + ((cb->read_offset+len-4)%cb->count)));
-  temp <<= 8;
-  temp |= *((unsigned char*) (cb->ptr + ((cb->read_offset+len-3)%cb->count)));
-  float CurrentHumidity = (float)temp/10.0;
+//   temp = *((unsigned char*) (cb->ptr + ((cb->read_offset+len-4)%cb->count)));
+//   temp <<= 8;
+//   temp |= *((unsigned char*) (cb->ptr + ((cb->read_offset+len-3)%cb->count)));
+//   float CurrentHumidity = (float)temp/10.0;
 
-  printf("CurrentTemperature:%.1f℃,CurrentHumidity:%.1f%%\n" ,CurrentTemperature ,CurrentHumidity);
-}
+//   printf("CurrentTemperature:%.1f℃,CurrentHumidity:%.1f%%\n" ,CurrentTemperature ,CurrentHumidity);
+// }
 
 /**
   ******************************************************************
@@ -342,33 +342,64 @@ DEV_DRIVER_INTERFACE_Typedef_t *get_temperature_device_resource(void)
 /**
   ******************************************************************
   * @brief   温湿度设备驱动注册
-  * @param   [in]None.
+  * @param   [in]dev_info 设备信息
+  * @param   [in]communication_par 设备通讯参数
+  * @param   [in]dev_resource_par 设备资源信息
   * @retval  None.
   * @author  aron566
-  * @version V1.0
-  * @date    2020-11-24
+  * @version V1.1
+  * @date    2020-12-02
   ******************************************************************
   */
-int temperature_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATION_PAR_Typedef_t *communication_par)
+int temperature_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATION_PAR_Typedef_t *communication_par,
+                                      DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par)
 {
-  NODE_TYPE_STRUCT node;
-  node.major_key_1 = communication_par->protocol_type;
-  node.major_key_2 = (uint32_t)atoi(dev_info->dev_address);
+  /*查询*/
+  NODE_Typedef_t *node_p = NULL;
+  NODE_TYPE_STRUCT *p_node = NULL;
+
+  MAJOR_KEY_1 major_key_1 = communication_par->protocol_type;
+  MAJOR_KEY_2 major_key_2 = (uint32_t)atoi(dev_info->dev_address);
   DEVICE_Typedef_t dev_type = get_device_type(dev_info);
-  if(dev_type == DEV_TYPE_MAX || node.major_key_1 == UNKNOW_PROTO)
+  if(dev_type == DEV_TYPE_MAX || major_key_1 == UNKNOW_PROTO)
   {
       printf("can't get the dev type or protocol.\n");
       return -1;
   }
-  memcpy(&node.communication_par, communication_par, sizeof(DEV_COMMUNICATION_PAR_Typedef_t));
-  node.get_dev_value_callback = get_get_callback(communication_par->protocol_type);
-  node.set_dev_value_callback = get_set_callback(communication_par->protocol_type);
+  p_node = list_find_node(TEMPERATURE_DEV_TYPE, major_key_1, major_key_2);
+  if(p_node == NULL)
+  {
+    node_p = (NODE_Typedef_t *)calloc(1, sizeof(NODE_Typedef_t)+(sizeof(DEV_DRIVER_INTERFACE_Typedef_t)*sizeof(temperature_interface_par)));
+    if(node_p == NULL)
+    {
+      printf("can't calloc memory for temperature dev.\n");
+      return -1;
+    }
+    p_node = &node_p->node;
+    p_node->major_key_1 = major_key_1;
+    p_node->major_key_2 = major_key_2;
+    memmove(p_node->dev_resource_par, temperature_interface_par, sizeof(temperature_interface_par));
+    memmove(&p_node->communication_par, communication_par, sizeof(DEV_COMMUNICATION_PAR_Typedef_t));
+    p_node->get_dev_value_callback = get_get_callback(communication_par->protocol_type);
+    p_node->set_dev_value_callback = get_set_callback(communication_par->protocol_type);
 
-  /*注册*/
-  list_push_front(&node, TEMPERATURE_DEV_TYPE);
-  printf("temperature device register.\n");
+    /*注册*/
+    list_add_to_list(node_p ,TEMPERATURE_DEV_TYPE);
+  }
+
+  /*修改事件参数*/
+  for(int index = 0; p_node->dev_resource_par[index].par_name != NULL; index++)
+  {
+    if(strcmp(p_node->dev_resource_par[index].par_name, dev_resource_par->par_name) == 0)
+    {
+      memmove(&p_node->dev_resource_par[index], dev_resource_par, sizeof(DEV_DRIVER_INTERFACE_Typedef_t));
+    }
+  }
+
+  printf("temperature device register successful.\n");
   return 0;
 }   
+
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               
 #endif                                                                          

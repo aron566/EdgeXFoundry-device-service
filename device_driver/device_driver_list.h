@@ -37,8 +37,8 @@ typedef DEV_NODE_FUNC_Type_t NODE_TYPE_STRUCT;
 /*节点信息*/
 typedef struct NODE_TYPE
 {  
-    NODE_TYPE_STRUCT node;
 	struct NODE_TYPE *next;
+    NODE_TYPE_STRUCT node;
 }NODE_Typedef_t;                                                                       
 /** Exported constants -------------------------------------------------------*/
                                                                                 

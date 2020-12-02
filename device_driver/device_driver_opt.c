@@ -79,7 +79,6 @@ static NODE_TYPE_STRUCT *device_driver_opt_get_interface(const char *devname, io
   MAJOR_KEY_2 major_key_2 = (uint32_t)atoi(dev_info.dev_address);
   pnode = list_find_node(dev_type ,major_key_1, major_key_2);
 
-  /*查询设备get接口*/
   if(pnode == NULL)
   {
     iot_log__warn(lc, "no find this device in the listtable.");
@@ -237,8 +236,8 @@ void device_driver_opt_init(iot_logger_t *lc, const iot_data_t *config)
     /*注册设备驱动*/
     register_device_driver();
 
-    /*启动事件检测*/
-    device_driver_event_report_handler_start();
+    /*启动uv事件检测*/
+    device_driver_uv_handler_start();
 }
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

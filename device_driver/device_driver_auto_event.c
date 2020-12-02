@@ -49,7 +49,23 @@ static void *polling_event_loop(void *par);
 */
 /**
   ******************************************************************
-  * @brief   事件检测轮询
+  * @brief   事件检测上报
+  * @param   [in]handle uv句柄
+  * @retval  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-01
+  ******************************************************************
+  */
+static void polling_report_event_task(uv_idle_t* handle)
+{
+    /*监测运行状态*/
+    
+}
+
+/**
+  ******************************************************************
+  * @brief   uv事件监测
   * @param   [in]par
   * @retval  NULL
   * @author  aron566
@@ -57,31 +73,23 @@ static void *polling_event_loop(void *par);
   * @date    2020-11-24
   ******************************************************************
   */
-static void *polling_event_loop(void *par)
+static void *polling_uv_event_loop(void *par)
 {
-// loop = uv_default_loop();
+    static uv_idle_t idler;
+    uv_loop_t *loop = uv_default_loop();
 
-    // uv_pipe_init(loop, &stdin_pipe, 0);
-    // uv_pipe_open(&stdin_pipe, 0);//连接输入管道
+    /*建立idel*/
+    uv_idle_init(loop, &idler);
 
-    // uv_pipe_init(loop, &stdout_pipe, 0);
-    // uv_pipe_open(&stdout_pipe, 1);//连接输出管道
+    /*设置任务*/
+    uv_idle_start(&idler, polling_report_event_task);
 
-    // uv_fs_t file_req;
-    // int fd = uv_fs_open(loop, &file_req, "/home/aron566/Workspace/custom_device_driver/res/configuration.toml", O_CREAT | O_RDWR, 0644, NULL);
-    
-    // uv_pipe_init(loop, &file_pipe, 0);
-    // uv_pipe_open(&file_pipe, fd);//连接打开的文件管道
-    
-    // uv_read_start((uv_stream_t*)&stdin_pipe, alloc_buffer, read_stdin);
-    
-    // uv_run(loop, UV_RUN_DEFAULT);
-    for(;;)
-    {
+    uv_run(loop, UV_RUN_DEFAULT);
 
-    }
+    /* never return */
     return NULL;
 }
+
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {
     *buf = uv_buf_init((char*) malloc(suggested_size), suggested_size);
 }
@@ -144,9 +152,9 @@ void read_stdin(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf) {
   * @date    2020-11-24
   ******************************************************************
   */
-int device_driver_event_report_handler_start(void)
+int device_driver_uv_handler_start(void)
 {
-    int res = pthread_create(&auto_event_task_thread_id ,NULL ,polling_event_loop ,NULL);
+    int res = pthread_create(&auto_event_task_thread_id ,NULL ,polling_uv_event_loop ,NULL);
     if(res != 0) 
     {
         printf("create auto event task thread fail.\n");

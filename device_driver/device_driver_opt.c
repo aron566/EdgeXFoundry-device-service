@@ -234,10 +234,10 @@ void device_driver_opt_init(iot_logger_t *lc, const iot_data_t *config)
     device_driver_com_init_port();
 
     /*注册设备驱动*/
-    register_device_driver();
+    register_device_driver(lc);
 
     /*启动uv事件检测*/
-    device_driver_uv_handler_start();
+    device_driver_uv_handler_start(lc);
 }
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

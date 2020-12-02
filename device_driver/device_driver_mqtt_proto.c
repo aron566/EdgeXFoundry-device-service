@@ -7,7 +7,7 @@
  *
  *  @copyright None.
  *
- *  @brief None.
+ *  @brief mqtt协议功能.
  *
  *  @details None.
  *

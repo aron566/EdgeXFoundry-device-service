@@ -1,5 +1,5 @@
 /**                                                                             
- *  @file custom-com-circularqueue.c                                                   
+ *  @file custom-common-circularqueue.c                                                   
  *                                                                              
  *  @date 2020年12月02日 11:49:00 星期三
  *

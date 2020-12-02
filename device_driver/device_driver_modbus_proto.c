@@ -129,6 +129,7 @@ void modbus_master_read_port(uv_work_t *req)
         return;
     }
     /*发送读取命令*/
+    device_driver_send_data_port(uint8_t *data, uint32_t len, PROTOCOL_Type_t protocol_type);
 
     /*等待应答*/
 
@@ -145,7 +146,7 @@ void modbus_master_read_port(uv_work_t *req)
 */
 /**
   ******************************************************************
-  * @brief   modebus主站读
+  * @brief   modbus主站读
   * @param   [in]addr 设备地址
   * @param   [in]reg_s 读取寄存器起始地址
   * @param   [in]reg_n 读取寄存器数量
@@ -165,9 +166,8 @@ void device_driver_modbus_master_read(uint8_t addr, uint16_t reg_s, uint16_t reg
     {
         return;
     }
-    /*调用uv线程池，处理数据发送与接收*/
-    uv_queue_work(uv_default_loop(), req, modbus_master_read_port, done_cb);
-}   
+
+}
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

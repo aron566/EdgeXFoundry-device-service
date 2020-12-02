@@ -1,5 +1,5 @@
 /**                                                                             
- *  @file custom-com-circularqueue.h                                                    
+ *  @file custom-common-circularqueue.h                                                    
  *                                                                              
  *  @date 2020年12月02日 12:43:42 星期三
  *                                                                              
@@ -9,8 +9,8 @@
  *                                                                              
  *  @version V1.0                                                               
  */                                                                             
-#ifndef CUSTOM_COM_CIRCULARQUEUE_H                                                          
-#define CUSTOM_COM_CIRCULARQUEUE_H                                                          
+#ifndef CUSTOM_COMMON_CIRCULARQUEUE_H                                                          
+#define CUSTOM_COMMON_CIRCULARQUEUE_H                                                          
 #ifdef __cplusplus ///<use C compiler                                           
 extern "C" {                                                                   
 #endif                                                                          

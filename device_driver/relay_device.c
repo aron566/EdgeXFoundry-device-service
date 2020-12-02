@@ -288,7 +288,8 @@ int relay_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATION
       memmove(&p_node->dev_resource_par[index], dev_resource_par, sizeof(DEV_DRIVER_INTERFACE_Typedef_t));
     }
   }
-
+  
+  printf("relay device register successful.\n");
   return 0;
 }    
                                                                       

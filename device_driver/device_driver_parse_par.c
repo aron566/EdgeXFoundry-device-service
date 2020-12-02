@@ -58,6 +58,7 @@ typedef struct
 /** Private macros -----------------------------------------------------------*/
 #define SERVICE_CONFIG_FILE "res/configuration.toml"
 /** Private constants --------------------------------------------------------*/
+static iot_logger_t *log_lc = NULL;
 /** Public variables ---------------------------------------------------------*/
                                                                                
 /** Private function prototypes ----------------------------------------------*/
@@ -500,7 +501,7 @@ static int parse_service_config(void)
     toml_table_t* conf = load_service_config();
     if(conf == NULL)
     {
-        printf("parse config file error.\n");
+        iot_log_error(log_lc, "parse config file error.");
         return -1;
     }
 
@@ -528,11 +529,11 @@ static int parse_service_config(void)
         dev_name = toml_string_in(array_of_tab, "Name");
         if(dev_name.ok)
         {
-            printf("Name = %s\n", dev_name.u.s);
+            iot_log_debug(log_lc, "Name = %s\n", dev_name.u.s);
             ret = parse_dev_name(dev_name.u.s, &dev_info);
             if(ret != 0)
             {
-                printf("parse dev name error skip one.\n");
+                iot_log_warn(log_lc, "parse dev name error skip one.");
                 continue;
             }
         }
@@ -648,7 +649,7 @@ int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info)
                     dev_info->location_str, dev_info->dev_type_name, dev_info->dev_address);
     if(ret != 4)
     {
-        printf("parse dev_name error.\r\n");
+        iot_log_error(log_lc, "parse dev_name error.");
         return -1;
     }
     else
@@ -660,20 +661,21 @@ int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info)
 /**
  ******************************************************************
  * @brief   注册设备驱动
- * @param   [in]None.
+ * @param   [in]lc log.
  * @retval  None.
  * @author  aron566
  * @version V1.0
  * @date    2020-11-25
  ******************************************************************
  */
-void register_device_driver(void)
+void register_device_driver(iot_logger_t *lc)
 {
+    log_lc = lc;
     /*解析设备服务文件*/
     int ret = parse_service_config();
     if(ret != 0)
     {
-        printf("decode device service file faild.\n");
+        iot_log_error(log_lc, "decode device service file faild.");
         exit(-1);
     }
 }

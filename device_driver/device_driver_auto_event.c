@@ -76,12 +76,16 @@ static void polling_report_event_task(uv_idle_t* handle)
 static void *polling_uv_event_loop(void *par)
 {
     static uv_idle_t idler;
+    iot_logger_t *lc = (iot_logger_t *)par;
+
+    iot_log_debug(lc, "start uv idel task...");
+
     uv_loop_t *loop = uv_default_loop();
 
-    /*建立idel*/
+    /*init idel*/
     uv_idle_init(loop, &idler);
 
-    /*设置任务*/
+    /*set task*/
     uv_idle_start(&idler, polling_report_event_task);
 
     uv_run(loop, UV_RUN_DEFAULT);
@@ -145,19 +149,19 @@ void read_stdin(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf) {
 /**
   ******************************************************************
   * @brief   事件检测轮询启动
-  * @param   [in]par
+  * @param   [in]lc log
   * @retval  返回0成功，-1失败
   * @author  aron566
   * @version V1.0
   * @date    2020-11-24
   ******************************************************************
   */
-int device_driver_uv_handler_start(void)
+int device_driver_uv_handler_start(iot_logger_t *lc)
 {
-    int res = pthread_create(&auto_event_task_thread_id ,NULL ,polling_uv_event_loop ,NULL);
+    int res = pthread_create(&auto_event_task_thread_id ,NULL ,polling_uv_event_loop ,lc);
     if(res != 0) 
     {
-        printf("create auto event task thread fail.\n");
+        iot_log_error(lc, "create auto event task thread faild.");
         exit(res);
     }
     return pthread_detach(auto_event_task_thread_id);

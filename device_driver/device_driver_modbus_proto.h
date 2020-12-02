@@ -33,7 +33,7 @@ extern "C" {
 /** Exported variables -------------------------------------------------------*/
 /** Exported functions prototypes --------------------------------------------*/
 
-/*modebus主站读*/
+/*modbus主站读*/
 void device_driver_modbus_master_read(uint8_t addr, uint16_t reg_s, uint16_t reg_n, 
                                     uv_work_t *req, uint8_t *buf, uv_after_work_cb done_cb);
 

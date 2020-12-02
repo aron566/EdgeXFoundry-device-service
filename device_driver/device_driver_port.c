@@ -185,6 +185,23 @@ int device_driver_com_get_fd(PROTOCOL_Type_t protocol_type)
   */
 int device_driver_send_data_port(uint8_t *data, uint32_t len, PROTOCOL_Type_t protocol_type)
 {
+  if(protocol_type >= UNKNOW_PROTO)
+  {
+      return -1;
+  }
+  switch(protocol_type)
+  {
+    case MQTT_PROTO:
+      break;
+    case MODBUS_RTU_PROTO:
+      return write(device_com_par[MODBUS_RTU_PROTO].fd, data, len);
+    case PRIVATE_PROTO:
+      break;
+    case UNKNOW_PROTO:
+    case PROTO_MAX:
+    default:
+      return -1;
+  }
   return 0;
 }
 

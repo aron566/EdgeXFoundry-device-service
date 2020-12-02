@@ -22,7 +22,8 @@ extern "C" {
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
-#include "device_driver_list.h"                                                                         
+#include "device_driver_list.h"
+#include "../service_component/custom-common.h"                                                                         
 /** Private defines ----------------------------------------------------------*/
                                                                       
 /** Exported typedefines -----------------------------------------------------*/
@@ -34,7 +35,7 @@ extern "C" {
 /** Exported functions prototypes --------------------------------------------*/
 
 /*注册设备驱动*/
-void register_device_driver(void);
+void register_device_driver(iot_logger_t *lc);
 
 /*获取设备协议类型*/
 PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info);

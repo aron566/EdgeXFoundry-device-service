@@ -55,7 +55,7 @@ typedef enum
 void debug_print(uint8_t *msg ,uint32_t msg_len);
 
 /*获取时间*/
-uint32_t get_curent_time_s(UTILITIES_TIME_MODE_Typedef_t mode);
+uint64_t get_curent_time_s(UTILITIES_TIME_MODE_Typedef_t mode);
 
 /*秒转为时间字符串*/
 const char *get_time_str(time_t sec);

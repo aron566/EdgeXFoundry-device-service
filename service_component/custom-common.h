@@ -23,6 +23,7 @@ extern "C" {
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
 #include "devsdk/devsdk.h"
+#include "3third_party/libsqlite/sqlite3.h"
 #include "3third_party/tomlc99/toml.h"
 #include "3third_party/libyaml/yaml.h"
 #include "3third_party/libuv/include/uv.h"
@@ -31,7 +32,7 @@ extern "C" {
 #include "custom-common-file.h"    
 #include "custom-common-crc.h"
 #include "custom-common-epoll.h"
-#include "custom-common-listen-list.h"             
+#include "custom-common-listen-list.h"
 /** Private defines ----------------------------------------------------------*/
                                                                       
 /** Exported typedefines -----------------------------------------------------*/
@@ -59,6 +60,24 @@ int toml_file_cat(const char *toml_filename);
 
 /*过滤指定字符*/
 int common_filter_special_char(char ch, const char *str, char *out_str, int size);
+
+/*解析32位数据-低位在前*/
+uint32_t common_get_u32_data(uint8_t *data ,int start_index);
+
+/*解析16位数据-低位在前*/
+uint16_t common_get_u16_data(uint8_t *data ,int start_index);
+
+/*解析浮点数数据-低位在前*/
+float common_get_float_data(uint8_t *data ,int start_index);
+
+/*解析32位数据-高位在前*/
+uint32_t common_get_modbus_u32_data(uint8_t *data ,int start_index);
+
+/*解析16位数据-高位在前*/
+uint16_t common_get_modbus_u16_data(uint8_t *data ,int start_index);
+
+/*解析浮点数数据-高位在前*/
+float common_get_modbus_float_data(uint8_t *data ,int start_index);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

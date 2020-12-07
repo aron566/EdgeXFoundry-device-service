@@ -37,7 +37,7 @@ uv_pipe_t file_pipe;
 static pthread_t auto_event_task_thread_id;/**< 自动事件任务句柄*/
 /** Private function prototypes ----------------------------------------------*/
 /*事件检测轮询*/
-static void *polling_event_loop(void *par);
+static void *polling_uv_event_loop(void *par);
 /** Private user code --------------------------------------------------------*/                                                                      
 
 /** Private application code -------------------------------------------------*/
@@ -51,7 +51,7 @@ static void *polling_event_loop(void *par);
   ******************************************************************
   * @brief   事件检测上报
   * @param   [in]handle uv句柄
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.0
   * @date    2020-12-01
@@ -60,14 +60,14 @@ static void *polling_event_loop(void *par);
 static void polling_report_event_task(uv_idle_t* handle)
 {
     /*监测运行状态*/
-    
+    printf("uv indel task is running...\n");
 }
 
 /**
   ******************************************************************
   * @brief   uv事件监测
   * @param   [in]par
-  * @retval  NULL
+  * @return  NULL
   * @author  aron566
   * @version V1.0
   * @date    2020-11-24
@@ -150,7 +150,7 @@ void read_stdin(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf) {
   ******************************************************************
   * @brief   事件检测轮询启动
   * @param   [in]lc log
-  * @retval  返回0成功，-1失败
+  * @return  返回0成功，-1失败
   * @author  aron566
   * @version V1.0
   * @date    2020-11-24

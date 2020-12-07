@@ -44,7 +44,7 @@ extern "C" {
   ******************************************************************
   * @brief   xxx
   * @param   [in]xxx
-  * @retval  xxx
+  * @return  xxx
   * @author  aron566
   * @version V1.0
   * @date    2020-11-22

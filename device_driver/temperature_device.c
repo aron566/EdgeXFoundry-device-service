@@ -21,17 +21,19 @@ extern "C" {
 #include "temperature_device.h"
 #include "device_driver_list.h"
 #include "device_driver_parse_par.h"
+#include "device_driver_modbus_proto.h"
 /** Private typedef ----------------------------------------------------------*/
 
 /** Private macros -----------------------------------------------------------*/
 /** Private constants --------------------------------------------------------*/
-static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] = 
+static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] = 
 {
   {
     .par_name               = "temperature",
     .command                = 0x03,
     .command_addr           = 0x0000,
     .value_type             = FLOAT32,
+    .default_value          = 0,
     .permissions            = READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -43,6 +45,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
     .command                = 0x03,
     .command_addr           = 0x0001,
     .value_type             = FLOAT32,
+    .default_value          = 0,
     .permissions            = READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -54,6 +57,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
     .command                = 0x03|0x10,
     .command_addr           = 0x0002,
     .value_type             = FLOAT32,
+    .default_value          = 0,
     .permissions            = PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -65,6 +69,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
     .command                = 0x03|0x10,
     .command_addr           = 0x0003,
     .value_type             = FLOAT32,
+    .default_value          = 0,
     .permissions            = PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -76,6 +81,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
     .command                = 0x03|0x10,
     .command_addr           = 0x0004,
     .value_type             = FLOAT32,
+    .default_value          = 0,
     .permissions            = PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -87,6 +93,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
     .command                = 0x03|0x10,
     .command_addr           = 0x0005,
     .value_type             = FLOAT32,
+    .default_value          = 0,
     .permissions            = PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -98,6 +105,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
     .command                = 0x00,
     .command_addr           = 0x0000,
     .value_type             = VALUE_TYPE_MAX,
+    .default_value          = 0,
     .permissions            = UNKNOW,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -107,10 +115,11 @@ static DEV_DRIVER_INTERFACE_Typedef_t temperature_interface_par[] =
 };
 /** Public variables ---------------------------------------------------------*/
 /** Private function prototypes ----------------------------------------------*/
-static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
-static void set_modbus_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type);
+static int get_modbus_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type);
+static int set_modbus_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type);
 static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type);
 static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);
+static int get_param_index(const char *parm);
 
 static void read_msg_callback(uv_work_t *req, int status);
 /** Private variables --------------------------------------------------------*/
@@ -138,7 +147,7 @@ static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] =
     .get_callback = NULL,
     .set_callback = NULL
   },
-};   
+};
 /** Private user code --------------------------------------------------------*/                                                                     
 
 /** Private application code -------------------------------------------------*/
@@ -150,10 +159,32 @@ static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] =
 */
 /**
   ******************************************************************
+  * @brief   获取参数所在资源索引号
+  * @param   [in]parm 参数名
+  * @return  索引号.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-06
+  ******************************************************************
+  */
+inline static int get_param_index(const char *parm)
+{
+  for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
+  {
+    if(strcmp(parm, resources_interface_par[index].par_name) == 0)
+    {
+      return index;
+    }
+  }
+  return -1;
+}
+
+/**
+  ******************************************************************
   * @brief   轮询设备数据完成回调接口
   * @param   [in]req 请求参数
   * @param   [in]status 状态
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.0
   * @date    2020-12-01
@@ -166,61 +197,55 @@ static void read_msg_callback(uv_work_t *req, int status)
 
 /**
   ******************************************************************
-  * @brief   解析温度数据
-  * @param   [in]input_data 请求参数
-  * @param   [out]out_data 返回数据
-  * @param   [out]type 数据类型
-  * @retval  None.
-  * @author  aron566
-  * @version V1.0
-  * @date    2020-12-01
-  ******************************************************************
-  */
-// static void decode_temperature(uint8_t *data, )
-// {
-//   uint8_t crc_l = 0 ,crc_h = 0 ,data_crc_l = 0,data_crc_h = 0;
-//   //校验CRC
-//   return_check_crc(uint8_t *msg ,uint16_t len);
-
-//   /*校验通过*/
-//   int temp = *((unsigned char*) (cb->ptr + ((cb->read_offset+len-6)%cb->count)));
-//   temp <<= 8;
-//   temp |= *((unsigned char*) (cb->ptr + ((cb->read_offset+len-5)%cb->count)));
-
-//   float CurrentTemperature = (float)temp/10.0;
-
-//   temp = *((unsigned char*) (cb->ptr + ((cb->read_offset+len-4)%cb->count)));
-//   temp <<= 8;
-//   temp |= *((unsigned char*) (cb->ptr + ((cb->read_offset+len-3)%cb->count)));
-//   float CurrentHumidity = (float)temp/10.0;
-
-//   printf("CurrentTemperature:%.1f℃,CurrentHumidity:%.1f%%\n" ,CurrentTemperature ,CurrentHumidity);
-// }
-
-/**
-  ******************************************************************
   * @brief   读取modbus设备数值接口
   * @param   [in]input_data 请求参数
   * @param   [out]out_data 返回数据
   * @param   [out]type 数据类型
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-13
   ******************************************************************
   */
-static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
+static int get_modbus_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
 {
+  MODBUS_PARSE_CODE_Typedef_t state = MODBUS_OK;
   const char *parm = (const char *)input_data;
   devsdk_commandresult *out_value = (devsdk_commandresult *)out_data;
-  for(int index = 0; temperature_interface_par[index].par_name != NULL; index++)
+  
+  uint8_t addr = get_modbus_device_addr(dev_name);
+  uint16_t reg_n = 1;
+  uint16_t *reg_value = NULL;
+  int index = get_param_index(parm);
+  if(index == -1)
   {
-    if(strcmp(parm, temperature_interface_par[index].par_name) == 0)
-    {
-      /*获取设备数据*/
+    return -1;
+  }
 
-      out_value->value = iot_data_alloc_i32 ((random () % 501) - 250);
+  /*检测权限*/
+  if(READ_ONLY & resources_interface_par[index].permissions)
+  {
+    /*获取设备数据*/
+    uint16_t reg_s = resources_interface_par[index].command_addr;
+    state = device_driver_modbus_master_read(addr, reg_s, reg_n, &reg_value);
+    if(state == MODBUS_OK)
+    {
+      out_value->value = iot_data_alloc_f32((float)(*reg_value)/10.0);
+      if(reg_value != NULL)
+      {
+        free(reg_value);
+      }
+      return 0;
     }
+  }
+  else if(PRIVATE_READ & resources_interface_par[index].permissions)
+  {
+    /*读内部参数*/
+    
+  }
+  else
+  {
+    return -1;
   }
 }
 
@@ -228,35 +253,59 @@ static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_T
   ******************************************************************
   * @brief   设置modbus设备数值接口
   * @param   [in]input_data 设置参数
-  * @param   [out]out_data 返回数据
+  * @param   [in]set_data 返回数据
   * @param   [out]type 数据类型
-  * @retval  None.
+  * @return  0设置成功.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-13
   ******************************************************************
   */
-static void set_modbus_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type)
+static int set_modbus_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type)
 {
+  MODBUS_PARSE_CODE_Typedef_t state = MODBUS_OK;
+  const char *parm = (const char *)input_data;
+  const iot_data_t *data = (const iot_data_t *)set_data;
+  uint8_t addr = get_modbus_device_addr(dev_name);
+  uint16_t reg_n = 1;
 
+  int index = get_param_index(parm);
+  if(index == -1)
+  {
+    return -1;
+  }
+
+  /*检测权限*/
+  if(WRITE_ONLY & resources_interface_par[index].permissions)
+  {
+    uint16_t reg_s = resources_interface_par[index].command_addr;
+    uint16_t reg_d = iot_data_ui16 (data);
+    state = device_driver_modbus_master_write(addr, reg_s, reg_n, &reg_d);
+    if(state == MODBUS_OK)
+    {
+      return 0;
+    }
+    else
+    {
+      return -1;
+    }
+  }
+  else if(PRIVATE_WRITE & resources_interface_par[index].permissions)
+  {
+    /*写内部参数*/
+    
+  }
+  else
+  {
+    return -1;
+  }
 }
-/**
-  ******************************************************************
-  * @brief   解析设备名称获取相关信息
-  * @param   [in]dev_name
-  * @retval  解析后数据
-  * @author  aron566
-  * @version V1.0
-  * @date    2020-11-9
-  ******************************************************************
-  */
-
 
 /**
   ******************************************************************
   * @brief   分配协议解析器-set
   * @param   [in]protocol_type 协议类型
-  * @retval  解析器.
+  * @return  解析器.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-24
@@ -282,7 +331,7 @@ static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type)
   ******************************************************************
   * @brief   分配协议解析器-get
   * @param   [in]protocol_type 协议类型
-  * @retval  解析器.
+  * @return  解析器.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-24
@@ -329,7 +378,7 @@ void *get_temperature_device_value(const char *dev_name, const char *req_param)
   ******************************************************************
   * @brief   获取温湿度设备资源表
   * @param   [in]None.
-  * @retval  DEV_DRIVER_INTERFACE_Typedef_t.
+  * @return  DEV_DRIVER_INTERFACE_Typedef_t.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-24
@@ -337,15 +386,16 @@ void *get_temperature_device_value(const char *dev_name, const char *req_param)
   */
 DEV_DRIVER_INTERFACE_Typedef_t *get_temperature_device_resource(void)
 {
-  return temperature_interface_par;
+  return resources_interface_par;
 }
+
 /**
   ******************************************************************
   * @brief   温湿度设备驱动注册
   * @param   [in]dev_info 设备信息
   * @param   [in]communication_par 设备通讯参数
   * @param   [in]dev_resource_par 设备资源信息
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.1
   * @date    2020-12-02
@@ -369,7 +419,7 @@ int temperature_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNI
   p_node = list_find_node(TEMPERATURE_DEV_TYPE, major_key_1, major_key_2);
   if(p_node == NULL)
   {
-    node_p = (NODE_Typedef_t *)calloc(1, sizeof(NODE_Typedef_t)+(sizeof(DEV_DRIVER_INTERFACE_Typedef_t)*sizeof(temperature_interface_par)));
+    node_p = (NODE_Typedef_t *)calloc(1, sizeof(NODE_Typedef_t)+(sizeof(DEV_DRIVER_INTERFACE_Typedef_t)*sizeof(resources_interface_par)));
     if(node_p == NULL)
     {
       printf("can't calloc memory for temperature dev.\n");
@@ -378,7 +428,7 @@ int temperature_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNI
     p_node = &node_p->node;
     p_node->major_key_1 = major_key_1;
     p_node->major_key_2 = major_key_2;
-    memmove(p_node->dev_resource_par, temperature_interface_par, sizeof(temperature_interface_par));
+    memmove(p_node->dev_resource_par, resources_interface_par, sizeof(resources_interface_par));
     memmove(&p_node->communication_par, communication_par, sizeof(DEV_COMMUNICATION_PAR_Typedef_t));
     p_node->get_dev_value_callback = get_get_callback(communication_par->protocol_type);
     p_node->set_dev_value_callback = get_set_callback(communication_par->protocol_type);

@@ -19,7 +19,7 @@
  *          EPOLLLT： 将EPOLL设为水平触发(Level Triggered)模式，事件就绪时，假设对事件没做处理，内核会反复通知事件就绪
  *          EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里
  *
- *  @version V1.0
+ *  @version V1.1
  */
 #ifdef __cplusplus ///<use C compiler
 extern "C" {
@@ -55,9 +55,9 @@ static void epoll_handle_events(int epollfd ,struct epoll_event *events ,int num
 static void epoll_handle_accpet(int epollfd ,int listenfd);/**< 允许tcp客户端连接*/
 
 /*epoll事件增删改接口*/
-static void epoll_modify_event(int fd ,int state);
-static void epoll_delete_event(int fd ,int state);
-static void epoll_add_event(int fd ,int state);
+static void epoll_modify_event(int fd ,uint32_t events);
+static void epoll_delete_event(int fd ,uint32_t events);
+static void epoll_add_event(int fd ,uint32_t events);
 /** Private user code --------------------------------------------------------*/
                                                                                 
 /** Private application code -------------------------------------------------*/
@@ -233,12 +233,12 @@ static void epoll_handle_accpet(int epollfd ,int listenfd)
  * 
  * @param epollfd 
  * @param fd 
- * @param state 
+ * @param events 事件 
  */
-static void epoll_add_event(int fd ,int state)
+static void epoll_add_event(int fd ,uint32_t events)
 {
     struct epoll_event ev;
-    ev.events = state;
+    ev.events = events;
     ev.data.fd = fd;
     int epollfd = get_epoll_fd();
     if(epollfd <= 0)
@@ -253,12 +253,12 @@ static void epoll_add_event(int fd ,int state)
  * 
  * @param epollfd 
  * @param fd 
- * @param state 
+ * @param events 事件  
  */
-static void epoll_delete_event(int fd ,int state)
+static void epoll_delete_event(int fd ,uint32_t events)
 {
     struct epoll_event ev;
-    ev.events = state;
+    ev.events = events;
     ev.data.fd = fd;
     int epollfd = get_epoll_fd();
     if(epollfd <= 0)
@@ -273,12 +273,12 @@ static void epoll_delete_event(int fd ,int state)
  * 
  * @param epollfd 
  * @param fd 
- * @param state 
+ * @param events 事件 
  */
-static void epoll_modify_event(int fd ,int state)
+static void epoll_modify_event(int fd ,uint32_t events)
 {
     struct epoll_event ev;
-    ev.events = state;
+    ev.events = events;
     ev.data.fd = fd;
     int epollfd = get_epoll_fd();
     if(epollfd <= 0)

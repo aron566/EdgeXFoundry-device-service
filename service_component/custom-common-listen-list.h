@@ -44,7 +44,7 @@ typedef enum
     TCP_CLIENT_SOCKET,      /**< tcp客户端的套接字*/         
     UDP_SERVER_SOCKET,      /**< udp服务器的套接字*/   
     UDP_CLIENT_SOCKET,      /**< udp客户端的套接字*/ 
-     /**< 串口类*/
+    /**< 串口类*/
     SERIAL_ID_1,            /**< 串口1*/ 
     SERIAL_ID_2, 
     SERIAL_ID_3,

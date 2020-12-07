@@ -33,15 +33,6 @@ typedef struct
     PARSE_COM_PAR_FUNC parse_func;          /**< 解析通讯参数函数*/
 }PARSE_COM_PAR_MAP_Typedef_t;
 
-/*设备类型列表*/
-typedef int (*REGISTER_DEV_FUNC)(DEV_INFO_Typedef_t *, DEV_COMMUNICATION_PAR_Typedef_t *, DEV_DRIVER_INTERFACE_Typedef_t *);
-typedef struct 
-{
-    const char* const type_name;    /**< 类型名称*/
-    DEVICE_Typedef_t dev_type;      /**< 类型*/
-    REGISTER_DEV_FUNC register_func;/**< 设备注册函数*/
-}DEVICE_TYPE_MAP_Typedef_t;
-
 /*设备资源列表*/
 typedef struct 
 {
@@ -197,7 +188,7 @@ static EVENT_TIME_UNIT_MAP_Typedef_t event_interval_unit[] =
  * @brief   解析mqtt参数
  * @param   [in]tab 参数表
  * @param   [out]par 写入参数的内存区
- * @retval  返回0成功，-1失败
+ * @return  返回0成功，-1失败
  * @author  aron566
  * @version V1.0
  * @date    2020-11-20
@@ -230,7 +221,7 @@ static int parse_mqtt_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t *pa
  * @brief   解析modbus-rtu参数
  * @param   [in]tab 参数表
  * @param   [out]par 写入参数的内存区
- * @retval  返回0成功，-1失败
+ * @return  返回0成功，-1失败
  * @author  aron566
  * @version V1.0
  * @date    2020-11-20
@@ -258,7 +249,7 @@ static int parse_modbus_rtu_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef
  * @brief   解析私有参数
  * @param   [in]tab 参数表
  * @param   [out]par 写入参数的内存区
- * @retval  返回0成功，-1失败
+ * @return  返回0成功，-1失败
  * @author  aron566
  * @version V1.0
  * @date    2020-11-20
@@ -285,7 +276,7 @@ static int parse_private_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t 
  ******************************************************************
  * @brief   解析事件时间单位
  * @param   [in]unit_name 单位名
- * @retval  EVENT_REPORT_TIME_UNIT
+ * @return  EVENT_REPORT_TIME_UNIT
  * @author  aron566
  * @version V1.0
  * @date    2020-11-25
@@ -311,7 +302,7 @@ static EVENT_REPORT_TIME_UNIT get_event_time_unit(const char *unit_name)
  * @brief   解析设备事件上报间隔参数
  * @param   [in]interval_str间隔时间字符串
  * @param   [in]time_par 时间解析存储区
- * @retval  解析正确返回0，错误-1
+ * @return  解析正确返回0，错误-1
  * @author  aron566
  * @version V1.0
  * @date    2020-11-25
@@ -344,7 +335,7 @@ static int get_event_interval(const char *interval_str, INTERVAL_TIME_Typedef_t 
  * @param   [in]tab 事件表
  * @param   [in]dev_info 设备解析结构信息
  * @param   [out]dev_resource_par 设备资源信息
- * @retval  解析正确返回0，错误-1
+ * @return  解析正确返回0，错误-1
  * @author  aron566
  * @version V1.0
  * @date    2020-11-09
@@ -428,9 +419,27 @@ static int parse_event_par_update(toml_table_t *tab, DEV_INFO_Typedef_t *dev_inf
 
 /**
  ******************************************************************
+ * @brief   设备事件默认值参数更新
+ * @param   [in]dev_info 设备解析结构信息
+ * @param   [out]dev_resource_par 设备资源信息
+ * @return  解析正确返回0，错误-1
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-12-06
+ ******************************************************************
+ */
+static int event_default_value_update(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par)
+{
+    /*检查设备事件表是否存在*/
+
+    return 0;
+}
+
+/**
+ ******************************************************************
  * @brief   注册设备
  * @param   [in]None.
- * @retval  成功toml_table_t *失败NULL
+ * @return  成功toml_table_t *失败NULL
  * @author  aron566
  * @version V1.0
  * @date    2020-11-15
@@ -457,7 +466,7 @@ static void register_dev_distribution(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNIC
  ******************************************************************
  * @brief   解析服务配置文件
  * @param   [in]None.
- * @retval  成功toml_table_t *失败NULL
+ * @return  成功toml_table_t *失败NULL
  * @author  aron566
  * @version V1.0
  * @date    2020-11-15
@@ -490,7 +499,7 @@ static toml_table_t* load_service_config(void)
  ******************************************************************
  * @brief   解析服务配置文件
  * @param   [in]None.
- * @retval  成功0,失败-1
+ * @return  成功0,失败-1
  * @author  aron566
  * @version V1.0
  * @date    2020-11-15
@@ -564,6 +573,9 @@ static int parse_service_config(void)
             }
         }
         
+        /*更新事件初始值*/
+        event_default_value_update(&dev_info, &dev_resource_par);
+
         /*分配注册*/
         register_dev_distribution(&dev_info, &communication_par, &dev_resource_par);
     }
@@ -582,7 +594,7 @@ static int parse_service_config(void)
  ******************************************************************
  * @brief   返回协议类型
  * @param   [in]DEV_INFO_Typedef_t 设备信息
- * @retval  PROTOCOL_Type_t 协议类型
+ * @return  PROTOCOL_Type_t 协议类型
  * @author  aron566
  * @version V1.0
  * @date    2020-11-18
@@ -608,7 +620,7 @@ PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info)
  ******************************************************************
  * @brief   返回设备类型
  * @param   [in]DEV_INFO_Typedef_t 设备信息
- * @retval  PROTOCOL_Type_t 协议类型
+ * @return  PROTOCOL_Type_t 协议类型
  * @author  aron566
  * @version V1.0
  * @date    2020-11-18
@@ -632,10 +644,50 @@ DEVICE_Typedef_t get_device_type(DEV_INFO_Typedef_t *dev_info)
 
 /**
  ******************************************************************
+ * @brief   返回设备地址
+ * @param   [in]DEV_INFO_Typedef_t 设备信息
+ * @return  -1失败 ，地址
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-12-06
+ ******************************************************************
+ */
+int get_device_addr(DEV_INFO_Typedef_t *dev_info)
+{
+    if(dev_info == NULL)
+    {
+        return -1;
+    }
+    return atoi(dev_info->dev_address);
+}
+
+/**
+ ******************************************************************
+ * @brief   返回设备地址
+ * @param   [in]dev_name 设备名
+ * @return  地址
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-12-06
+ ******************************************************************
+ */
+uint8_t get_modbus_device_addr(const char *dev_name)
+{
+  DEV_INFO_Typedef_t dev_info;
+  int ret = parse_dev_name(dev_name, &dev_info);
+  if(ret != 0)
+  {
+    return 0;
+  }
+  return (uint8_t)atoi(dev_info.dev_address);
+}
+
+/**
+ ******************************************************************
  * @brief   解析设备名包含的信息
  * @param   [in]dev_name 设备完整名
  * @param   [out]dev_info 设备解析结构信息存储区
- * @retval  解析正确返回0，错误-1
+ * @return  解析正确返回0，错误-1
  * @author  aron566
  * @version V1.0
  * @date    2020-11-09
@@ -660,9 +712,24 @@ int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info)
 
 /**
  ******************************************************************
+ * @brief   获取设备类型表
+ * @param   [in]None.
+ * @return  None.
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-12-07
+ ******************************************************************
+ */
+DEVICE_TYPE_MAP_Typedef_t *get_device_type_list(void)
+{
+    return device_type_map;
+}
+
+/**
+ ******************************************************************
  * @brief   注册设备驱动
  * @param   [in]lc log.
- * @retval  None.
+ * @return  None.
  * @author  aron566
  * @version V1.0
  * @date    2020-11-25

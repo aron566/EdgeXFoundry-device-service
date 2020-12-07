@@ -26,13 +26,14 @@ extern "C" {
 /** Private macros -----------------------------------------------------------*/
 
 /** Private constants --------------------------------------------------------*/
-static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] = 
+static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] = 
 {
   {
     .par_name               = "r_service_ver",
     .command                = 0x03,
     .command_addr           = 0x0000,
     .value_type             = STRING,
+    .default_value          = 0,
     .permissions            = READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -44,6 +45,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
     .command                = 0x03,
     .command_addr           = 0x0001,
     .value_type             = STRING,
+    .default_value          = 0,
     .permissions            = READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -55,6 +57,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
     .command                = 0x03|0x10,
     .command_addr           = 0x0002,
     .value_type             = STRING,
+    .default_value          = 0,
     .permissions            = READ_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -66,6 +69,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
     .command                = 0x03|0x10,
     .command_addr           = 0x0003,
     .value_type             = STRING,
+    .default_value          = 0,
     .permissions            = READ_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -77,6 +81,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
     .command                = 0x00,
     .command_addr           = 0x0004,
     .value_type             = STRING,
+    .default_value          = 0,
     .permissions            = UNKNOW,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -87,8 +92,8 @@ static DEV_DRIVER_INTERFACE_Typedef_t relay_interface_par[] =
 /** Public variables ---------------------------------------------------------*/
                                                                                 
 /** Private function prototypes ----------------------------------------------*/
-static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type);
-static void set_modbus_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type);   
+static int get_modbus_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type);
+static int set_modbus_dev_value(const char *dev_name, const void *input_data, const void *out_data, VALUE_Type_t *type);   
 static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type);
 static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);              
 /** Private variables --------------------------------------------------------*/
@@ -131,13 +136,13 @@ static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] =
   * @param   [in]input_data 请求参数
   * @param   [out]out_data 返回数据
   * @param   [out]type 数据类型
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-13
   ******************************************************************
   */
-static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_Type_t *type)
+static int get_modbus_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
 {
 
 }
@@ -148,13 +153,13 @@ static void get_modbus_dev_value(const void *input_data, void *out_data, VALUE_T
   * @param   [in]input_data 设置参数
   * @param   [out]out_data 返回数据
   * @param   [out]type 数据类型
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-13
   ******************************************************************
   */
-static void set_modbus_dev_value(const void *input_data, const void *out_data, VALUE_Type_t *type)
+static int set_modbus_dev_value(const char *dev_name, const void *input_data, const void *out_data, VALUE_Type_t *type)
 {
 
 } 
@@ -163,7 +168,7 @@ static void set_modbus_dev_value(const void *input_data, const void *out_data, V
   ******************************************************************
   * @brief   分配协议解析器-set
   * @param   [in]protocol_type 协议类型
-  * @retval  解析器.
+  * @return  解析器.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-24
@@ -189,7 +194,7 @@ static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type)
   ******************************************************************
   * @brief   分配协议解析器-get
   * @param   [in]protocol_type 协议类型
-  * @retval  解析器.
+  * @return  解析器.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-24
@@ -221,7 +226,7 @@ static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type)
   ******************************************************************
   * @brief   获取继电器设备资源表
   * @param   [in]None.
-  * @retval  DEV_DRIVER_INTERFACE_Typedef_t.
+  * @return  DEV_DRIVER_INTERFACE_Typedef_t.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-24
@@ -229,7 +234,7 @@ static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type)
   */
 DEV_DRIVER_INTERFACE_Typedef_t *get_relay_device_resource(void)
 {
-  return relay_interface_par;
+  return resources_interface_par;
 }
 
 /**
@@ -238,7 +243,7 @@ DEV_DRIVER_INTERFACE_Typedef_t *get_relay_device_resource(void)
   * @param   [in]dev_info 设备信息
   * @param   [in]communication_par 设备通讯参数
   * @param   [in]dev_resource_par 设备资源信息
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.1
   * @date    2020-12-02
@@ -262,7 +267,7 @@ int relay_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATION
   p_node = list_find_node(RELAY_DEV_TYPE, major_key_1, major_key_2);
   if(p_node == NULL)
   {
-    node_p = (NODE_Typedef_t *)calloc(1, sizeof(NODE_Typedef_t)+(sizeof(DEV_DRIVER_INTERFACE_Typedef_t)*sizeof(relay_interface_par)));
+    node_p = (NODE_Typedef_t *)calloc(1, sizeof(NODE_Typedef_t)+(sizeof(DEV_DRIVER_INTERFACE_Typedef_t)*sizeof(resources_interface_par)));
     if(node_p == NULL)
     {
       printf("can't calloc memory for relay dev.\n");
@@ -271,7 +276,7 @@ int relay_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATION
     p_node = &node_p->node;
     p_node->major_key_1 = major_key_1;
     p_node->major_key_2 = major_key_2;
-    memmove(p_node->dev_resource_par, relay_interface_par, sizeof(relay_interface_par));
+    memmove(p_node->dev_resource_par, resources_interface_par, sizeof(resources_interface_par));
     memmove(&p_node->communication_par, communication_par, sizeof(DEV_COMMUNICATION_PAR_Typedef_t));
     p_node->get_dev_value_callback = get_get_callback(communication_par->protocol_type);
     p_node->set_dev_value_callback = get_set_callback(communication_par->protocol_type);

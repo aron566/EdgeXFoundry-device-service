@@ -7,7 +7,7 @@
  *                                                                              
  *  @brief None.                                                                
  *                                                                              
- *  @version V1.0                                                               
+ *  @version V1.2                                                               
  */                                                                             
 #ifndef CUSTOM_COMMON_CIRCULARQUEUE_H                                                          
 #define CUSTOM_COMMON_CIRCULARQUEUE_H                                                          
@@ -36,6 +36,22 @@ typedef struct
 	uint32_t entrance;
 	uint32_t exit;
 }CQ_handleTypeDef;
+
+/*缓冲区大小*/
+typedef enum
+{
+	CQ_BUF_128B = 1 << 7,
+	CQ_BUF_256B = 1 << 8,
+	CQ_BUF_512B = 1 << 9,
+	CQ_BUF_1KB 	= 1 << (10 * 1), ///< 1*10
+	CQ_BUF_2KB 	= 1 << 11,
+	CQ_BUF_4KB 	= 1 << 12,
+	CQ_BUF_8KB 	= 1 << 13,
+    CQ_BUF_1MB 	= 1 << (10 * 2), ///< 2*10
+    CQ_BUF_1GB 	= 1 << (10 * 3), ///< 3*10
+    // CQ_BUF_1TB 	= 1 << (10 * 4), ///< 4*10
+    // CQ_BUF_1PB 	= 1 << (10 * 5), ///< 5*10
+}CQ_BUF_SIZE_ENUM_TypeDef;
 /** Exported constants -------------------------------------------------------*/
 
 /** Exported macros-----------------------------------------------------------*/
@@ -53,6 +69,14 @@ uint32_t CQ_getLength(CQ_handleTypeDef *CircularQueue);
 /*手动缩减缓冲区长度--用作：错误帧偏移-正确帧读取后剔除*/
 void CQ_ManualOffsetInc(CQ_handleTypeDef *CircularQueue ,uint32_t len);
 
+/*跳转到指定有效数据，用于快速丢弃无效头部数据*/
+uint32_t CQ_skipInvaildU8Header(CQ_handleTypeDef *cb, uint8_t header_data);
+/*modbus 高位在前-低位在后存储*/
+uint32_t CQ_skipInvaildModbusU16Header(CQ_handleTypeDef *cb, uint16_t header_data);
+uint32_t CQ_skipInvaildModbusU32Header(CQ_handleTypeDef *cb, uint32_t header_data);
+/*低位在前-高位在后*/
+uint32_t CQ_skipInvaildU32Header(CQ_handleTypeDef *cb, uint32_t header_data);
+uint32_t CQ_skipInvaildU16Header(CQ_handleTypeDef *cb, uint16_t header_data);
 /*===========================8 Bit Option==============================*/
 bool CQ_init(CQ_handleTypeDef *CircularQueue ,uint8_t *memAdd ,uint32_t len);
 /*分配一个缓冲区并进行初始化--替代--CQ_init*/
@@ -69,7 +93,7 @@ uint32_t DQ_getData(CQ_handleTypeDef *CircularQueue ,uint8_t *targetBuf);
 /*修改后的获取数据操作--数据读取后不会减小缓冲区长度，需手动减小,目的为了分步取出完整数据*/
 uint32_t CQ_ManualGetData(CQ_handleTypeDef *CircularQueue ,uint8_t *targetBuf ,uint32_t len);
 /*修改后的获取数据操作--读取指定偏移的数据，不会减小缓冲区长度,目的为了验证数据，判断帧头等*/
-uint8_t CQ_ManualGet_Offset_Data(uint32_t index ,CQ_handleTypeDef *CircularQueue);
+uint8_t CQ_ManualGet_Offset_Data(CQ_handleTypeDef *CircularQueue, uint32_t index);
 
 /*===========================16 Bit Option==============================*/
 /*16bit环形缓冲区初始化*/

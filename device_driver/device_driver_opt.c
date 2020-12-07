@@ -49,7 +49,7 @@ static NODE_TYPE_STRUCT *device_driver_opt_get_interface(const char *devname, io
   * @brief   获取设备驱动接口
   * @param   [in]devname 设备名.
   * @param   [in]lc 日志记录.
-  * @retval  pnode 设备驱动节点
+  * @return  pnode 设备驱动节点
   * @author  aron566
   * @version V1.0
   * @date    2020-12-01
@@ -101,7 +101,7 @@ static NODE_TYPE_STRUCT *device_driver_opt_get_interface(const char *devname, io
   * @param   [in]param 请求参数.
   * @param   [in]readings 返回结果内存区.
   * @param   [in]lc 日志记录.
-  * @retval  0请求成功 ，-1失败.
+  * @return  0请求成功 ，-1失败.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-27
@@ -124,9 +124,8 @@ int device_driver_opt_get(const char *devname, const char *param, devsdk_command
     return -1;
   }
   VALUE_Type_t value_type = VALUE_TYPE_MAX;
-  pnode->get_dev_value_callback(param, readings, &value_type);
-    
-  return 0;    
+
+  return pnode->get_dev_value_callback(devname, param, readings, &value_type);    
 }
 
 /**
@@ -136,7 +135,7 @@ int device_driver_opt_get(const char *devname, const char *param, devsdk_command
   * @param   [in]param 请求参数.
   * @param   [in]values 设置值.
   * @param   [in]lc 日志记录.
-  * @retval  0请求成功 ，-1失败.
+  * @return  0请求成功 ，-1失败.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-27
@@ -159,17 +158,14 @@ int device_driver_opt_set(const char *devname, const char *param, const iot_data
     return -1;
   }
   VALUE_Type_t value_type = VALUE_TYPE_MAX;
-  pnode->set_dev_value_callback(param, values, &value_type);
-    
-  bool state = iot_data_bool (values);
-  return 0;
+  return pnode->set_dev_value_callback(devname, param, values, &value_type);
 }
 
 /**
   ******************************************************************
   * @brief   设备驱动重配置接口
   * @param   [in]lc 日志记录.
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-27
@@ -185,7 +181,7 @@ void device_driver_opt_discover(iot_logger_t *lc)
   * @brief   设备驱动重配置接口
   * @param   [in]lc 日志记录.
   * @param   [in]config 配置数据
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-27
@@ -201,7 +197,7 @@ void device_driver_opt_stop(iot_logger_t *lc, bool force)
   * @brief   设备驱动重配置接口
   * @param   [in]lc 日志记录.
   * @param   [in]config 配置数据
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-27
@@ -217,7 +213,7 @@ void device_driver_opt_reconfigure(iot_logger_t *lc, const iot_data_t *config)
   * @brief   设备驱动初始化
   * @param   [in]lc 日志记录器.
   * @param   [in]config 配置数据.
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.0
   * @date    2020-11-27
@@ -225,19 +221,28 @@ void device_driver_opt_reconfigure(iot_logger_t *lc, const iot_data_t *config)
   */
 void device_driver_opt_init(iot_logger_t *lc, const iot_data_t *config)
 {
-    iot_log_info(lc, "start device driver now.");
+  iot_log_info(lc, "start device driver now.");
 
-    /*初始化链表*/
-    list_table_init();
+  /*初始化链表*/
+  list_table_init();
 
-    /*通讯端口初始化*/
-    device_driver_com_init_port();
+  /*初始化数据库*/
+  dev_driver_event_db_init(lc);
 
-    /*注册设备驱动*/
-    register_device_driver(lc);
+  /*通讯端口初始化*/
+  device_driver_com_init_port();
 
-    /*启动uv事件检测*/
-    device_driver_uv_handler_start(lc);
+  /*创建自定义监听*/
+  epoll_listen_create();
+
+  /*modbus主站协议栈初始化*/
+  device_driver_modbus_master_stack_init();
+
+  /*注册设备驱动*/
+  register_device_driver(lc);
+
+  /*启动uv事件检测*/
+  device_driver_uv_handler_start(lc);
 }
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

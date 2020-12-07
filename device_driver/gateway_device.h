@@ -23,7 +23,7 @@ extern "C" {
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
 #include "service_component/custom-common.h"
-#include "device_driver_list_config.h"                                       
+#include "device_driver_list_config.h"
 /** Private defines ----------------------------------------------------------*/
                                                                    
 /** Exported typedefines -----------------------------------------------------*/

@@ -50,7 +50,7 @@ extern "C" {
   ******************************************************************
   * @brief   判断文件是否存在
   * @param   [in]fimename 文件名
-  * @retval  返回0文件存在
+  * @return  返回0文件存在
   * @author  aron566
   * @version V1.0
   * @date    2020-08-28
@@ -66,7 +66,7 @@ int file_is_exist(const char *fimename)
   * @brief   移动或重命名文件
   * @param   [in]old_fimename 旧文件名
   * @param   [in]new_filename 新文件名
-  * @retval  返回0移动成功，-1失败
+  * @return  返回0移动成功，-1失败
   * @author  aron566
   * @version V1.0
   * @date    2020-12-01
@@ -85,7 +85,7 @@ int file_move(const char *old_fimename, const char *new_filename)
   ******************************************************************
   * @brief   删除文件
   * @param   [in]fimename 文件名
-  * @retval  返回0删除成功，-1失败
+  * @return  返回0删除成功，-1失败
   * @author  aron566
   * @version V1.0
   * @date    2020-12-01
@@ -105,7 +105,7 @@ int file_delete(const char *fimename)
   * @brief   复制文件
   * @param   [in]source_fimename 源文件名
   * @param   [in]dest_fimename 目标文件名
-  * @retval  返回0复制成功，-1失败
+  * @return  返回0复制成功，-1失败
   * @author  aron566
   * @version V1.0
   * @date    2020-12-01
@@ -139,7 +139,7 @@ int file_copy(const char *source_fimename, const char *dest_fimename)
   * @brief   打开指定文件返回文件描述符,追加模式下fseek(fp, 0, SEEK_SET)无效
   * @param   [in]fimename 文件名
   * @param   [in]mode 打开文件的模式选择
-  * @retval  返回0文件存在
+  * @return  返回0文件存在
   * @author  aron566
   * @version V1.0
   * @date    2020-08-28
@@ -177,7 +177,7 @@ FILE *file_open(const char *filename ,FILE_OPEN_MODE mode)
   * @brief   打开读取指定打开的文件，返回总行数
   * @param   [in]fp 文件指针
   * @param   [in]filename 文件名称
-  * @retval  返回-1读取失败
+  * @return  返回-1读取失败
   * @author  aron566
   * @version V1.0
   * @date    2020-08-28
@@ -218,7 +218,7 @@ int file_get_line_cnt(const char *filename)
   * @param   [in]读取到的数据存储区
   * @param   [in]限制长度
   * @param 	 [in]需读取的行
-  * @retval  执行结果，读取到字节数
+  * @return  执行结果，读取到字节数
   * @author  aron566
   * @version V1.0
   * @date    2020-08-28
@@ -327,7 +327,7 @@ size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
   * @param   [in]size写入的元素占总字节数
   * @param 	 [in]count写入元素数目
   * @param 	 [in]mode文件写入模式
-  * @retval  执行结果，写入元素的总数
+  * @return  执行结果，写入元素的总数
   * @author  aron566
   * @version V1.0
   * @date    2020-10-09
@@ -353,7 +353,7 @@ size_t file_write(const char *filename ,const void* buffer ,size_t size ,size_t 
   * @brief   读取文件内容
   * @param   [in]fimename 文件名
   * @param   [out]size 文件大小
-  * @retval  文件内容，使用完必须释放
+  * @return  文件内容，使用完必须释放
   * @author  aron566
   * @version V1.0
   * @date    2020-12-01
@@ -385,7 +385,7 @@ uint8_t *file_readfile_alloc(const char *filename, uint32_t *size)
   * @param   [in]目标字符串
   * @param   [in]源字符
   * @param   [in]目标字符
-  * @retval  执行结果，当前字符长度
+  * @return  执行结果，当前字符长度
   * @author  aron566
   * @version V1.0
   * @date    2020-08-28
@@ -404,7 +404,7 @@ size_t file_replace_ch(char *sourcebuf ,char sourcech,char destch)
   ******************************************************************
   * @brief   去除字符串右端空格
   * @param   [in]字符串指针
-  * @retval  修剪后的字符串地址
+  * @return  修剪后的字符串地址
   * @author  aron566
   * @version V1.0
   * @date    2020-08-28
@@ -423,7 +423,7 @@ char *strtrimr(char *pstr)
   ******************************************************************
   * @brief   去除字符串左端空格
   * @param   [in]字符串指针
-  * @retval  修剪后的字符串地址
+  * @return  修剪后的字符串地址
   * @author  aron566
   * @version V1.0
   * @date    2020-08-28
@@ -444,7 +444,7 @@ char *strtriml(char *pstr)
   ******************************************************************
   * @brief   去除字符串两端空格
   * @param   [in]字符串指针
-  * @retval  修剪后的字符串地址
+  * @return  修剪后的字符串地址
   * @author  aron566
   * @version V1.0
   * @date    2020-08-28
@@ -462,7 +462,7 @@ char *strtrim(char *pstr)
   * @brief   去掉字符串内所有空白，且忽略注释部分，最终得到没有空白的字符串
   * @param   [in]string：字符串
   * @param   [in]comment：注释标识
-  * @retval  true表示数据可用
+  * @return  true表示数据可用
   * @author  aron566
   * @version V1.0
   * @date    2020-08-31

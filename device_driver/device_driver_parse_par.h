@@ -27,7 +27,14 @@ extern "C" {
 /** Private defines ----------------------------------------------------------*/
                                                                       
 /** Exported typedefines -----------------------------------------------------*/
-                                                                       
+/*设备类型列表*/
+typedef int (*REGISTER_DEV_FUNC)(DEV_INFO_Typedef_t *, DEV_COMMUNICATION_PAR_Typedef_t *, DEV_DRIVER_INTERFACE_Typedef_t *);
+typedef struct 
+{
+    const char* const type_name;    /**< 类型名称*/
+    DEVICE_Typedef_t dev_type;      /**< 类型*/
+    REGISTER_DEV_FUNC register_func;/**< 设备注册函数*/
+}DEVICE_TYPE_MAP_Typedef_t;                                                                       
 /** Exported constants -------------------------------------------------------*/
                                                                                 
 /** Exported macros-----------------------------------------------------------*/
@@ -43,8 +50,15 @@ PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info);
 /*获取设备类型*/
 DEVICE_Typedef_t get_device_type(DEV_INFO_Typedef_t *dev_info);  
 
+/*返回设备地址*/
+int get_device_addr(DEV_INFO_Typedef_t *dev_info);
+uint8_t get_modbus_device_addr(const char *dev_name);
+
 /*解析设备名包含的信息*/
 int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info);
+
+/*获取设备类型表*/
+DEVICE_TYPE_MAP_Typedef_t *get_device_type_list(void);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

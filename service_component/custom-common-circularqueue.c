@@ -18,7 +18,7 @@ extern "C" {
 #endif
 /** Includes -----------------------------------------------------------------*/
 /* Private includes ----------------------------------------------------------*/
-#include "custom-com-circularqueue.h"
+#include "custom-common-circularqueue.h"
 
 /** Private typedef ----------------------------------------------------------*/
 /** Private macros -----------------------------------------------------------*/
@@ -239,6 +239,164 @@ uint32_t DQ_getData(CQ_handleTypeDef *CircularQueue ,uint8_t *targetBuf)
 }
 
 /**
+  ******************************************************************
+  * @brief   跳过8位无效帧头数据
+  * @param   [in]cb 缓冲区
+  * @param   [in]header_data 无效数据
+  * @return  缓冲区可读长度
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-09-20
+  ******************************************************************
+  */  
+uint32_t CQ_skipInvaildU8Header(CQ_handleTypeDef *cb, uint8_t header_data)
+{
+    uint8_t header = 0;
+    while(CQ_getLength(cb) >= 1)
+    {
+        header = CQ_ManualGet_Offset_Data(cb ,0);
+        /*判断帧头*/
+        if(header != header_data)
+        {
+            CQ_ManualOffsetInc(cb, 1);
+        }
+        else
+        {
+            return CQ_getLength(cb);
+        }
+    }
+    return 0;
+}
+
+/**
+  ******************************************************************
+  * @brief   跳过16位无效帧头数据
+  * @param   [in]cb 缓冲区
+  * @param   [in]header_data 无效数据
+  * @return  缓冲区可读长度
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-09-20
+  ******************************************************************
+  */  
+uint32_t CQ_skipInvaildU16Header(CQ_handleTypeDef *cb, uint16_t header_data)
+{
+    uint16_t header = 0;
+    while(CQ_getLength(cb) >= 2)
+    {
+        header = CQ_ManualGet_Offset_Data(cb, 0);
+        header |= (((uint16_t)CQ_ManualGet_Offset_Data(cb, 1))<<8);
+        /*判断帧头*/
+        if(header != header_data)
+        {
+            CQ_ManualOffsetInc(cb, 1);
+        }
+        else
+        {
+            return CQ_getLength(cb);
+        }
+    }
+    return 0;
+}
+
+/**
+  ******************************************************************
+  * @brief   跳过32位无效帧头数据
+  * @param   [in]cb 缓冲区
+  * @param   [in]header_data 无效数据
+  * @return  缓冲区可读长度
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-09-20
+  ******************************************************************
+  */  
+uint32_t CQ_skipInvaildU32Header(CQ_handleTypeDef *cb, uint32_t header_data)
+{
+    uint32_t header = 0;
+    while(CQ_getLength(cb) >= 4)
+    {
+        header = CQ_ManualGet_Offset_Data(cb, 0);
+        header |= (((uint16_t)CQ_ManualGet_Offset_Data(cb, 1))<<8);
+        header |= (((uint16_t)CQ_ManualGet_Offset_Data(cb, 2))<<16);
+        header |= (((uint16_t)CQ_ManualGet_Offset_Data(cb, 3))<<24);
+        /*判断帧头*/
+        if(header != header_data)
+        {
+            CQ_ManualOffsetInc(cb, 1);
+        }
+        else
+        {
+            return CQ_getLength(cb);
+        }
+    }
+    return 0;
+}
+
+/**
+  ******************************************************************
+  * @brief   跳过Modbus16位无效帧头数据
+  * @param   [in]cb 缓冲区
+  * @param   [in]header_data 无效数据
+  * @return  缓冲区可读长度
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-09-20
+  ******************************************************************
+  */  
+uint32_t CQ_skipInvaildModbusU16Header(CQ_handleTypeDef *cb, uint16_t header_data)
+{
+    uint16_t header = 0;
+    while(CQ_getLength(cb) >= 2)
+    {
+        header = (((uint16_t)CQ_ManualGet_Offset_Data(cb, 0))<<8);
+        header |= CQ_ManualGet_Offset_Data(cb, 1);
+        /*判断帧头*/
+        if(header != header_data)
+        {
+            CQ_ManualOffsetInc(cb, 1);
+        }
+        else
+        {
+            return CQ_getLength(cb);
+        }
+    }
+    return 0;
+}
+
+/**
+  ******************************************************************
+  * @brief   跳过Modbus32位无效帧头数据
+  * @param   [in]cb 缓冲区
+  * @param   [in]header_data 无效数据
+  * @return  缓冲区可读长度
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-09-20
+  ******************************************************************
+  */  
+uint32_t CQ_skipInvaildModbusU32Header(CQ_handleTypeDef *cb, uint32_t header_data)
+{
+    uint32_t header = 0;
+    while(CQ_getLength(cb) >= 4)
+    {
+        header = (((uint16_t)CQ_ManualGet_Offset_Data(cb, 0))<<24);
+        header |= (((uint16_t)CQ_ManualGet_Offset_Data(cb, 1))<<16);
+        header |= (((uint16_t)CQ_ManualGet_Offset_Data(cb, 2))<<8);
+        header |= CQ_ManualGet_Offset_Data(cb, 3);
+        /*判断帧头*/
+        if(header != header_data)
+        {
+            CQ_ManualOffsetInc(cb, 1);
+        }
+        else
+        {
+            return CQ_getLength(cb);
+        }
+    }
+    return 0;
+}
+
+/**
  * [CQ_ManualGetData 手动缓冲区长度记录---适用于modbus解析]
  * @param  CircularQueue [环形缓冲区句柄]
  * @param  targetBuf     [目标缓冲区]
@@ -264,7 +422,7 @@ uint32_t CQ_ManualGetData(CQ_handleTypeDef *CircularQueue ,uint8_t *targetBuf ,u
  * @param CircularQueue [环形缓冲区句柄]
  * @param index         [索引号]
  */
-uint8_t CQ_ManualGet_Offset_Data(uint32_t index ,CQ_handleTypeDef *CircularQueue)
+uint8_t CQ_ManualGet_Offset_Data(CQ_handleTypeDef *CircularQueue, uint32_t index)
 {
     /*计算偏移*/
 	uint32_t read_offset = ((CircularQueue->exit + index) & (CircularQueue->size - 1));

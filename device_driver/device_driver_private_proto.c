@@ -44,20 +44,19 @@ extern "C" {
   ******************************************************************
   * @brief   主站读
   * @param   [in]req 工作句柄
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.0
   * @date    2020-12-01
   ******************************************************************
   */
-void modbus_master_read_port(uv_work_t *req) 
+static void private_master_read_port(uv_work_t *req) 
 {
     if(req == NULL)
     {
         return;
     }
     /*发送读取命令*/
-    device_driver_send_data_port(uint8_t *data, uint32_t len, PROTOCOL_Type_t protocol_type);
 
     /*等待应答*/
 
@@ -70,7 +69,7 @@ void modbus_master_read_port(uv_work_t *req)
   * @brief   驱动升级
   * @param   [in]interface 设备资源接口
   * @param   [in]out_data 二进制流
-  * @retval  0写入成功、-1失败
+  * @return  0写入成功、-1失败
   * @author  aron566
   * @version V1.0
   * @date    2020-12-01
@@ -98,7 +97,7 @@ static int private_proto_update_driver(DEV_DRIVER_INTERFACE_Typedef_t *interface
   * @param   [in]req uv工作句柄
   * @param   [in]buf 返回消息存储地址
   * @param   [in]done_cb 任务完成消息返回回调
-  * @retval  None.
+  * @return  None.
   * @author  aron566
   * @version V1.0
   * @date    2020-12-01
@@ -112,7 +111,7 @@ void device_driver_private_read(uint8_t addr, uint16_t reg_s, uint16_t reg_n,
         return;
     }
     /*调用uv线程池，处理数据发送与接收*/
-    uv_queue_work(uv_default_loop(), req, modbus_master_read_port, done_cb);
+    uv_queue_work(uv_default_loop(), req, private_master_read_port, done_cb);
 }
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

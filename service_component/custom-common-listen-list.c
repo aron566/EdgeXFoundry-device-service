@@ -325,7 +325,7 @@ void fd_list_dele_node(SOCKET_FD_Typedef_t fd_type ,int fd)
   */
 FD_FUNC_MAP_Typedef_t *fd_list_find_node(FD_Typedef_t type ,int fd)
 {
-    if(fd <= 0 || type < FILE_FD || type >= FD_TYPE_MAX)
+    if(fd < 0 || type < FILE_FD || type >= FD_TYPE_MAX)
     {
         return NULL;
     }

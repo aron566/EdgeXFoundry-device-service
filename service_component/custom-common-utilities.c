@@ -74,9 +74,9 @@ void debug_print(uint8_t *msg ,uint32_t msg_len)
 /**
  * @brief Get the curent time s object
  * 
- * @return uint32_t 时间秒
+ * @return uint64_t 时间秒
  */
-uint32_t get_curent_time_s(UTILITIES_TIME_MODE_Typedef_t mode)
+uint64_t get_curent_time_s(UTILITIES_TIME_MODE_Typedef_t mode)
 {
 	struct timespec timespe;
 	struct tm nowTime;
@@ -104,7 +104,7 @@ uint32_t get_curent_time_s(UTILITIES_TIME_MODE_Typedef_t mode)
     sprintf(str ,"GetTime:%04d-%02d-%02d-%02d:%02d:%02d\n"
 			,nowTime.tm_year + 1900 ,nowTime.tm_mon+1 ,nowTime.tm_mday ,nowTime.tm_hour ,nowTime.tm_min ,nowTime.tm_sec);
 	printf("%s", str);
-	return (uint32_t)timespe.tv_sec;
+	return (uint64_t)timespe.tv_sec;
 }
 
 /**
@@ -230,7 +230,7 @@ int hextoi(char s[])
   ******************************************************************
   * @brief   获取主机名
   * @param   [in]None
-  * @retval  char *host_name_str
+  * @return  char *host_name_str
   * @author  aron566
   * @version V1.0
   * @date    2020-10-10
@@ -251,7 +251,7 @@ char *get_host_name(void)
   ******************************************************************
   * @brief   获取本地mac地址
   * @param   [in]hardware_name 网卡名称
-  * @retval  char *mac地址字符串
+  * @return  char *mac地址字符串
   * @author  aron566
   * @version V1.1
   * @date    2020-10-13
@@ -302,7 +302,7 @@ char *get_local_mac(const char *hardware_name)
   ******************************************************************
   * @brief   获取本机内存信息
   * @param   [in]None
-  * @retval  struct sysinfo*
+  * @return  struct sysinfo*
   * @author  aron566
   * @version V1.0
   * @date    2020-10-10
@@ -345,7 +345,7 @@ struct sysinfo *get_meminfo(void)
   ******************************************************************
   * @brief   获取本机CPU信息
   * @param   [in]None
-  * @retval  int cpu数目
+  * @return  int cpu数目
   * @author  aron566
   * @version V1.0
   * @date    2020-10-10
@@ -373,7 +373,7 @@ int get_cpu_num(void)
   ******************************************************************
   * @brief   获取本机CPU频率
   * @param   [in]None
-  * @retval  double 频率
+  * @return  double 频率
   * @author  aron566
   * @version V1.0
   * @date    2020-10-10

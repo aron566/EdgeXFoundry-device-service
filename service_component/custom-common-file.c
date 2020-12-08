@@ -58,7 +58,7 @@ extern "C" {
   */
 int file_is_exist(const char *fimename)
 {
-    return access(fimename ,F_OK | W_OK | R_OK);
+  return access(fimename ,F_OK | W_OK | R_OK);
 }
 
 /**
@@ -93,11 +93,11 @@ int file_move(const char *old_fimename, const char *new_filename)
   */
 int file_delete(const char *fimename)
 {
-	if(file_is_exist(fimename) != 0)
-	{
-		return -1;
-	}
-	return remove(fimename);
+  if(file_is_exist(fimename) != 0)
+  {
+    return -1;
+  }
+  return remove(fimename);
 }
 
 /**
@@ -113,25 +113,25 @@ int file_delete(const char *fimename)
   */
 int file_copy(const char *source_fimename, const char *dest_fimename)
 {
-	if(file_is_exist(source_fimename) != 0)
-	{
-		return -1;
-	}
-	uint32_t size = 0;
-	uint8_t *pdata = file_readfile_alloc(source_fimename, &size);
-	if(pdata == NULL)
-	{
-		return -1;
-	}
-	FILE *fp = file_open(dest_fimename ,READ_WRITE_CREAT_CLEAR_FILE);
-	if(fp == NULL)
-	{
-		return -1;
-	}
-	/*数据地址，数据总大小字节，单位数据大小字节，fp*/
-	fwrite(pdata ,size, 1, fp);
-	free(pdata);
-	return fclose(fp);
+  if(file_is_exist(source_fimename) != 0)
+  {
+    return -1;
+  }
+  uint32_t size = 0;
+  uint8_t *pdata = file_readfile_alloc(source_fimename, &size);
+  if(pdata == NULL)
+  {
+    return -1;
+  }
+  FILE *fp = file_open(dest_fimename ,READ_WRITE_CREAT_CLEAR_FILE);
+  if(fp == NULL)
+  {
+    return -1;
+  }
+  /*数据地址，数据总大小字节，单位数据大小字节，fp*/
+  fwrite(pdata ,size, 1, fp);
+  free(pdata);
+  return fclose(fp);
 }
 
 /**
@@ -147,29 +147,29 @@ int file_copy(const char *source_fimename, const char *dest_fimename)
   */
 FILE *file_open(const char *filename ,FILE_OPEN_MODE mode)
 {
-	FILE *fp = NULL;
-	switch(mode)
-	{
-	case READ_FILE_ONLY:
-		fp = fopen(filename ,"r");
-		break;
-	case READ_WRITE_FILE_ONLY:
-		fp = fopen(filename ,"r+");
-		break;
-	case WRITE_CREAT_CLEAR_FILE:
-		fp = fopen(filename ,"w");
-		break;
-	case READ_WRITE_CREAT_CLEAR_FILE:
-		fp = fopen(filename ,"w+");
-		break;
-	case WRITE_APPEND_CREAT_FILE:
-		fp = fopen(filename ,"a");
-		break;
-	case READ_WRITE_APPEND_CREAT_FILE:
-		fp = fopen(filename ,"a+");/**< 首次读取时，从文件头部开始读*/
-		break;
-	}
-	return fp;
+  FILE *fp = NULL;
+  switch(mode)
+  {
+  case READ_FILE_ONLY:
+    fp = fopen(filename ,"r");
+    break;
+  case READ_WRITE_FILE_ONLY:
+    fp = fopen(filename ,"r+");
+    break;
+  case WRITE_CREAT_CLEAR_FILE:
+    fp = fopen(filename ,"w");
+    break;
+  case READ_WRITE_CREAT_CLEAR_FILE:
+    fp = fopen(filename ,"w+");
+    break;
+  case WRITE_APPEND_CREAT_FILE:
+    fp = fopen(filename ,"a");
+    break;
+  case READ_WRITE_APPEND_CREAT_FILE:
+    fp = fopen(filename ,"a+");/**< 首次读取时，从文件头部开始读*/
+    break;
+  }
+  return fp;
 }
 
 /**
@@ -185,30 +185,30 @@ FILE *file_open(const char *filename ,FILE_OPEN_MODE mode)
   */
 int file_get_line_cnt(const char *filename)
 {
-	int cnt = 0;
-	char buf[256];
-	FILE *fp = file_open(filename ,READ_FILE_ONLY);
-	if(fp == NULL)
-	{
-		PRINT_ERRMSG("fopen");
-		printf("read file name :%s error.\n" ,filename);
-		return -1;
-	}
+  int cnt = 0;
+  char buf[256];
+  FILE *fp = file_open(filename ,READ_FILE_ONLY);
+  if(fp == NULL)
+  {
+    PRINT_ERRMSG("fopen");
+    printf("read file name :%s error.\n" ,filename);
+    return -1;
+  }
 
-	char *ret = NULL;
-	/*读取文件流中的内容*/
-	while((fgets(buf ,256 ,fp)) != NULL)
-	{
-		ret = strchr(buf ,'\n');
-		if(ret != NULL)
-		{
-			cnt++;
-		}
-	}
+  char *ret = NULL;
+  /*读取文件流中的内容*/
+  while((fgets(buf ,256 ,fp)) != NULL)
+  {
+    ret = strchr(buf ,'\n');
+    if(ret != NULL)
+    {
+      cnt++;
+    }
+  }
 
-	/*关闭文件*/
-	fclose(fp);
-	return cnt;
+  /*关闭文件*/
+  fclose(fp);
+  return cnt;
 }
 
 /**
@@ -226,97 +226,97 @@ int file_get_line_cnt(const char *filename)
   */
 size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
 {
-	int cnt = 0;
-	char buf[1024];
+  int cnt = 0;
+  char buf[1024];
 
-	/*初始化缓冲区*/
-	if(strlen(destbuf) > 0)
-	{
-		destbuf[0] = '\0';
-	}
+  /*初始化缓冲区*/
+  if(strlen(destbuf) > 0)
+  {
+    destbuf[0] = '\0';
+  }
 
-	/*打开文件流*/
-	FILE *fp = file_open(filename ,READ_FILE_ONLY);
-	if(fp == NULL)
-	{
-		PRINT_ERRMSG("fopen");
-		return -1;
-	}
+  /*打开文件流*/
+  FILE *fp = file_open(filename ,READ_FILE_ONLY);
+  if(fp == NULL)
+  {
+    PRINT_ERRMSG("fopen");
+    return -1;
+  }
 
-	/*读取文件流中的内容*/
-	char *ret = NULL;
-	size_t len = 0;
-	while((fgets(buf ,1024 ,fp)) != NULL)
-	{
-		ret = strchr(buf ,'\n');
-		if(ret != NULL)
-		{
-			cnt++;
-			if(cnt == linenum)
-			{
-				if(len == 0)
-				{
-					strncpy(destbuf ,buf ,1024);
-					if(size > 1024)
-					{
-						destbuf[1024] = '\0';
-					}
-					else
-					{
-						destbuf[1023] = '\0';
-					}
-				}
-				else
-				{
-					/*追加字符串*/
-					len += strlen(buf);
-					if(len > size)
-					{
-						break;
-					}
-					else
-					{
-						strcat(destbuf ,buf);
-					}
-				}
-				fclose(fp);
-				return strlen(destbuf);
-			}//cnt == linenum
-		}
-		else
-		{
-			/*判断是否超出缓冲区大小*/
-			if(cnt == linenum-1)
-			{
-				/*目标缓冲区过小直接退出*/
-				if(size <= 1024)
-				{
-					break;
-				}
-				len = strlen(destbuf);
-				if(len == 0)
-				{
-					strncpy(destbuf ,buf ,1024);
-					destbuf[1024] = '\0';
-				}
-				else
-				{
-					/*追加字符串*/
-					len += strlen(buf);
-					if(len > size)
-					{
-						break;
-					}
-					else
-					{
-						strcat(destbuf ,buf);
-					}
-				}
-			}
-		}
-	}
-	fclose(fp);
-	return strlen(destbuf);
+  /*读取文件流中的内容*/
+  char *ret = NULL;
+  size_t len = 0;
+  while((fgets(buf ,1024 ,fp)) != NULL)
+  {
+    ret = strchr(buf ,'\n');
+    if(ret != NULL)
+    {
+      cnt++;
+      if(cnt == linenum)
+      {
+        if(len == 0)
+        {
+          strncpy(destbuf ,buf ,1024);
+          if(size > 1024)
+          {
+            destbuf[1024] = '\0';
+          }
+          else
+          {
+            destbuf[1023] = '\0';
+          }
+        }
+        else
+        {
+          /*追加字符串*/
+          len += strlen(buf);
+          if(len > size)
+          {
+            break;
+          }
+          else
+          {
+            strcat(destbuf ,buf);
+          }
+        }
+        fclose(fp);
+        return strlen(destbuf);
+      }//cnt == linenum
+    }
+    else
+    {
+      /*判断是否超出缓冲区大小*/
+      if(cnt == linenum-1)
+      {
+        /*目标缓冲区过小直接退出*/
+        if(size <= 1024)
+        {
+          break;
+        }
+        len = strlen(destbuf);
+        if(len == 0)
+        {
+          strncpy(destbuf ,buf ,1024);
+          destbuf[1024] = '\0';
+        }
+        else
+        {
+          /*追加字符串*/
+          len += strlen(buf);
+          if(len > size)
+          {
+            break;
+          }
+          else
+          {
+            strcat(destbuf ,buf);
+          }
+        }
+      }
+    }
+  }
+  fclose(fp);
+  return strlen(destbuf);
 }
 
 /**
@@ -335,17 +335,17 @@ size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
   */
 size_t file_write(const char *filename ,const void* buffer ,size_t size ,size_t count ,FILE_OPEN_MODE mode)
 {
-	/*打开文件流*/
-	FILE *fp = file_open(filename ,mode);
-	if(fp == NULL)
-	{
-		return 0;
-	}
-	size_t cnt = fwrite(buffer ,size ,count ,fp);
-	/*同步到文件中*/
-	fflush(fp);
-	fclose(fp);
-	return cnt;
+  /*打开文件流*/
+  FILE *fp = file_open(filename ,mode);
+  if(fp == NULL)
+  {
+    return 0;
+  }
+  size_t cnt = fwrite(buffer ,size ,count ,fp);
+  /*同步到文件中*/
+  fflush(fp);
+  fclose(fp);
+  return cnt;
 }
 
 /**
@@ -393,11 +393,11 @@ uint8_t *file_readfile_alloc(const char *filename, uint32_t *size)
   */
 size_t file_replace_ch(char *sourcebuf ,char sourcech,char destch)
 {
-    int i;
-    i = strlen(sourcebuf) - 1;
-    while (sourcebuf[i] == sourcech && (i >= 0))
-    	sourcebuf[i--] = destch;
-    return strlen(sourcebuf);
+  int i;
+  i = strlen(sourcebuf) - 1;
+  while (sourcebuf[i] == sourcech && (i >= 0))
+    sourcebuf[i--] = destch;
+  return strlen(sourcebuf);
 }
 
 /**
@@ -412,11 +412,11 @@ size_t file_replace_ch(char *sourcebuf ,char sourcech,char destch)
   */
 char *strtrimr(char *pstr)
 {
-    int i;
-    i = strlen(pstr) - 1;
-    while (isspace(pstr[i]) && (i >= 0))
-        pstr[i--] = '\0';
-    return pstr;
+  int i;
+  i = strlen(pstr) - 1;
+  while (isspace(pstr[i]) && (i >= 0))
+      pstr[i--] = '\0';
+  return pstr;
 }
 
 /**
@@ -431,13 +431,13 @@ char *strtrimr(char *pstr)
   */
 char *strtriml(char *pstr)
 {
-    int i = 0,j;
-    j = strlen(pstr) - 1;
-    while (isspace(pstr[i]) && (i <= j))
-        i++;
-    if (0<i)
-        strcpy(pstr, &pstr[i]);
-    return pstr;
+  int i = 0,j;
+  j = strlen(pstr) - 1;
+  while (isspace(pstr[i]) && (i <= j))
+      i++;
+  if (0<i)
+      strcpy(pstr, &pstr[i]);
+  return pstr;
 }
 
 /**
@@ -452,9 +452,9 @@ char *strtriml(char *pstr)
   */
 char *strtrim(char *pstr)
 {
-    char *p;
-    p = strtrimr(pstr);
-    return strtriml(p);
+  char *p;
+  p = strtrimr(pstr);
+  return strtriml(p);
 }
 
 /**
@@ -470,21 +470,21 @@ char *strtrim(char *pstr)
   */
 bool file_strip_comments(char *string, char comment)
 {
-	if (NULL == string || '\n' == *string || '\r' == *string) {
-		return false; /* 第一个字符为回车或换行,表示空行 */
-	}
+  if (NULL == string || '\n' == *string || '\r' == *string) {
+    return false; /* 第一个字符为回车或换行,表示空行 */
+  }
 
-	char *p, *q;
-	/* 下面去掉字符串中所有空白字符 */
-	for (p = q = string; *p != '\0' && *p != comment; p++) {
-		/* 不是空白字符则重写字符串 */
-		if (0 == isspace(*p)) {
-		*q++ = *p;
-		}
-	}
-	*q = '\0';
+  char *p, *q;
+  /* 下面去掉字符串中所有空白字符 */
+  for (p = q = string; *p != '\0' && *p != comment; p++) {
+    /* 不是空白字符则重写字符串 */
+    if (0 == isspace(*p)) {
+    *q++ = *p;
+    }
+  }
+  *q = '\0';
 
-	return 0 != strlen(string); /* 字符串长度不为0,表示数据可用 */
+  return 0 != strlen(string); /* 字符串长度不为0,表示数据可用 */
 }
 
 #ifdef __cplusplus ///<end extern c

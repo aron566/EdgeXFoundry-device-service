@@ -133,16 +133,16 @@ static uint16_t crc_cal(uint16_t Data ,uint16_t GenPoly ,uint16_t CrcData)
   */
 uint16_t get_crc(uint8_t *puchMsg ,uint16_t usDataLen)
 {
-    uint8_t uchCRCHi = 0xFF;  /* 高CRC字节初始化 */
-    uint8_t uchCRCLo = 0xFF;  /* 低CRC 字节初始化 */
-    int uIndex = 0;           /* CRC循环中的索引 */
-    while(usDataLen--)
-    {
-        uIndex      = uchCRCHi^*puchMsg++;
-        uchCRCHi    = uchCRCLo^auchCRCHi[uIndex];
-        uchCRCLo    = auchCRCLo[uIndex];
-    }
-    return (uchCRCHi<<8|uchCRCLo); 
+	uint8_t uchCRCHi = 0xFF;  /* 高CRC字节初始化 */
+	uint8_t uchCRCLo = 0xFF;  /* 低CRC 字节初始化 */
+	int uIndex = 0;           /* CRC循环中的索引 */
+	while(usDataLen--)
+	{
+		uIndex      = uchCRCHi^*puchMsg++;
+		uchCRCHi    = uchCRCLo^auchCRCHi[uIndex];
+		uchCRCLo    = auchCRCLo[uIndex];
+	}
+	return (uchCRCHi<<8|uchCRCLo); 
 }  
 
 /**
@@ -155,12 +155,12 @@ uint16_t get_crc(uint8_t *puchMsg ,uint16_t usDataLen)
  */
 bool get_crc_result(uint8_t *puchMsg ,uint16_t usDataLen)
 {
-    if(puchMsg == NULL)
-    {
-        return false;
-    }
-    uint16_t crc_ret = get_crc(puchMsg ,usDataLen);
-    uint8_t CRC_value_L_temp = *(puchMsg + usDataLen);
+	if(puchMsg == NULL)
+	{
+		return false;
+	}
+	uint16_t crc_ret = get_crc(puchMsg ,usDataLen);
+	uint8_t CRC_value_L_temp = *(puchMsg + usDataLen);
 	uint8_t CRC_value_H_temp = *(puchMsg + usDataLen+1);
 	uint8_t CRC_value_L = (uint8_t)(crc_ret &0x00FF);//有无符号重要！
 	uint8_t CRC_value_H = (uint8_t)((crc_ret>>8)&0x00FF);
@@ -182,13 +182,13 @@ bool get_crc_result(uint8_t *puchMsg ,uint16_t usDataLen)
  */
 uint16_t modbus_crc_return(uint8_t *data ,uint16_t data_len)
 {
-    uint16_t temp;
-    uint16_t crc_ret = 0xFFFF;
-    for (temp = 0; temp < data_len; temp++)
-    {
-        crc_ret = crc_cal(data[temp], 0xA001, crc_ret);
-    }
-    return crc_ret;
+	uint16_t temp;
+	uint16_t crc_ret = 0xFFFF;
+	for (temp = 0; temp < data_len; temp++)
+	{
+		crc_ret = crc_cal(data[temp], 0xA001, crc_ret);
+	}
+	return crc_ret;
 }
 
 /**

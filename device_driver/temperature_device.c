@@ -116,8 +116,13 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
 };
 /** Public variables ---------------------------------------------------------*/
 /** Private function prototypes ----------------------------------------------*/
+static int get_mqtt_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type);
+static int set_mqtt_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type);
 static int get_modbus_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type);
 static int set_modbus_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type);
+static int get_private_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type);
+static int set_private_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type);
+
 static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type);
 static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);
 static int get_param_index(const char *parm);
@@ -200,6 +205,62 @@ static void read_msg_callback(uv_work_t *req, int status)
 
 /**
   ******************************************************************
+  * @brief   读取mqtt设备数值接口
+  * @param   [in]input_data 请求参数
+  * @param   [out]out_data 返回数据
+  * @param   [out]type 数据类型
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-11-13
+  ******************************************************************
+  */
+static int get_mqtt_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
+{
+  const char *parm = (const char *)input_data;
+  devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
+  for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
+  {
+    if(strcmp(parm, resources_interface_par[index].par_name) == 0)
+    {
+      /*获取设备数据*/
+
+      // out_value->value = iot_data_alloc_i32 ((random () % 501) - 250);
+    }
+  }
+  return 0;
+}
+
+/**
+  ******************************************************************
+  * @brief   设置mqtt设备数值接口
+  * @param   [in]input_data 设置参数
+  * @param   [out]out_data 返回数据
+  * @param   [out]type 数据类型
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-11-13
+  ******************************************************************
+  */
+static int set_mqtt_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type)
+{
+  const char *parm = (const char *)input_data;
+  const iot_data_t *set_value = (const iot_data_t *)set_data;
+  for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
+  {
+    if(strcmp(parm, resources_interface_par[index].par_name) == 0)
+    {
+      /*获取设备数据*/
+
+      // out_value->value = iot_data_alloc_i32 ((random () % 501) - 250);
+    }
+  }
+  return 0;
+}
+
+/**
+  ******************************************************************
   * @brief   读取modbus设备数值接口
   * @param   [in]input_data 请求参数
   * @param   [out]out_data 返回数据
@@ -233,9 +294,9 @@ static int get_modbus_dev_value(const char *dev_name, const void *input_data, vo
     state = device_driver_modbus_master_read(addr, reg_s, reg_n, &reg_value);
     if(state == MODBUS_OK)
     {
-      out_value->value = iot_data_alloc_f32((float)(*reg_value)/10.0);
       if(reg_value != NULL)
       {
+        out_value->value = iot_data_alloc_f32((float)(*reg_value)/10.0);
         free(reg_value);
       }
       return 0;
@@ -244,9 +305,54 @@ static int get_modbus_dev_value(const char *dev_name, const void *input_data, vo
   else if(PRIVATE_READ & resources_interface_par[index].permissions)
   {
     /*读内部参数*/
-    return 0;
+    return get_private_dev_value(dev_name, input_data, out_data, type);
   }
   return -1;
+}
+
+/**
+  ******************************************************************
+  * @brief   读取private设备数值接口
+  * @param   [in]input_data 请求参数
+  * @param   [out]out_data 返回数据
+  * @param   [out]type 数据类型
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-11-13
+  ******************************************************************
+  */
+static int get_private_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
+{
+  const char *parm = (const char *)input_data;
+  devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
+  for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
+  {
+    if(strcmp(parm, resources_interface_par[index].par_name) == 0)
+    {
+      /*获取设备数据*/
+
+      // out_value->value = iot_data_alloc_i32 ((random () % 501) - 250);
+    }
+  }
+  return 0;
+}
+
+/**
+  ******************************************************************
+  * @brief   设置private设备数值接口
+  * @param   [in]input_data 设置参数
+  * @param   [out]out_data 返回数据
+  * @param   [out]type 数据类型
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-11-13
+  ******************************************************************
+  */
+static int set_private_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type)
+{
+  return 0;
 }
 
 /**
@@ -263,6 +369,7 @@ static int get_modbus_dev_value(const char *dev_name, const void *input_data, vo
   */
 static int set_modbus_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   MODBUS_PARSE_CODE_Typedef_t state = MODBUS_OK;
   const char *parm = (const char *)input_data;
   const iot_data_t *data = (const iot_data_t *)set_data;
@@ -285,15 +392,12 @@ static int set_modbus_dev_value(const char *dev_name, const void *input_data, co
     {
       return 0;
     }
-    else
-    {
-      return -1;
-    }
+    return -1;
   }
   else if(PRIVATE_WRITE & resources_interface_par[index].permissions)
   {
     /*写内部参数*/
-    return 0;
+    return set_private_dev_value(dev_name, input_data, set_data, type);
   }
   return -1;
 }

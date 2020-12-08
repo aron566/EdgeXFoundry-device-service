@@ -93,6 +93,27 @@ uint8_t ch_tolower(uint8_t ch);
 /*16进制的字符串转换成整数*/
 int hextoi(char s[]);
 
+/*过滤指定字符*/
+int common_filter_special_char(char ch, const char *str, char *out_str, int size);
+
+/*解析32位数据-低位在前*/
+uint32_t common_get_u32_data(uint8_t *data ,int start_index);
+
+/*解析16位数据-低位在前*/
+uint16_t common_get_u16_data(uint8_t *data ,int start_index);
+
+/*解析浮点数数据-低位在前*/
+float common_get_float_data(uint8_t *data ,int start_index);
+
+/*解析32位数据-高位在前*/
+uint32_t common_get_modbus_u32_data(uint8_t *data ,int start_index);
+
+/*解析16位数据-高位在前*/
+uint16_t common_get_modbus_u16_data(uint8_t *data ,int start_index);
+
+/*解析浮点数数据-高位在前*/
+float common_get_modbus_float_data(uint8_t *data ,int start_index);
+
 /*获取主机名*/
 char *get_host_name(void);
 

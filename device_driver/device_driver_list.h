@@ -7,7 +7,7 @@
  *                                                                              
  *  @brief None.                                                                
  *                                                                              
- *  @version V1.0                                                               
+ *  @version V1.1                                                               
  */                                                                             
 #ifndef DEVICE_DRIVER_LIST_H                                                          
 #define DEVICE_DRIVER_LIST_H                                                          
@@ -57,8 +57,11 @@ void list_dele_list(LIST_Type_t type);
 /*找到指定节点*/
 NODE_TYPE_STRUCT *list_find_node(LIST_Type_t type ,MAJOR_KEY_1 major_key_1, MAJOR_KEY_2 major_key_2); 
 
+/*找到指定索引号节点*/
+NODE_TYPE_STRUCT *list_find_index_node(LIST_Type_t type ,uint32_t index); 
+
 /*获取链表长度*/
-int list_get_size(LIST_Type_t type);
+uint32_t list_get_size(LIST_Type_t type);
 
 /*插入数据到链表*/
 void list_insert_node(NODE_TYPE_STRUCT *node ,LIST_Type_t type ,int index);

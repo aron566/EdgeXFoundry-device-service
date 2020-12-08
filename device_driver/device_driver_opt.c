@@ -24,6 +24,8 @@ extern "C" {
 #include "device_driver_port.h"
 #include "device_driver_auto_event.h"
 #include "device_driver_parse_par.h"
+#include "device_driver_event_db.h"
+#include "device_driver_modbus_proto.h"
 #include "device_driver_cfg.h"
 /** Private typedef ----------------------------------------------------------*/
                                                               

@@ -32,7 +32,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include "toml.h"
-#include "../../custom-common.h"
+#include "toml_utilities.h"
 
 static void print_escape_string(const char* s, char *outbuf)
 {

@@ -11,7 +11,7 @@
  *
  *  @details None.
  *
- *  @version V1.0
+ *  @version V1.1
  */
 #ifdef __cplusplus ///<use C compiler
 extern "C" {
@@ -57,10 +57,10 @@ static NODE_Typedef_t *all_list_head[LIST_TYPE_MAX];
   */
 void list_table_init(void)
 {
-    for(int i = 0;i < LIST_TYPE_MAX;i++)
-    {
-      all_list_head[i] = NULL;
-    }
+  for(int i = 0;i < LIST_TYPE_MAX;i++)
+  {
+    all_list_head[i] = NULL;
+  }
 }
 
 /**
@@ -73,25 +73,25 @@ void list_table_init(void)
   * @date    2020-11-12
   ******************************************************************
   */
-void list_add_to_list(NODE_Typedef_t *node ,LIST_Type_t type)
+void list_add_to_list(NODE_Typedef_t *node, LIST_Type_t type)
 {
-    if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
-    {
-        return;
-    }
-    NODE_Typedef_t *it = all_list_head[type];
-    if(it == NULL)
-    {
-        all_list_head[type] = node;
-        node->next = NULL;
-        return;
-    }
-    while(it->next != NULL)
-    {
-      it = it->next;
-    }
-    it->next = node;
+  if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
+  {
+    return;
+  }
+  NODE_Typedef_t *it = all_list_head[type];
+  if(it == NULL)
+  {
+    all_list_head[type] = node;
     node->next = NULL;
+    return;
+  }
+  while(it->next != NULL)
+  {
+    it = it->next;
+  }
+  it->next = node;
+  node->next = NULL;
 }
 
 /**
@@ -104,29 +104,29 @@ void list_add_to_list(NODE_Typedef_t *node ,LIST_Type_t type)
   * @date    2020-11-12
   ******************************************************************
   */
-void list_push_back(NODE_TYPE_STRUCT *node ,LIST_Type_t type)
+void list_push_back(NODE_TYPE_STRUCT *node, LIST_Type_t type)
 {
-    if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
-    {
-        return;
-    }
-    NODE_Typedef_t *it = all_list_head[type];
-    NODE_Typedef_t *pnode = (NODE_Typedef_t *)malloc(sizeof(NODE_Typedef_t));
-    memcpy(&pnode->node ,node ,sizeof(NODE_Typedef_t));
-    if(it == NULL)
-    {
-        all_list_head[type] = pnode;
-        pnode->next = NULL;
-        return;
-    }
-
-    /*找到尾部节点挂接*/
-    while(it->next != NULL)
-    {
-      it = it->next;
-    }
-    it->next = pnode;
+  if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
+  {
+    return;
+  }
+  NODE_Typedef_t *it = all_list_head[type];
+  NODE_Typedef_t *pnode = (NODE_Typedef_t *)malloc(sizeof(NODE_Typedef_t));
+  memcpy(&pnode->node, node, sizeof(NODE_Typedef_t));
+  if(it == NULL)
+  {
+    all_list_head[type] = pnode;
     pnode->next = NULL;
+    return;
+  }
+
+  /*找到尾部节点挂接*/
+  while(it->next != NULL)
+  {
+    it = it->next;
+  }
+  it->next = pnode;
+  pnode->next = NULL;
 }
 
 /**
@@ -139,19 +139,19 @@ void list_push_back(NODE_TYPE_STRUCT *node ,LIST_Type_t type)
   * @date    2020-11-12
   ******************************************************************
   */
-void list_push_front(NODE_TYPE_STRUCT *node ,LIST_Type_t type)
+void list_push_front(NODE_TYPE_STRUCT *node, LIST_Type_t type)
 {
-    if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
-    {
-        return;
-    }
-    NODE_Typedef_t *it = all_list_head[type];
-    NODE_Typedef_t *pnode = (NODE_Typedef_t *)malloc(sizeof(NODE_Typedef_t));
-    memcpy(&pnode->node ,node ,sizeof(NODE_Typedef_t));
-    
-    /*头部节点挂接*/
-    pnode->next = it;
-    all_list_head[type] = pnode;
+  if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
+  {
+    return;
+  }
+  NODE_Typedef_t *it = all_list_head[type];
+  NODE_Typedef_t *pnode = (NODE_Typedef_t *)malloc(sizeof(NODE_Typedef_t));
+  memcpy(&pnode->node, node, sizeof(NODE_Typedef_t));
+
+  /*头部节点挂接*/
+  pnode->next = it;
+  all_list_head[type] = pnode;
 }
 
 /**
@@ -164,75 +164,76 @@ void list_push_front(NODE_TYPE_STRUCT *node ,LIST_Type_t type)
   * @date    2020-11-12
   ******************************************************************
   */
-void list_insert_node(NODE_TYPE_STRUCT *node ,LIST_Type_t type ,int index)
+void list_insert_node(NODE_TYPE_STRUCT *node, LIST_Type_t type, int index)
 {
-    if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
-    {
-        return;
-    }
-    NODE_Typedef_t *it = all_list_head[type];
-    NODE_Typedef_t *last_it = it;
-    NODE_Typedef_t *pnode = (NODE_Typedef_t *)malloc(sizeof(NODE_Typedef_t));
-    memcpy(&pnode->node ,node ,sizeof(NODE_Typedef_t));
+  if(type >= LIST_TYPE_MAX || type < 0 || node == NULL)
+  {
+    return;
+  }
+  NODE_Typedef_t *it = all_list_head[type];
+  NODE_Typedef_t *last_it = it;
+  NODE_Typedef_t *pnode = (NODE_Typedef_t *)malloc(sizeof(NODE_Typedef_t));
+  memcpy(&pnode->node, node, sizeof(NODE_Typedef_t));
 
-    if(list_get_size(type) == 0)
-    {
-        all_list_head[type] = pnode;
-        pnode->next = NULL;
-        return;
-    }
-
-    if(index == 0 || index == 1)
-    {
-        /*头部节点挂接*/
-        pnode->next = it;
-        all_list_head[type] = pnode;
-        return;
-    }
-
-    /*查找插入点*/
-    int cnt = 1;
-    while(it->next != NULL)
-    {
-      last_it = it;
-      it = it->next;
-      cnt++;
-      if(cnt == index)
-      {
-          last_it->next = pnode;
-          pnode->next = it;
-          return;
-      }
-    }
-
-    /*未找到加入到尾部*/
-    it->next = pnode;
+  if(list_get_size(type) == 0)
+  {
+    all_list_head[type] = pnode;
     pnode->next = NULL;
+    return;
+  }
+
+  if(index == 0 || index == 1)
+  {
+    /*头部节点挂接*/
+    pnode->next = it;
+    all_list_head[type] = pnode;
+    return;
+  }
+
+  /*查找插入点*/
+  int cnt = 1;
+  while(it->next != NULL)
+  {
+    last_it = it;
+    it = it->next;
+    cnt++;
+    if(cnt == index)
+    {
+      last_it->next = pnode;
+      pnode->next = it;
+      return;
+    }
+  }
+
+  /*未找到加入到尾部*/
+  it->next = pnode;
+  pnode->next = NULL;
 }
 
 /**
   ******************************************************************
   * @brief   计算链表长度
   * @param   [in]type 链表类型
+  * @return  链表长度
   * @author  aron566
   * @version V1.0
   * @date    2020-11-12
   ******************************************************************
   */
-int list_get_size(LIST_Type_t type)
+uint32_t list_get_size(LIST_Type_t type)
 {
-    int cnt = 0;
-    if(type >= LIST_TYPE_MAX || type < 0)
-    {
-        return 0;
-    }
-    NODE_Typedef_t *it = all_list_head[type];
-    while(it != NULL)
-    {
-        cnt++;
-        it = it->next;
-    }
-    return cnt;
+  uint32_t cnt = 0;
+  if(type >= LIST_TYPE_MAX || type < 0)
+  {
+    return 0;
+  }
+  NODE_Typedef_t *it = all_list_head[type];
+  while(it != NULL)
+  {
+    cnt++;
+    it = it->next;
+  }
+  return cnt;
 }
 /**
   ******************************************************************
@@ -245,19 +246,19 @@ int list_get_size(LIST_Type_t type)
   */
 void list_dele_list(LIST_Type_t type)
 {
-    if(type >= LIST_TYPE_MAX || type < 0)
-    {
-        return;
-    }
-    NODE_Typedef_t *it = all_list_head[type];
-    NODE_Typedef_t *del = it;
-    while(it != NULL)
-    {
-      it = it->next;     
-      free(del);
-      del = it;
-    }
-    all_list_head[type] = NULL;
+  if(type >= LIST_TYPE_MAX || type < 0)
+  {
+    return;
+  }
+  NODE_Typedef_t *it = all_list_head[type];
+  NODE_Typedef_t *del = it;
+  while(it != NULL)
+  {
+    it = it->next;     
+    free(del);
+    del = it;
+  }
+  all_list_head[type] = NULL;
 }
 
 /**
@@ -270,23 +271,53 @@ void list_dele_list(LIST_Type_t type)
   * @date    2020-11-12
   ******************************************************************
   */
-NODE_TYPE_STRUCT *list_find_node(LIST_Type_t type ,MAJOR_KEY_1 major_key_1, MAJOR_KEY_2 major_key_2)
+NODE_TYPE_STRUCT *list_find_node(LIST_Type_t type, MAJOR_KEY_1 major_key_1, MAJOR_KEY_2 major_key_2)
 {
-    if(type >= LIST_TYPE_MAX || type < 0)
-    {
-        return NULL;
-    }
-    NODE_Typedef_t *it = all_list_head[type];
-    while(it != NULL)
-    {
-        if(it->node.major_key_1 == major_key_1 && it->node.major_key_2 == major_key_2)
-        {
-            return &it->node;
-        }
-        it = it->next; 
-    }
+  if(type >= LIST_TYPE_MAX || type < 0)
+  {
     return NULL;
+  }
+  NODE_Typedef_t *it = all_list_head[type];
+  while(it != NULL)
+  {
+    if(it->node.major_key_1 == major_key_1 && it->node.major_key_2 == major_key_2)
+    {
+      return &it->node;
+    }
+    it = it->next; 
+  }
+  return NULL;
 }   
+
+/**
+  ******************************************************************
+  * @brief   找到指定索引号节点数据
+  * @param   [in]type 链表类型
+  * @param   [in]index 节点号
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-08
+  ******************************************************************
+  */
+NODE_TYPE_STRUCT *list_find_index_node(LIST_Type_t type, uint32_t index)
+{
+  if(type >= LIST_TYPE_MAX || type < 0)
+  {
+    return NULL;
+  }
+  uint32_t cnt = 0;
+  NODE_Typedef_t *it = all_list_head[type];
+  while(it != NULL)
+  {
+    cnt++;
+    if(cnt == index)
+    {
+      return &it->node;
+    }
+    it = it->next; 
+  }
+  return NULL;
+}
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

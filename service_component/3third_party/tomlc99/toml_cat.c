@@ -34,7 +34,7 @@ SOFTWARE.
 #include <stdint.h>
 #include <assert.h>
 #include "toml.h"
-#include "../../custom-common.h"
+#include "toml_utilities.h"
 
 typedef struct node_t node_t;
 struct node_t {

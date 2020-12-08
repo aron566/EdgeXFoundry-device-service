@@ -25,8 +25,10 @@ extern "C" {
                                                                                 
 /** Private macros -----------------------------------------------------------*/
 #define ENABLE_POWER_OFF_STORE 1 /**< 1:断电存储使能 0:断电存储失能*/
+/*整理数据库*/
+#define VACUUM_DB "VACUUM;"
 /*建表*/
-/*地址号,参数名,最大值,最小值,当前值,时间戳 PRIMARY KEY*/
+/*地址号,参数名,当前值,时间戳 [PRIMARY KEY]*/
 #define DB_CREATE_CMD "CREATE TABLE IF NOT EXISTS table_name(key1_name key1_type, \
 															 key2_name key2_type, \
 															 key3_name key3_type, \
@@ -41,14 +43,16 @@ extern "C" {
 							  key6_name, key6_type) DB_CREATE_CMD
 const char *CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS %s(addr char(254), \
 															 paramName char(254), \
-															 valueMax char(254), \
-															 valueMin char(254), \
 															 valueCurrent char(254), \
 															 timeStamp char(254));";
 
 /*删表*/
 #define EMPTY_DB(table_name) "DELETE FROM table_name;"
 const char *EMPTY_TABLE_SQL = "DELETE FROM %s;";
+
+/*自增归零删除*/
+#define DELETE_TABLE(table_name) "DELETE FROM sqlite_sequence WHERE name = 'table_name';"
+const char *DELETE_TABLE_SQL = "DELETE FROM sqlite_sequence WHERE name = '%s';";
 
 /*填表*/
 #define INSERT_DB(table_name, key1_value, \
@@ -58,12 +62,12 @@ const char *EMPTY_TABLE_SQL = "DELETE FROM %s;";
 				"INSERT OR REPLACE INTO MAIN.table_name VALUES('key1_value', \
 						'key2_value', 'key3_value', 'key4_value', 'key5_value', 'key6_value');"
 const char *INSERT_TABLE = "INSERT OR REPLACE INTO MAIN.%s VALUES('%u', \
-						'%s', '%lf', '%lf', '%lf', '%lu');";
+						'%s', '%s', '%lu');";
 
 /*更新表*/
 #define UPDATE_DB(table_name, key_name, condition_name1, condition_value1, condition_name2, condition_value2) \
 				"UPDATE MAIN.table_name SET key_name = 'key_value' where condition_name = 'condition_value' AND condition_name2 = 'condition_value2';"
-const char *UPDATE_TABLE = "UPDATE MAIN.%s SET valueCurrent = '%lf', timeStamp = '%lu' where addr = '%u' AND paramName = '%s';";
+const char *UPDATE_TABLE = "UPDATE MAIN.%s SET valueCurrent = '%s', timeStamp = '%lu' where addr = '%u' AND paramName = '%s';";
 
 /*customize set*/
 const char *CUSTOMIZE_SET = "UPDATE MAIN.%s SET %s = '%s' where %s = '%s' AND %s = '%s';";
@@ -76,11 +80,11 @@ const char *SELECT_TABLE = "SELECT * FROM MAIN.%s WHERE addr = '%u' AND paramNam
 /** Private constants --------------------------------------------------------*/
 /** Public variables ---------------------------------------------------------*/
 /** Private variables --------------------------------------------------------*/
-static sqlite3 *db = NULL;               
+static sqlite3 *db = NULL;
 /** Private function prototypes ----------------------------------------------*/
-                                                                                
-/** Private user code --------------------------------------------------------*/                                                                    
-                                                                                
+
+/** Private user code --------------------------------------------------------*/
+
 /** Private application code -------------------------------------------------*/
 /*******************************************************************************
 *                                                                               
@@ -101,14 +105,14 @@ static sqlite3 *db = NULL;
   */
 static int create_table(const char *table_name)
 {
-    char* 	errMsg		= NULL;
-    int 	rc			= 0;
-    char 	sqlCmd[512]	= {0};
+	char* 	errMsg		= NULL;
+	int 	rc			= 0;
+	char 	sqlCmd[512]	= {0};
 
-    if(table_name == NULL)
-    {
-        return -1;
-    }
+	if(table_name == NULL)
+	{
+		return -1;
+	}
 
 	/*open database*/
 	rc = sqlite3_open(DEV_EVENT_DB_NAME, &db);
@@ -133,8 +137,18 @@ static int create_table(const char *table_name)
     
 	/*empty table of database*/
 #if !ENABLE_POWER_OFF_STORE
-	snprintf(sqlCmd, sizeof(sqlCmd), EMPTY_TABLE_SQL, table_name);
+	snprintf(sqlCmd, sizeof(sqlCmd), DELETE_TABLE_SQL, table_name);
 	rc = sqlite3_exec(db, sqlCmd, NULL, NULL, &errMsg);
+	if(SQLITE_OK != rc)
+	{
+		fprintf(stderr, "can't empty file database :%s\n", errMsg);
+		sqlite3_free(errMsg);
+		sqlite3_close(db);
+		return -1;
+	}
+
+	/*整理*/
+	rc = sqlite3_exec(db, VACUUM_DB, NULL, NULL, &errMsg);
 	if(SQLITE_OK != rc)
 	{
 		fprintf(stderr, "can't empty file database :%s\n", errMsg);
@@ -174,8 +188,7 @@ int dev_driver_event_db_record_insert(INSERT_DATA_Typedef_t *data)
 		return -1;
 	}
 	snprintf(sqlCmd, sizeof(sqlCmd) ,INSERT_TABLE ,data->table_name, 
-									data->addr, data->param_name,
-									data->value_max, data->value_min,
+									data->addr, data->param_name, 
 									data->value_current, data->time_stamp);
 
 	rc = sqlite3_exec(db, sqlCmd, NULL, NULL, &errMsg);
@@ -263,19 +276,19 @@ int dev_driver_event_db_record_customize_set(CUSTOMIZE_SET_Typedef_t *data)
   * @retval  -1异常 0正常
   * @author  aron566
   * @version V1.0
-  * @date    2020-09-03
+  * @date    2020-12-07
   ******************************************************************
   */
-int dev_driver_event_db_record_query(QUERY_DATA_Typedef_t *data ,QUERY_CALLBACK get_result)
+int dev_driver_event_db_record_query(QUERY_DATA_Typedef_t *data, QUERY_CALLBACK get_result, void *callback_par)
 {
 	int      rc              = 0;
-    char     *errMsg         = NULL;
-    char**   pRecord         = NULL;
-    int      row             = 0;
-    int      column          = 0;
-    char     sqlCmd[512]     = {0};
+	char     *errMsg         = NULL;
+	char**   pRecord         = NULL;
+	int      row             = 0;
+	int      column          = 0;
+	char     sqlCmd[512]     = {0};
 
-	if(data == NULL || db == NULL)
+	if(data == NULL || db == NULL || get_result == NULL)
 	{
 		return -1;
 	}
@@ -288,7 +301,46 @@ int dev_driver_event_db_record_query(QUERY_DATA_Typedef_t *data ,QUERY_CALLBACK 
 		return -1;
 	}
 
-	get_result(pRecord, row, column);
+	get_result(pRecord, row, column, callback_par);
+	sqlite3_free_table(pRecord);
+
+	return 0;
+}
+
+/**
+  ******************************************************************
+  * @brief   查询自定义数据
+  * @param   [in]sql 查询内容sql语句
+  * @param   [in]get_result 查询结果回调接口
+  * @retval  -1异常 0正常
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-07
+  ******************************************************************
+  */
+int dev_driver_event_db_record_customize_query(const char *sql, QUERY_CALLBACK get_result, void *callback_par)
+{
+	int      rc              = 0;
+	char     *errMsg         = NULL;
+	char**   pRecord         = NULL;
+	int      row             = 0;
+	int      column          = 0;
+	char     sqlCmd[512]     = {0};
+
+	if(sql == NULL || db == NULL || get_result == NULL)
+	{
+		return -1;
+	}
+	snprintf(sqlCmd, sizeof(sqlCmd), "%s", sql);
+
+	rc = sqlite3_get_table(db, sqlCmd, &pRecord, &row, &column, &errMsg);
+	if (SQLITE_OK != rc) {
+		fprintf(stderr, "can't get table %s\n",  errMsg);
+		sqlite3_free(errMsg);
+		return -1;
+	}
+
+	get_result(pRecord, row, column, callback_par);
 	sqlite3_free_table(pRecord);
 
 	return 0;
@@ -306,9 +358,10 @@ int dev_driver_event_db_record_query(QUERY_DATA_Typedef_t *data ,QUERY_CALLBACK 
   */
 void dev_driver_event_db_init(iot_logger_t *lc)
 {
-	DEVICE_TYPE_MAP_Typedef_t *table = get_device_type_list();
+	const DEVICE_TYPE_MAP_Typedef_t *table = get_device_type_list();
 	if(table == NULL)
 	{
+		iot_log_error(lc, "can't find table.");
 		return;
 	}
 	/*configuration sqlite to SQLITE_THREADSAFE*/
@@ -317,7 +370,7 @@ void dev_driver_event_db_init(iot_logger_t *lc)
 	/*建立设备事件表*/
 	for(int index = 0; table[index].type_name != NULL; index++)
 	{
-		db_create_db(table[index].type_name);
+		create_table(table[index].type_name);
 	}
 }
 

@@ -23,6 +23,7 @@ extern "C" {
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
 #include "devsdk/devsdk.h"
+#include "3third_party/cJSON/cJSON.h"
 #include "3third_party/libsqlite/sqlite3.h"
 #include "3third_party/tomlc99/toml.h"
 #include "3third_party/libyaml/yaml.h"

@@ -24,6 +24,7 @@ extern "C" {
 #include "device_driver_port.h"
 #include "device_driver_auto_event.h"
 #include "device_driver_parse_par.h"
+#include "device_driver_cfg.h"
 /** Private typedef ----------------------------------------------------------*/
                                                               
 /** Private macros -----------------------------------------------------------*/
@@ -64,13 +65,13 @@ static NODE_TYPE_STRUCT *device_driver_opt_get_interface(const char *devname, io
   int ret = parse_dev_name(devname, &dev_info);
   if(ret != 0)
   {
-    iot_log__warn(lc, "can't parse dev name %s.", devname);
+    iot_log_warn(lc, "can't parse dev name %s.", devname);
     return pnode;
   }
   DEVICE_Typedef_t dev_type = get_device_protocol_type(&dev_info);
   if(dev_type == DEV_TYPE_MAX)
   {
-    iot_log__warn(lc, "can't parse dev type %s.", devname);
+    iot_log_warn(lc, "can't parse dev type %s.", devname);
     return pnode;
   }
 
@@ -81,7 +82,7 @@ static NODE_TYPE_STRUCT *device_driver_opt_get_interface(const char *devname, io
 
   if(pnode == NULL)
   {
-    iot_log__warn(lc, "no find this device in the listtable.");
+    iot_log_warn(lc, "no find this device in the listtable.");
     return pnode;
   }
 
@@ -120,7 +121,7 @@ int device_driver_opt_get(const char *devname, const char *param, devsdk_command
   }
   if(pnode->get_dev_value_callback == NULL)
   {
-    iot_log__warn(lc, "device have not get interface.");
+    iot_log_warn(lc, "device have not get interface.");
     return -1;
   }
   VALUE_Type_t value_type = VALUE_TYPE_MAX;
@@ -154,7 +155,7 @@ int device_driver_opt_set(const char *devname, const char *param, const iot_data
   }
   if(pnode->get_dev_value_callback == NULL)
   {
-    iot_log__warn(lc, "device have not get interface.");
+    iot_log_warn(lc, "device have not get interface.");
     return -1;
   }
   VALUE_Type_t value_type = VALUE_TYPE_MAX;
@@ -222,6 +223,9 @@ void device_driver_opt_reconfigure(iot_logger_t *lc, const iot_data_t *config)
 void device_driver_opt_init(iot_logger_t *lc, const iot_data_t *config)
 {
   iot_log_info(lc, "start device driver now.");
+
+  /*配置初始化*/
+  config_file_init();
 
   /*初始化链表*/
   list_table_init();

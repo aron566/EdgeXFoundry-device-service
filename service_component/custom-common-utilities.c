@@ -72,6 +72,79 @@ void debug_print(uint8_t *msg ,uint32_t msg_len)
 }
 
 /**
+ * @brief 安全字符串拷贝
+ * 
+ * @param dest_str 目标存储区
+ * @param src_str 源字符串
+ * @param size 最大拷贝字符数目
+ * @return char* 目标存储区
+ */
+char *strncopy(char *dest_str, const char *src_str, size_t size)
+{
+    if(size == 0 || dest_str == NULL || src_str == NULL)
+    {
+        return dest_str;
+    }
+    strncpy(dest_str, src_str, size);
+    dest_str[size-1] = '\0';
+    return dest_str;
+}
+
+/**
+  ******************************************************************
+  * @brief   获取数值对应的字符串
+  * @param   [out]dest_str 字符串存储区
+  * @param   [in]data 数值
+  * @param   [in]size 存储区长度
+  * @param   [in]value_type 数值类型
+  * @return  str.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-08
+  ******************************************************************
+  */
+char *get_value_str(char *dest_str, void *data, size_t size, VALUE_Type_t value_type)
+{
+  if(dest_str == NULL || data == NULL || size <= 0 || value_type == VALUE_TYPE_MAX)
+  {
+    return dest_str;
+  }
+  switch(value_type)
+  {
+    case INT8:
+      snprintf(dest_str, size, "%hhd", *(int8_t*)data);
+      break;
+    case INT16:
+      snprintf(dest_str, size, "%hd", *(int16_t*)data);
+      break;
+    case INT32:
+      snprintf(dest_str, size, "%d", *(int32_t*)data);
+      break;
+    case UINT8:
+      snprintf(dest_str, size, "%hhu", *(uint8_t*)data);
+      break;
+    case UINT16:
+      snprintf(dest_str, size, "%hhu", *(uint16_t*)data);
+      break;
+    case UINT32:
+      snprintf(dest_str, size, "%u", *(uint32_t*)data);
+      break;
+    case FLOAT32:
+      snprintf(dest_str, size, "%f", *(float*)data);
+      break;
+    case DOUBLE:      
+      snprintf(dest_str, size, "%lf", *(double*)data);
+      break;
+    case STRING:
+      snprintf(dest_str, size, "%s", (const char*)data);
+      break;
+    default:
+      break;
+  }
+  return dest_str;
+}
+
+/**
  * @brief Get the curent time s object
  * 
  * @return uint64_t 时间秒

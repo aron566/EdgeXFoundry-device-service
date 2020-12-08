@@ -33,13 +33,6 @@ typedef struct
     PARSE_COM_PAR_FUNC parse_func;          /**< 解析通讯参数函数*/
 }PARSE_COM_PAR_MAP_Typedef_t;
 
-/*设备资源列表*/
-typedef struct 
-{
-    DEVICE_Typedef_t dev_type;
-    DEV_DRIVER_INTERFACE_Typedef_t *(*get_device_resource)(void);
-}DEVICE_RESOURCE_MAP_Typedef_t;
-
 /*事件时间单位*/
 typedef struct 
 {
@@ -714,15 +707,30 @@ int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info)
  ******************************************************************
  * @brief   获取设备类型表
  * @param   [in]None.
- * @return  None.
+ * @return  设备表.
  * @author  aron566
  * @version V1.0
  * @date    2020-12-07
  ******************************************************************
  */
-DEVICE_TYPE_MAP_Typedef_t *get_device_type_list(void)
+const DEVICE_TYPE_MAP_Typedef_t *get_device_type_list(void)
 {
     return device_type_map;
+}
+
+/**
+ ******************************************************************
+ * @brief   获取设备资源表
+ * @param   [in]None.
+ * @return  设备资源表.
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-12-08
+ ******************************************************************
+ */
+const DEVICE_RESOURCE_MAP_Typedef_t *get_device_resource_list(void)
+{
+    return dev_resource_map;
 }
 
 /**

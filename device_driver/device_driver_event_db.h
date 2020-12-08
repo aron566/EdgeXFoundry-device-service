@@ -26,17 +26,24 @@ extern "C" {
 /** Private defines ----------------------------------------------------------*/
                                                                      
 /** Exported typedefines -----------------------------------------------------*/
-typedef void (*QUERY_CALLBACK)(char** pr, int row, int column);
+typedef void (*QUERY_CALLBACK)(char** pr, int row, int column, void *callback_par);
+
+/*基类数据*/
+typedef struct 
+{
+    char table_name[64];    /**< 表名*/
+    uint32_t addr;          /**< 地址号 */
+    char param_name[64];    /**< 参数名 */
+}BASE_DATA_Typedef_t;
+
 /* 数据插入 */      
-/*地址号,参数名,最大值,最小值,当前值,时间戳 PRIMARY KEY*/                                                          
+/*地址号,参数名,当前值,时间戳 PRIMARY KEY*/                                                          
 typedef struct insert_data                                                               
 {
     char table_name[64];    /**< 表名*/
     uint32_t addr;          /**< 地址号 */
     char param_name[64];    /**< 参数名 */
-    double value_max;       /**< 最大值 */
-    double value_min;       /**< 最小值 */
-    double value_current;   /**< 当前值 */
+    char value_current[64]; /**< 当前值 */
     uint64_t time_stamp;    /**< 时间戳 */
 }INSERT_DATA_Typedef_t;
 
@@ -47,7 +54,7 @@ typedef struct update_data
     char table_name[64];    /**< 表名*/
     uint32_t addr;          /**< 地址号*/
     char param_name[64];    /**< 参数名 */
-    double value_current;   /**< 当前值*/
+    char value_current[64]; /**< 当前值*/
     uint64_t time_stamp;    /**< 时间戳 */
 }UPDATE_DATA_Typedef_t;
 
@@ -92,7 +99,10 @@ int dev_driver_event_db_record_update(UPDATE_DATA_Typedef_t *data);
 int dev_driver_event_db_record_customize_set(CUSTOMIZE_SET_Typedef_t *data);
 
 /*查询数据*/
-int dev_driver_event_db_record_query(QUERY_DATA_Typedef_t *data ,QUERY_CALLBACK get_result);
+int dev_driver_event_db_record_query(QUERY_DATA_Typedef_t *data, QUERY_CALLBACK get_result, void *callback_par);
+
+/*查询自定义数据*/
+int dev_driver_event_db_record_customize_query(const char *sql, QUERY_CALLBACK get_result, void *callback_par);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

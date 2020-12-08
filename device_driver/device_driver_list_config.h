@@ -21,7 +21,8 @@ extern "C" {
 #include <stdio.h>  /**< if need printf             */                          
 #include <stdlib.h>
 #include <string.h>
-/** Private includes ---------------------------------------------------------*/                                                              
+/** Private includes ---------------------------------------------------------*/     
+#include "../service_component/custom-common.h"                                                         
 /** Private defines ----------------------------------------------------------*/
 /*Modbus-RTU Master读指令0x03功能码*/
 /*
@@ -82,22 +83,7 @@ typedef enum
     TEMPERATURE_DEV_TYPE,   /**< 温湿度设备类*/
     RELAY_DEV_TYPE,         /**< 继电器设备类*/
     DEV_TYPE_MAX,
-}DEVICE_Typedef_t;
-
-/*数值类型*/
-typedef enum
-{
-    INT8 = 0,       
-    UINT8,
-    INT16,
-    UINT16,
-    UINT32,
-    INT32,
-    FLOAT32,
-    DOUBLE,
-    STRING,
-    VALUE_TYPE_MAX,
-}VALUE_Type_t;  
+}DEVICE_Typedef_t; 
 
 /*协议类型*/
 typedef enum
@@ -108,6 +94,14 @@ typedef enum
     UNKNOW_PROTO,
     PROTO_MAX,
 }PROTOCOL_Type_t;
+
+/*边缘网关运行状态*/
+typedef enum
+{
+    NORMAL_RUNNING_STATE = 0,     /**< 正常运行状态*/
+    UPDATING_STATE,               /**< 更新状态*/
+    UNKNOW_STATE,                 /**< 未知状态*/
+}EdgeGatewayRUN_SATE_Typedef_t;
 
 /*设备通讯地址*/
 typedef struct 
@@ -142,6 +136,8 @@ typedef enum
     READ_WRITE      = 1<<2,             /**< 读写*/
     PRIVATE_WRITE   = 1<<3,             /**< 似有写*/
     PRIVATE_READ    = 1<<4,             /**< 私有读*/
+    STORE_READ      = 1<<5,             /**< 存储读*/
+    CONFIG_READ     = 1<<6,             /**< 配置读*/
     UNKNOW,                             /**< 未知*/
 }PERMISSIONS_TYPE;
 

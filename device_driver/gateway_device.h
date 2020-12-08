@@ -22,7 +22,7 @@ extern "C" {
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
-#include "service_component/custom-common.h"
+#include "../service_component/custom-common.h"
 #include "device_driver_list_config.h"
 /** Private defines ----------------------------------------------------------*/
                                                                    
@@ -39,7 +39,10 @@ int gateway_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATI
                                     DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par);
 
 /*获取网关设备资源表*/
-DEV_DRIVER_INTERFACE_Typedef_t *get_gateway_device_resource(void);
+const DEV_DRIVER_INTERFACE_Typedef_t *get_gateway_device_resource(void);
+
+/*获取网关设备运行状态*/
+EdgeGatewayRUN_SATE_Typedef_t get_gateway_device_run_state(void);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

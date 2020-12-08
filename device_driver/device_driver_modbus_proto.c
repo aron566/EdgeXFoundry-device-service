@@ -74,7 +74,7 @@ inline static int master_read_frame_joint(uint8_t *buf, uint8_t addr,
 {
     if(buf == NULL)
     {
-        return;
+        return 0;
     }
     buf[0] = addr;
     buf[1] = MODBUS_READ_COMMAND;
@@ -107,7 +107,7 @@ inline static int master_write_frame_joint(uint8_t *buf, uint8_t addr,
 {
     if(buf == NULL || reg_d == NULL)
     {
-        return;
+        return 0;
     }
     buf[0] = addr;
     buf[1] = MODBUS_WRITE_COMMAND;
@@ -325,6 +325,8 @@ static MODBUS_PARSE_CODE_Typedef_t modbus_wait_new_data(uint8_t addr, uint8_t cm
         case MODBUS_OK:
           CQ_ManualOffsetInc(modbus_cb ,buf_len);
           return MODBUS_OK;
+        default:
+          break;
       }
     }
     /*判断超时*/
@@ -359,7 +361,6 @@ MODBUS_PARSE_CODE_Typedef_t device_driver_modbus_master_read(uint8_t addr, uint1
                                       uint16_t **reg_value)
 {
   uint8_t read_cmd[8];
-  uint8_t read_data[256];
   MODBUS_PARSE_CODE_Typedef_t state = MODBUS_OK;
   PORT_BUF_STRUCT_Typedef_t data;
   data.base_buf.buf = read_cmd;
@@ -399,7 +400,6 @@ MODBUS_PARSE_CODE_Typedef_t device_driver_modbus_master_write(uint8_t addr, uint
                                                           uint16_t reg_n, uint16_t *reg_d)
 {
   uint8_t write_cmd[256];
-  uint8_t write_data[8];
   MODBUS_PARSE_CODE_Typedef_t state = MODBUS_OK;
   PORT_BUF_STRUCT_Typedef_t data;
   data.base_buf.buf = write_cmd;

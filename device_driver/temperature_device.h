@@ -22,7 +22,7 @@ extern "C" {
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
 /** Private includes ---------------------------------------------------------*/
-#include "service_component/custom-common.h" 
+#include "../service_component/custom-common.h" 
 #include "device_driver_list_config.h"                                                                                 
 /** Private defines ----------------------------------------------------------*/
                                                                       
@@ -39,7 +39,7 @@ int temperature_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNI
                                         DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par);    
 
 /*获取温湿度设备资源表*/
-DEV_DRIVER_INTERFACE_Typedef_t *get_temperature_device_resource(void);
+const DEV_DRIVER_INTERFACE_Typedef_t *get_temperature_device_resource(void);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

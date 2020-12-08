@@ -34,7 +34,15 @@ typedef struct
     const char* const type_name;    /**< 类型名称*/
     DEVICE_Typedef_t dev_type;      /**< 类型*/
     REGISTER_DEV_FUNC register_func;/**< 设备注册函数*/
-}DEVICE_TYPE_MAP_Typedef_t;                                                                       
+}DEVICE_TYPE_MAP_Typedef_t;      
+
+/*设备资源列表*/
+typedef struct 
+{
+    DEVICE_Typedef_t dev_type;
+    const DEV_DRIVER_INTERFACE_Typedef_t *(*get_device_resource)(void);
+}DEVICE_RESOURCE_MAP_Typedef_t;
+
 /** Exported constants -------------------------------------------------------*/
                                                                                 
 /** Exported macros-----------------------------------------------------------*/
@@ -58,7 +66,10 @@ uint8_t get_modbus_device_addr(const char *dev_name);
 int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info);
 
 /*获取设备类型表*/
-DEVICE_TYPE_MAP_Typedef_t *get_device_type_list(void);
+const DEVICE_TYPE_MAP_Typedef_t *get_device_type_list(void);
+
+/*获取设备资源表*/
+const DEVICE_RESOURCE_MAP_Typedef_t *get_device_resource_list(void);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

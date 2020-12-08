@@ -20,7 +20,7 @@ extern "C" {
 #include <stdbool.h>/**< need definition of BOOL    */                        
 #include <stdio.h>  /**< if need printf             */                          
 #include <stdlib.h>                                                             
-#include <string.h>                                                             
+#include <string.h>
 /** Private includes ---------------------------------------------------------*/
                                                                                 
 /** Private defines ----------------------------------------------------------*/
@@ -34,6 +34,20 @@ typedef enum
     THREAD_CPUTIME,     /**< 本线程到当前代码系统CPU花费的时间*/
 }UTILITIES_TIME_MODE_Typedef_t;
 
+/*数值类型*/
+typedef enum
+{
+    INT8 = 0,       
+    UINT8,
+    INT16,
+    UINT16,
+    UINT32,
+    INT32,
+    FLOAT32,
+    DOUBLE,
+    STRING,
+    VALUE_TYPE_MAX,
+}VALUE_Type_t; 
 /** Exported constants -------------------------------------------------------*/
                                                                                
 /** Exported macros-----------------------------------------------------------*/
@@ -51,8 +65,15 @@ typedef enum
 /** @}*/  
 /** Exported variables -------------------------------------------------------*/
 /** Exported functions prototypes --------------------------------------------*/
+
 /*调试打印*/
 void debug_print(uint8_t *msg ,uint32_t msg_len);
+
+/*安全字符串拷贝*/
+char *strncopy(char *dest_str, const char *src_str, size_t size);
+
+/*获取数值对应的字符串*/
+char *get_value_str(char *dest_str, void *data, size_t size, VALUE_Type_t value_type);
 
 /*获取时间*/
 uint64_t get_curent_time_s(UTILITIES_TIME_MODE_Typedef_t mode);
@@ -86,6 +107,7 @@ int get_cpu_num(void);
 
 /*获取本机CPU频率*/
 double get_cpu_frequency(void);
+
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               
 #endif                                                                          

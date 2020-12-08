@@ -22,6 +22,7 @@ extern "C" {
 #include "device_driver_list.h"
 #include "device_driver_parse_par.h"
 #include "device_driver_modbus_proto.h"
+#include "device_driver_event_db.h"
 /** Private typedef ----------------------------------------------------------*/
 
 /** Private macros -----------------------------------------------------------*/
@@ -34,7 +35,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .command_addr           = 0x0000,
     .value_type             = FLOAT32,
     .default_value          = 0,
-    .permissions            = READ_ONLY,
+    .permissions            = STORE_READ|READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
     .interval_time          = 0,
@@ -46,7 +47,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .command_addr           = 0x0001,
     .value_type             = FLOAT32,
     .default_value          = 0,
-    .permissions            = READ_ONLY,
+    .permissions            = STORE_READ|READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
     .interval_time          = 0,
@@ -58,7 +59,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .command_addr           = 0x0002,
     .value_type             = FLOAT32,
     .default_value          = 0,
-    .permissions            = PRIVATE_WRITE|PRIVATE_READ,
+    .permissions            = STORE_READ|PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
     .interval_time          = 0,
@@ -70,7 +71,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .command_addr           = 0x0003,
     .value_type             = FLOAT32,
     .default_value          = 0,
-    .permissions            = PRIVATE_WRITE|PRIVATE_READ,
+    .permissions            = STORE_READ|PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
     .interval_time          = 0,
@@ -82,7 +83,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .command_addr           = 0x0004,
     .value_type             = FLOAT32,
     .default_value          = 0,
-    .permissions            = PRIVATE_WRITE|PRIVATE_READ,
+    .permissions            = STORE_READ|PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
     .interval_time          = 0,
@@ -94,7 +95,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .command_addr           = 0x0005,
     .value_type             = FLOAT32,
     .default_value          = 0,
-    .permissions            = PRIVATE_WRITE|PRIVATE_READ,
+    .permissions            = STORE_READ|PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
     .interval_time          = 0,
@@ -120,6 +121,8 @@ static int set_modbus_dev_value(const char *dev_name, const void *input_data, co
 static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type);
 static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);
 static int get_param_index(const char *parm);
+static void query_callback(char** pr, int row, int column, void *callback_par);
+static void device_event_recovery(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par);
 
 static void read_msg_callback(uv_work_t *req, int status);
 /** Private variables --------------------------------------------------------*/
@@ -241,12 +244,9 @@ static int get_modbus_dev_value(const char *dev_name, const void *input_data, vo
   else if(PRIVATE_READ & resources_interface_par[index].permissions)
   {
     /*读内部参数*/
-    
+    return 0;
   }
-  else
-  {
-    return -1;
-  }
+  return -1;
 }
 
 /**
@@ -293,12 +293,9 @@ static int set_modbus_dev_value(const char *dev_name, const void *input_data, co
   else if(PRIVATE_WRITE & resources_interface_par[index].permissions)
   {
     /*写内部参数*/
-    
+    return 0;
   }
-  else
-  {
-    return -1;
-  }
+  return -1;
 }
 
 /**
@@ -352,6 +349,76 @@ static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type)
   }
   return NULL;
 }
+
+/**
+  ******************************************************************
+  * @brief   设备事件参数查询结果回调
+  * @param   [in]pr 表.
+  * @param   [in]row 行数
+  * @param   [in]column 列数
+  * @param   [in]callback_par 参数
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-08
+  ******************************************************************
+  */
+static void query_callback(char** pr, int row, int column, void *callback_par)
+{
+	if(row < 1)
+	{
+		printf("can't find this param name.\n");
+		return;
+	}
+  DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par = (DEV_DRIVER_INTERFACE_Typedef_t *)callback_par;
+  if(dev_resource_par == NULL)
+  {
+    return;
+  }
+  /*0地址号,1参数名,2当前值,3时间戳*/
+	int i, j;
+	for(i = 1; i <= row; i++)
+	{
+    j = i * column;
+    dev_resource_par->default_value = (uint64_t)atoi(pr[j+2]);
+	}
+}
+
+/**
+  ******************************************************************
+  * @brief   设备事件参数恢复
+  * @param   [in]dev_info 设备信息.
+  * @param   [in]dev_resource_par 设备资源
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-08
+  ******************************************************************
+  */
+static void device_event_recovery(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par)
+{
+  if(dev_info == NULL || dev_resource_par == NULL)
+  {
+    return;
+  }
+
+  /*读取数据库*/
+  QUERY_DATA_Typedef_t data;
+  data.addr = (uint32_t)atoi(dev_info->dev_address);
+  strncopy(data.param_name, dev_resource_par->par_name, 64);
+  strncopy(data.table_name, dev_info->dev_type_name, 64);
+  int ret = dev_driver_event_db_record_query(&data, query_callback, dev_resource_par);
+  if(ret != 0)
+  {
+    /*查询失败，重建设备事件参数表*/
+    INSERT_DATA_Typedef_t insert_data;
+    memmove(&insert_data, &data, sizeof(BASE_DATA_Typedef_t));
+    get_value_str(insert_data.value_current, &dev_resource_par->default_value, 64, dev_resource_par->value_type);
+    insert_data.time_stamp = get_curent_time_s(CURRENT_TIME);
+    dev_driver_event_db_record_insert(&insert_data);
+    return;
+  }
+}
 /** Public application code --------------------------------------------------*/
 /*******************************************************************************
 *                                                                               
@@ -384,9 +451,9 @@ void *get_temperature_device_value(const char *dev_name, const char *req_param)
   * @date    2020-11-24
   ******************************************************************
   */
-DEV_DRIVER_INTERFACE_Typedef_t *get_temperature_device_resource(void)
+const DEV_DRIVER_INTERFACE_Typedef_t *get_temperature_device_resource(void)
 {
-  return resources_interface_par;
+  return (const DEV_DRIVER_INTERFACE_Typedef_t *)resources_interface_par;
 }
 
 /**
@@ -435,18 +502,24 @@ int temperature_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNI
 
     /*注册*/
     list_add_to_list(node_p ,TEMPERATURE_DEV_TYPE);
+
+    printf("temperature device register successful.\n");
   }
 
   /*修改事件参数*/
   for(int index = 0; p_node->dev_resource_par[index].par_name != NULL; index++)
   {
+    /*私有事件参数从数据库中恢复*/
+    if(dev_resource_par->permissions & STORE_READ)
+    {
+      device_event_recovery(dev_info, dev_resource_par);
+    }
     if(strcmp(p_node->dev_resource_par[index].par_name, dev_resource_par->par_name) == 0)
     {
       memmove(&p_node->dev_resource_par[index], dev_resource_par, sizeof(DEV_DRIVER_INTERFACE_Typedef_t));
     }
   }
 
-  printf("temperature device register successful.\n");
   return 0;
 }   
 

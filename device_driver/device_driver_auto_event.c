@@ -47,6 +47,21 @@ static void *polling_uv_event_loop(void *par);
 *                                                                               
 ********************************************************************************
 */
+  /* Load the file contents */
+  // uint8_t *data = file_readfile (fname, &size);
+  // if (data)
+  // {
+  //   /* Set up a commandresult. The deviceResource for our profiles is "File" */
+  //   devsdk_commandresult results[1];
+  //   iot_log_info (impl->lc, "File size: %" PRIu32, size);
+  //   results[0].origin = 0;
+  //   results[0].value = iot_data_alloc_array (data, size, IOT_DATA_UINT8, IOT_DATA_TAKE);
+
+  //   /* Trigger an event */
+  //   devsdk_post_readings (service, dname, "File", results);
+
+  //   /* Cleanup the value. Note that as we used IOT_DATA_TAKE, the buffer allocated in file_readfile is free'd here */
+  //   iot_data_free (results[0].value);
 /**
   ******************************************************************
   * @brief   事件检测上报
@@ -61,6 +76,9 @@ static void polling_report_event_task(uv_idle_t* handle)
 {
     /*监测运行状态*/
     printf("uv indel task is running...\n");
+    
+    /*获取网关运行状态*/
+
 }
 
 /**
@@ -88,6 +106,7 @@ static void *polling_uv_event_loop(void *par)
     /*set task*/
     uv_idle_start(&idler, polling_report_event_task);
 
+    /*start uv loop*/
     uv_run(loop, UV_RUN_DEFAULT);
 
     /* never return */

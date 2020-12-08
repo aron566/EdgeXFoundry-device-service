@@ -1,5 +1,5 @@
 set(SUB_DIRS "3third_party/libuv")
-set(DIR_SRCS "." "3third_party/libsqlite" "3third_party/tomlc99" "3third_party/libyaml")
+set(DIR_SRCS "." "3third_party/cJSON" "3third_party/libsqlite" "3third_party/tomlc99" "3third_party/libyaml")
 
 foreach(srcdir ${DIR_SRCS})
     aux_source_directory(${srcdir} SRC_LIST)

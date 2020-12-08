@@ -346,7 +346,7 @@ void epoll_listen_register(FD_Typedef_t type ,FD_FUNC_MAP_Typedef_t *node)
   */
 void epoll_listen_unregister(SOCKET_FD_Typedef_t type ,int fd)
 {
-    if(type < FILE_FD || type >= FD_TYPE_MAX || fd <= 0)
+    if((int)type < (int)FILE_FD || (int)type >= FD_TYPE_MAX || fd <= 0)
     {
         return;
     }

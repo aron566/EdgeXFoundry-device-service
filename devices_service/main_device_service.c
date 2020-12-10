@@ -127,7 +127,7 @@ static bool custom_device_get_handler(
     ret = device_driver_opt_get(devname, param, &readings[i], driver->lc);
     if(ret != 0)
     {
-      iot_log_error(driver->lc, "get dev: %s par: error.", devname, param);
+      iot_log_error(driver->lc, "[%s][%s] get dev: %s par [%s] error.", __FILE__, __FUNCTION__, devname, param);
     }
   }
   return true;
@@ -172,7 +172,7 @@ static bool custom_device_put_handler(
     ret = device_driver_opt_set(devname, param, values[i], driver->lc);
     if(ret != 0)
     {
-      iot_log_error(driver->lc, "set dev: %s par: error.", devname, param);
+      iot_log_error(driver->lc, "[%s][%s] set dev: %s par [%s] error.", __FILE__, __FUNCTION__, devname, param);
     }
     
   }

@@ -45,8 +45,8 @@ const DEV_DRIVER_INTERFACE_Typedef_t *get_gateway_device_resource(void);
 EdgeGatewayRUN_SATE_Typedef_t get_gateway_device_run_state(void);
 
 /*网关设备事件上报确认*/
-bool gateway_device_report_event_confirm(const char *dev_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, 
-                                        const void *data);
+bool gateway_device_report_event_confirm(const char *dev_name, const char *param_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, 
+                                        void *data);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

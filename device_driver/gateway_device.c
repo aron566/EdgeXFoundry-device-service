@@ -38,6 +38,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = CONFIG_READ|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .report_event_confirm   = NULL,
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
@@ -51,6 +52,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = STORE_READ|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .report_event_confirm   = NULL,
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
@@ -64,6 +66,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = PRIVATE_READ|PRIVATE_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .report_event_confirm   = NULL,
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
@@ -77,6 +80,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .report_event_confirm   = NULL,
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
@@ -90,6 +94,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = STORE_READ|PRIVATE_READ|PRIVATE_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .report_event_confirm   = NULL,
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
@@ -103,6 +108,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = PRIVATE_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .report_event_confirm   = NULL,
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
@@ -116,6 +122,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = PRIVATE_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .report_event_confirm   = NULL,
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
@@ -129,6 +136,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = UNKNOW,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .report_event_confirm   = NULL,
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
@@ -146,7 +154,7 @@ static int set_private_dev_value(const char *dev_name, const void *input_data, c
 static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type);
 static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);
 static int get_param_index(const char *parm);
-static void query_callback(char** pr, int row, int column, void *callback_par);
+static int query_callback(char** pr, int row, int column, void *callback_par);
 static void device_event_recovery(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par);
 
 /** Private variables --------------------------------------------------------*/
@@ -449,23 +457,23 @@ static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type)
   * @param   [in]row 行数
   * @param   [in]column 列数
   * @param   [in]callback_par 参数
-  * @return  None.
+  * @return  0 正常 -1错误.
   * @author  aron566
   * @version V1.0
   * @date    2020-12-08
   ******************************************************************
   */
-static void query_callback(char** pr, int row, int column, void *callback_par)
+static int query_callback(char** pr, int row, int column, void *callback_par)
 {
 	if(row < 1)
 	{
-		printf("can't find this param name.\n");
-		return;
+		printf("%s %s can't find this param name.\n", __FILE__, __FUNCTION__);
+		return -1;
 	}
   DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par = (DEV_DRIVER_INTERFACE_Typedef_t *)callback_par;
   if(dev_resource_par == NULL)
   {
-    return;
+    return -1;
   }
   /*0地址号,1参数名,2当前值,3时间戳*/
 	int i, j;
@@ -473,7 +481,9 @@ static void query_callback(char** pr, int row, int column, void *callback_par)
 	{
     j = i * column;
     dev_resource_par->default_value = (uint64_t)atoi(pr[j+2]);
+    break;
 	}
+  return 0;
 }
 
 /**
@@ -556,7 +566,9 @@ const DEV_DRIVER_INTERFACE_Typedef_t *get_gateway_device_resource(void)
 /**
   ******************************************************************
   * @brief   设备事件上报确认
+  * @param   [in]dev_name 设备名.
   * @param   [in]param_name 参数名.
+  * @param   [in]dev_resource 设备总资源.
   * @param   [in]data 此参数获取的数据. 
   * @return  true 上报允许 false 不上报.
   * @author  aron566
@@ -564,9 +576,10 @@ const DEV_DRIVER_INTERFACE_Typedef_t *get_gateway_device_resource(void)
   * @date    2020-12-10
   ******************************************************************
   */
-bool gateway_device_report_event_confirm(const char *dev_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, const void *data)
+bool gateway_device_report_event_confirm(const char *dev_name, const char *param_name, 
+                                      DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, void *data)
 {
-  if(dev_name == NULL || dev_resource == NULL || data == NULL)
+  if(dev_name == NULL || param_name == NULL || dev_resource == NULL || data == NULL)
   {
     return false;
   }
@@ -577,7 +590,7 @@ bool gateway_device_report_event_confirm(const char *dev_name, DEV_DRIVER_INTERF
     return true;
   }
 
-  const devsdk_commandresult *value = (const devsdk_commandresult *)data;
+  devsdk_commandresult *value = (devsdk_commandresult *)data;
   return true;
 }
 
@@ -605,30 +618,32 @@ int gateway_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATI
   DEVICE_Typedef_t dev_type = get_device_type(dev_info);
   if(dev_type == DEV_TYPE_MAX || major_key_1 == UNKNOW_PROTO)
   {
-      printf("can't get the dev type or protocol.\n");
-      return -1;
+    printf("[%s][%s] can't get the dev type or protocol.\n", __FILE__, __FUNCTION__);
+    return -1;
   }
-  p_node = list_find_node(GATEWAY_DEV_TYPE, major_key_1, major_key_2);
+  p_node = list_find_node(dev_type, major_key_1, major_key_2);
   if(p_node == NULL)
   {
     node_p = (NODE_Typedef_t *)calloc(1, sizeof(NODE_Typedef_t)+(sizeof(DEV_DRIVER_INTERFACE_Typedef_t)*sizeof(resources_interface_par)));
     if(node_p == NULL)
     {
-      printf("can't calloc memory for gatway dev.\n");
+      printf("[%s][%s] can't calloc memory for gatway dev.\n", __FILE__, __FUNCTION__);
       return -1;
     }
     p_node = &node_p->node;
     p_node->major_key_1 = major_key_1;
     p_node->major_key_2 = major_key_2;
+    snprintf(p_node->dev_name, 256, "%s-%s-%s-%s", dev_info->protocol_str, dev_info->location_str,
+                        dev_info->dev_type_name, dev_info->dev_address);
     memmove(p_node->dev_resource_par, resources_interface_par, sizeof(resources_interface_par));
     memmove(&p_node->communication_par, communication_par, sizeof(DEV_COMMUNICATION_PAR_Typedef_t));
     p_node->get_dev_value_callback = get_get_callback(communication_par->protocol_type);
     p_node->set_dev_value_callback = get_set_callback(communication_par->protocol_type);
 
     /*注册*/
-    list_add_to_list(node_p ,GATEWAY_DEV_TYPE);
+    list_add_to_list(node_p ,dev_type);
 
-    printf("gatway device register successful.\n");
+    printf("gatway device register successful num %u.\n", list_get_size(dev_type));
   }
 
   /*修改事件参数*/
@@ -637,7 +652,7 @@ int gateway_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATI
     if(strcmp(p_node->dev_resource_par[index].par_name, dev_resource_par->par_name) == 0)
     {
       /*私有事件参数从数据库中恢复*/
-      if(dev_resource_par->permissions & STORE_READ)
+      if(p_node->dev_resource_par[index].permissions & STORE_READ)
       {
         device_event_recovery(dev_info, dev_resource_par);
       }

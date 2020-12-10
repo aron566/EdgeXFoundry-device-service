@@ -301,10 +301,10 @@ int dev_driver_event_db_record_query(QUERY_DATA_Typedef_t *data, QUERY_CALLBACK 
 		return -1;
 	}
 
-	get_result(pRecord, row, column, callback_par);
+	int ret = get_result(pRecord, row, column, callback_par);
 	sqlite3_free_table(pRecord);
 
-	return 0;
+	return ret;
 }
 
 /**
@@ -340,10 +340,10 @@ int dev_driver_event_db_record_customize_query(const char *sql, QUERY_CALLBACK g
 		return -1;
 	}
 
-	get_result(pRecord, row, column, callback_par);
+	int ret = get_result(pRecord, row, column, callback_par);
 	sqlite3_free_table(pRecord);
 
-	return 0;
+	return ret;
 }
 
 /**

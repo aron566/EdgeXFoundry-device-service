@@ -27,21 +27,6 @@ extern "C" {
 /** Private defines ----------------------------------------------------------*/
                                                                       
 /** Exported typedefines -----------------------------------------------------*/
-/*设备类型及资源列表*/
-typedef int (*REGISTER_DEV_FUNC)(DEV_INFO_Typedef_t *, DEV_COMMUNICATION_PAR_Typedef_t *, DEV_DRIVER_INTERFACE_Typedef_t *);
-typedef bool (*REPORT_EVENT_CONFIRM_FUNC)(const char *dev_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, const void *data);
-typedef struct 
-{
-    const char* const type_name;    /**< 类型名称*/
-    const DEVICE_Typedef_t dev_type;      /**< 类型*/
-    const REGISTER_DEV_FUNC register_func;/**< 设备注册函数*/
-    const DEV_DRIVER_INTERFACE_Typedef_t *(*get_device_resource)(void);
-    const REPORT_EVENT_CONFIRM_FUNC report_event_confirm;/**< 事件上报确认*/
-}DEVICE_TYPE_MAP_RESOURCE_MAP_Typedef_t;      
-
-typedef DEVICE_TYPE_MAP_RESOURCE_MAP_Typedef_t DEVICE_TYPE_MAP_Typedef_t;
-typedef DEVICE_TYPE_MAP_RESOURCE_MAP_Typedef_t DEVICE_RESOURCE_MAP_Typedef_t;
-
 
 /** Exported constants -------------------------------------------------------*/
                                                                                 
@@ -56,7 +41,7 @@ void register_device_driver(iot_logger_t *lc);
 PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info);
 
 /*获取设备类型*/
-DEVICE_Typedef_t get_device_type(DEV_INFO_Typedef_t *dev_info);  
+DEVICE_Typedef_t get_device_type(DEV_INFO_Typedef_t *dev_info);
 
 /*返回设备地址*/
 int get_device_addr(DEV_INFO_Typedef_t *dev_info);

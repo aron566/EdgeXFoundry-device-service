@@ -44,9 +44,9 @@ static devsdk_service_t *g_service = NULL;
 static void *polling_uv_event_loop(void *par);
 static void polling_report_event_task(uv_idle_t* handle);
 static void event_monitor_task(void);
-static void dev_event_monitor(const NODE_TYPE_STRUCT *p_node, DEVICE_Typedef_t dev_type);
+static void dev_event_monitor(NODE_TYPE_STRUCT *p_node, DEVICE_Typedef_t dev_type);
 static bool check_interval_is_arrived(INTERVAL_TIME_Typedef_t *dest_time, uint64_t last_time);
-static uint64_t time_base2ms(INTERVAL_TIME_Typedef_t *time_base);
+
 /** Private user code --------------------------------------------------------*/                                                                      
 
 /** Private application code -------------------------------------------------*/
@@ -56,56 +56,6 @@ static uint64_t time_base2ms(INTERVAL_TIME_Typedef_t *time_base);
 *                                                                               
 ********************************************************************************
 */
-/**
-  ******************************************************************
-  * @brief   任意时间单位转为ms单位数
-  * @param   [in]time_base 时间数据.
-  * @return  ms.
-  * @author  aron566
-  * @version V1.0
-  * @date    2020-12-09
-  ******************************************************************
-  */
-static uint64_t time_base2ms(INTERVAL_TIME_Typedef_t *time_base)
-{
-    if(time_base == NULL)
-    {
-        return 0;
-    }
-    uint64_t ms = 0;
-    switch(time_base->unit)
-    {
-        case T_MS:                           /**< 毫秒单位*/
-            ms = time_base->interval_time;
-            break;
-        case T_S:                            /**< 秒*/
-            ms = time_base->interval_time*1000;
-            break;
-        case T_MIN:                          /**< 分*/
-            ms = time_base->interval_time*60*1000;
-            break;
-        case T_H:                            /**< 时*/
-            ms = time_base->interval_time*60*60*1000;
-            break;                                
-        case T_D:                            /**< 天*/
-            ms = time_base->interval_time*24*60*60*1000;
-            break;
-        case T_MTH:                          /**< 月*/
-            ms = time_base->interval_time*30*24*60*60*1000;
-            break;
-        case T_YER:                          /**< 年*/
-            ms = time_base->interval_time*12*30*24*60*60*1000;
-            break;
-        default:
-            break;
-    }
-    /*检测溢出*/
-    if(ms < time_base->interval_time)
-    {
-        ms = ULONG_MAX;
-    }
-    return ms;
-}
 
 /**
   ******************************************************************
@@ -140,7 +90,7 @@ static bool check_interval_is_arrived(INTERVAL_TIME_Typedef_t *dest_time, uint64
   * @date    2020-12-09
   ******************************************************************
   */
-static void dev_event_monitor(const NODE_TYPE_STRUCT *p_node, DEVICE_Typedef_t dev_type)
+static void dev_event_monitor(NODE_TYPE_STRUCT *p_node, DEVICE_Typedef_t dev_type)
 {
     if(p_node == NULL)
     {
@@ -148,13 +98,12 @@ static void dev_event_monitor(const NODE_TYPE_STRUCT *p_node, DEVICE_Typedef_t d
     }
     DEV_DRIVER_INTERFACE_Typedef_t *dev_resource = p_node->dev_resource_par;
     char dev_name[sizeof(DEV_INFO_Typedef_t)];
-    devsdk_commandresult results[1];
-    VALUE_Type_t value_type;
+    devsdk_commandresult results[1] = {0};
+    VALUE_Type_t value_type = VALUE_TYPE_MAX;
     INTERVAL_TIME_Typedef_t interval_time_base;
     bool allow = false;
     int ret;
-    jonint_dev_name(dev_name, sizeof(DEV_INFO_Typedef_t), p_node->major_key_1, "location", 
-                        dev_type, (int)p_node->major_key_2);
+
     if(dev_resource == NULL)
     {
         return;
@@ -179,7 +128,7 @@ static void dev_event_monitor(const NODE_TYPE_STRUCT *p_node, DEVICE_Typedef_t d
             dev_resource[i].start_time = get_current_time_s(CURRENT_TIME_MS);
 
             /*获取该参数数值*/
-            ret = p_node->get_dev_value_callback(dev_name, dev_resource[i].par_name, results, &value_type);
+            ret = p_node->get_dev_value_callback(p_node->dev_name, dev_resource[i].par_name, results, &value_type);
             if(ret != 0)
             {
                iot_log_warn(g_lc, "get event value faild.");     
@@ -191,14 +140,14 @@ static void dev_event_monitor(const NODE_TYPE_STRUCT *p_node, DEVICE_Typedef_t d
             {
                 continue;
             }
-            allow = event_confirm(dev_name, &dev_resource[i], results);
+            allow = event_confirm(p_node->dev_name, dev_resource[i].par_name, dev_resource, results);
             if(allow == false)
             {
                 continue;
             }
             
             /* Trigger an event */
-            devsdk_post_readings(g_service, dev_name, dev_resource[i].par_name, results);
+            devsdk_post_readings(g_service, p_node->dev_name, dev_resource[i].par_name, results);
 
             /* Cleanup the value. Note that as we used IOT_DATA_TAKE, the buffer allocated in get callback is free'd here */
             iot_data_free(results[0].value);
@@ -225,7 +174,7 @@ static void event_monitor_task(void)
         return;
     }
 
-    const NODE_TYPE_STRUCT *p_node = NULL; 
+    NODE_TYPE_STRUCT *p_node = NULL; 
     for(int index = 0; device_type_map[index].type_name != NULL; index++)
     {
         len = list_get_size(device_type_map[index].dev_type);
@@ -258,7 +207,7 @@ static void event_monitor_task(void)
 static void polling_report_event_task(uv_idle_t* handle)
 {
     /*监测运行状态*/
-    iot_log_debug(g_lc, "uv indel task is running...");
+    // iot_log_debug(g_lc, "uv indel task is running...");
     
     /*获取网关运行状态*/
     EdgeGatewayRUN_SATE_Typedef_t run_state = get_gateway_device_run_state();
@@ -318,6 +267,57 @@ static void *polling_uv_event_loop(void *par)
 */
 /**
   ******************************************************************
+  * @brief   任意时间单位转为ms单位数
+  * @param   [in]time_base 时间数据.
+  * @return  ms.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-09
+  ******************************************************************
+  */
+uint64_t time_base2ms(INTERVAL_TIME_Typedef_t *time_base)
+{
+    if(time_base == NULL)
+    {
+        return 0;
+    }
+    uint64_t ms = 0;
+    switch(time_base->unit)
+    {
+        case T_MS:                           /**< 毫秒单位*/
+            ms = time_base->interval_time;
+            break;
+        case T_S:                            /**< 秒*/
+            ms = time_base->interval_time*1000;
+            break;
+        case T_MIN:                          /**< 分*/
+            ms = time_base->interval_time*60*1000;
+            break;
+        case T_H:                            /**< 时*/
+            ms = time_base->interval_time*60*60*1000;
+            break;                                
+        case T_D:                            /**< 天*/
+            ms = time_base->interval_time*24*60*60*1000;
+            break;
+        case T_MTH:                          /**< 月*/
+            ms = time_base->interval_time*30*24*60*60*1000;
+            break;
+        case T_YER:                          /**< 年*/
+            ms = time_base->interval_time*12*30*24*60*60*1000;
+            break;
+        default:
+            break;
+    }
+    /*检测溢出*/
+    if(ms < time_base->interval_time)
+    {
+        ms = ULONG_MAX;
+    }
+    return ms;
+}
+
+/**
+  ******************************************************************
   * @brief   事件检测轮询启动
   * @param   [in]lc log
   * @return  返回0成功，-1失败
@@ -338,7 +338,7 @@ int device_driver_uv_handler_start(void *data)
         exit(res);
     }
     return pthread_detach(auto_event_task_thread_id);
-}     
+}
 // void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {
 //     *buf = uv_buf_init((char*) malloc(suggested_size), suggested_size);
 // }

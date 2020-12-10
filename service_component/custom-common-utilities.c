@@ -189,7 +189,7 @@ uint64_t get_current_time_s(UTILITIES_TIME_MODE_Typedef_t mode)
     localtime_r(&timespe.tv_sec, &nowTime);
     sprintf(str ,"GetTime:%04d-%02d-%02d-%02d:%02d:%02d\n"
       ,nowTime.tm_year + 1900 ,nowTime.tm_mon+1 ,nowTime.tm_mday ,nowTime.tm_hour ,nowTime.tm_min ,nowTime.tm_sec);
-    printf("%s", str);
+    // printf("%s", str);
     return (uint64_t)timespe.tv_sec;
   }
   // printf("second:%ld\n", tv.tv_sec);
@@ -337,19 +337,20 @@ int common_filter_special_char(char ch, const char *str, char *out_str, int size
     return -1;
   }
   int len = 0;
-  for(int index = 0; str[index] != '\0'; index++)
+  size_t total_len = strlen(str);
+  for(size_t index = 0; index < total_len; index++)
   {
     if(str[index] != ch)
     {
       out_str[len] = str[index];
-      ++len;
+      len++;
       if(len >= size)
       {
-        out_str[len-1] = '\0';
         break;
       }
     }
   }
+  out_str[len-1] = '\0';
   return len;
 }
 

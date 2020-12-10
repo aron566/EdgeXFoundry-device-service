@@ -42,8 +42,8 @@ int relay_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATION
 const DEV_DRIVER_INTERFACE_Typedef_t *get_relay_device_resource(void);
 
 /*继电器设备事件上报确认*/
-bool relay_device_report_event_confirm(const char *dev_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, 
-                                        const void *data);
+bool relay_device_report_event_confirm(const char *dev_name, const char *param_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, 
+                                        void *data);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

@@ -83,8 +83,8 @@ inline static int master_read_frame_joint(uint8_t *buf, uint8_t addr,
     buf[4] = GET_U16_HI_BYTE(reg_n);
     buf[5] = GET_U16_LOW_BYTE(reg_n);
     uint16_t crc = modbus_crc_return(buf, 6);
-    buf[6] = GET_U16_HI_BYTE(crc);
-    buf[7] = GET_U16_LOW_BYTE(crc);
+    buf[6] = GET_U16_LOW_BYTE(crc);
+    buf[7] = GET_U16_HI_BYTE(crc);
     return 8;
 }                                                                      
 
@@ -123,8 +123,8 @@ inline static int master_write_frame_joint(uint8_t *buf, uint8_t addr,
       buf[7+index*2+1] = GET_U16_LOW_BYTE(reg_d[index]);
     }
     uint16_t crc = modbus_crc_return(buf, 7+reg_n*2);
-    buf[7+reg_n*2] = GET_U16_HI_BYTE(crc);
-    buf[7+reg_n*2+1] = GET_U16_LOW_BYTE(crc);
+    buf[7+reg_n*2] = GET_U16_LOW_BYTE(crc);
+    buf[7+reg_n*2+1] = GET_U16_HI_BYTE(crc);
     return 7+reg_n*2+1+1;
 }                                                                      
 
@@ -287,13 +287,13 @@ static void modbus_master_read_port(int epoll_fd, int read_fd)
 static MODBUS_PARSE_CODE_Typedef_t modbus_wait_new_data(uint8_t addr, uint8_t cmd, uint16_t reg_s,
                                                         uint16_t reg_n, uint16_t **reg_value)
 {
-  uint64_t last_time = get_current_time_s(CURRENT_TIME);
+  uint64_t last_time = get_current_time_s(CURRENT_TIME_MS);
   uint64_t current_time = 0;
   MODBUS_PARSE_CODE_Typedef_t state = MODBUS_OK;
   uint8_t temp_buf[256];
   for(;;)
   {
-    current_time = get_current_time_s(CURRENT_TIME);
+    current_time = get_current_time_s(CURRENT_TIME_MS);
 
     /*判断缓冲区是否有新数据*/
     uint32_t buf_len = CQ_getLength(modbus_cb);
@@ -316,7 +316,6 @@ static MODBUS_PARSE_CODE_Typedef_t modbus_wait_new_data(uint8_t addr, uint8_t cm
       switch(state)
       {
         case MODBUS_FRAME_MISS:
-
           break;
         case MODBUS_FRAME_ERR:
         case MODBUS_CRC_ERR:

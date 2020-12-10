@@ -300,6 +300,7 @@ static void modbus_rtu_com_init(void)
   {
     return;
   }
+  printf("modbus open dev: %s\n",device_com_par[index].dev_name);
   device_com_par[index].fd = usart_init(device_com_par[index].dev_name, 9600);
 
 }     

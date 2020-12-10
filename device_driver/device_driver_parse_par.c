@@ -29,6 +29,7 @@ typedef int (*PARSE_COM_PAR_FUNC)(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typed
 typedef struct 
 {
     const char *const communication_name;   /**< 通讯名称*/
+    const char *communication_alias;
     PROTOCOL_Type_t protocol_type;          /**< 协议类型*/
     PARSE_COM_PAR_FUNC parse_func;          /**< 解析通讯参数函数*/
 }PARSE_COM_PAR_MAP_Typedef_t;
@@ -40,7 +41,7 @@ typedef struct
     EVENT_REPORT_TIME_UNIT unit;    /**< 事件上报时基*/
 }EVENT_TIME_UNIT_MAP_Typedef_t;                                                               
 /** Private macros -----------------------------------------------------------*/
-#define SERVICE_CONFIG_FILE "res/configuration.toml"
+#define SERVICE_CONFIG_FILE "../../res/configuration.toml"
 /** Private constants --------------------------------------------------------*/
 static iot_logger_t *log_lc = NULL;
 /** Public variables ---------------------------------------------------------*/
@@ -65,21 +66,25 @@ static PARSE_COM_PAR_MAP_Typedef_t parse_com_par_map[] =
 {
     {
         .communication_name = "mqtt",
+        .communication_alias= "mqtt",
         .protocol_type      = MQTT_PROTO,
         .parse_func         = parse_mqtt_par
     },
     {
-        .communication_name = "modbus-rtu",
+        .communication_name = "modbus-rtu",/**< toml中名称*/
+        .communication_alias= "modbus_rtu",
         .protocol_type      = MODBUS_RTU_PROTO,
         .parse_func         = parse_modbus_rtu_par
     },
     {
         .communication_name = "private",
+        .communication_alias= "private",
         .protocol_type      = PRIVATE_PROTO,
         .parse_func         = parse_private_par
     },
     {
         .communication_name = NULL,
+        .communication_alias= "NULL",
         .protocol_type      = UNKNOW_PROTO,
         .parse_func         = NULL
     },
@@ -181,6 +186,7 @@ static EVENT_TIME_UNIT_MAP_Typedef_t event_interval_unit[] =
  */
 static int parse_mqtt_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t *par)
 {
+    printf("\n*********** parse mqtt ***********\n");
     if(tab == NULL || par == NULL)
     {
         return -1;
@@ -214,6 +220,7 @@ static int parse_mqtt_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t *pa
  */
 static int parse_modbus_rtu_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t *par)
 {
+    printf("\n*********** parse modbus ***********\n");
     if(tab == NULL || par == NULL)
     {
         return -1;
@@ -242,6 +249,7 @@ static int parse_modbus_rtu_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef
  */
 static int parse_private_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t *par)
 {
+    printf("\n*********** parse private ***********\n");
     if(tab == NULL || par == NULL)
     {
         return -1;
@@ -333,90 +341,67 @@ static int parse_event_par_update(toml_table_t *tab, DEV_INFO_Typedef_t *dev_inf
         return -1;
     }
     const DEV_DRIVER_INTERFACE_Typedef_t *dev_resource = NULL;
-    const char *resource_name;
-    char filter_str[128];
+    
     int ret = 0;
     toml_datum_t OnChange;
     toml_datum_t Frequency;
+    toml_datum_t resource_name;
     INTERVAL_TIME_Typedef_t time_par;
     DEVICE_Typedef_t dev_type = get_device_type(dev_info);
+
     if(dev_type == DEV_TYPE_MAX)
     {
         return -1;
     }
-    if(0 != (resource_name = toml_raw_in(tab, "Resource")))
+    resource_name = toml_string_in(tab, "Resource");
+    if(resource_name.ok)
     {
-        ret = common_filter_special_char('\'', resource_name, filter_str, 128);
-        if(ret < 0)
-        {
-            printf("filter str error.\n");
-            return -1;
-        }
-        else
-        {
-            OnChange = toml_bool_in(tab, "OnChange");
-            
-            Frequency = toml_string_in(tab, "Frequency");
+        OnChange = toml_bool_in(tab, "OnChange");
+        
+        Frequency = toml_string_in(tab, "Frequency");
 
-            for(int index = 0; dev_resource_map[index].get_device_resource != NULL; index++)
+        for(int index = 0; dev_resource_map[index].get_device_resource != NULL; index++)
+        {
+            /*匹配设备类型*/
+            if(dev_type == dev_resource_map[index].dev_type)
             {
-                /*匹配设备类型*/
-                if(dev_type == dev_resource_map[index].dev_type)
-                {
-                    dev_resource = dev_resource_map[index].get_device_resource();
-                    if(dev_resource != NULL)
-                    {
-                        for(int i = 0; dev_resource[i].par_name != NULL; i++)
-                        {
-                            /*匹配到该设备资源名*/
-                            if(strcmp(dev_resource[i].par_name, filter_str) == 0)
-                            {
-                                /*copy*/
-                                memmove(dev_resource_par, &dev_resource[i], sizeof(DEV_DRIVER_INTERFACE_Typedef_t));
-                                if(OnChange.ok) 
-                                {
-                                    dev_resource_par->enable_on_change_flag = OnChange.u.b;
-                                }
-                                if(Frequency.ok)
-                                {
-                                    ret = get_event_interval(Frequency.u.s ,&time_par);
-                                    if(ret < 0)
-                                    {
-                                        printf("decode interval time error.\n");
-                                    }
-                                    else
-                                    {
-                                        dev_resource_par->enable_event_flag = true;
-                                        dev_resource_par->interval_time = time_par.interval_time;
-                                        dev_resource_par->unit = time_par.unit;
-                                    }
-                                    free(Frequency.u.s);
-                                }
-                            }
-                        }     
-                    }
-                }
+                dev_resource = dev_resource_map[index].get_device_resource();
+                break;
             }
         }
+        if(dev_resource != NULL)
+        {
+            for(int i = 0; dev_resource[i].par_name != NULL; i++)
+            {
+                /*匹配到该设备资源名*/
+                if(strcmp(dev_resource[i].par_name, resource_name.u.s) == 0)
+                {
+                    /*copy*/
+                    memmove(dev_resource_par, &dev_resource[i], sizeof(DEV_DRIVER_INTERFACE_Typedef_t));
+                    if(OnChange.ok) 
+                    {
+                        dev_resource_par->enable_on_change_flag = OnChange.u.b;
+                    }
+                    if(Frequency.ok)
+                    {
+                        ret = get_event_interval(Frequency.u.s ,&time_par);
+                        if(ret < 0)
+                        {
+                            printf("decode interval time error.\n");
+                        }
+                        else
+                        {
+                            dev_resource_par->enable_event_flag = true;
+                            dev_resource_par->interval_time = time_par.interval_time;
+                            dev_resource_par->unit = time_par.unit;
+                        }
+                        free(Frequency.u.s);
+                    }
+                }
+            }     
+        }
+        free(resource_name.u.s);
     }
-    return 0;
-}
-
-/**
- ******************************************************************
- * @brief   设备事件默认值参数更新
- * @param   [in]dev_info 设备解析结构信息
- * @param   [out]dev_resource_par 设备资源信息
- * @return  解析正确返回0，错误-1
- * @author  aron566
- * @version V1.0
- * @date    2020-12-06
- ******************************************************************
- */
-static int event_default_value_update(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par)
-{
-    /*检查设备事件表是否存在*/
-
     return 0;
 }
 
@@ -537,9 +522,14 @@ static int parse_service_config(void)
         /*解析协议参数*/
         for(int index = 0; parse_com_par_map[index].parse_func != NULL; index++)
         {
-            if(0 != (tab_of_array = toml_table_in(array_of_tab, parse_com_par_map[index].communication_name)))
+            printf("\n*********** search parse proto : %s ***********\n",parse_com_par_map[index].communication_name);
+            if(0 != (tab_of_array = toml_table_in(array_of_tab, "Protocols")))
             {
-                parse_com_par_map[index].parse_func(tab_of_array, &communication_par);
+                if(0 != (tab_of_array = toml_table_in(tab_of_array, parse_com_par_map[index].communication_name)))
+                {
+                    parse_com_par_map[index].parse_func(tab_of_array, &communication_par);     
+                }
+
             }
         }
 
@@ -555,11 +545,10 @@ static int parse_service_config(void)
             for (int y = 0; 0 != (tab_of_sub_array = toml_table_at(sub_array_of_array, y)); y++) 
             {
                 parse_event_par_update(tab_of_sub_array, &dev_info, &dev_resource_par);
+                /*分配注册-更新事件*/
+                register_dev_distribution(&dev_info, &communication_par, &dev_resource_par);
             }
         }
-        
-        /*更新事件初始值*/
-        event_default_value_update(&dev_info, &dev_resource_par);
 
         /*分配注册*/
         register_dev_distribution(&dev_info, &communication_par, &dev_resource_par);
@@ -593,7 +582,8 @@ PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info)
     }
     for(int index = 0; parse_com_par_map[index].protocol_type != UNKNOW_PROTO; index++)
     {
-        if(strcmp(dev_info->protocol_str, parse_com_par_map[index].communication_name) == 0)
+        if((strcmp(dev_info->protocol_str, parse_com_par_map[index].communication_name) == 0) ||
+            (strcmp(dev_info->protocol_str, parse_com_par_map[index].communication_alias) == 0))
         {
             return parse_com_par_map[index].protocol_type;
         }

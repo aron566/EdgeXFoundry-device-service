@@ -103,6 +103,25 @@ typedef enum
     UNKNOW_STATE,                 /**< 未知状态*/
 }EdgeGatewayRUN_SATE_Typedef_t;
 
+/*设备名称解析*/
+typedef struct 
+{
+    char protocol_str[64];      /**< 协议名*/
+    char location_str[112];     /**< 设备位置信息*/
+    char dev_type_name[64];     /**< 设备类型名称*/
+    char dev_address[16];       /**< 设备地址号*/
+}DEV_INFO_Typedef_t;
+
+/*协议解析器映射*/
+typedef int (*GET_DEV_VALUE_CALLBACK)(const char *, const void *input_data, void *out_data, VALUE_Type_t *type);/**< 设备读取接口*/
+typedef int (*SET_DEV_VALUE_CALLBACK)(const char *, const void *input_data, const void *out_data, VALUE_Type_t *type);/**< 设备设置接口*/
+typedef struct 
+{
+  PROTOCOL_Type_t protocol_type;
+  GET_DEV_VALUE_CALLBACK get_callback;
+  SET_DEV_VALUE_CALLBACK set_callback;
+}PROTOCOL_DECODE_CALLBACK_Typedef_t;
+
 /*设备通讯地址*/
 typedef struct 
 {
@@ -160,20 +179,27 @@ typedef enum
     T_MAX
 }EVENT_REPORT_TIME_UNIT;
 
-typedef struct 
+/*设备资源表*/
+typedef struct dev_driver_interface
 {
     const char *const par_name;         /**< 设备服务名称*/
     uint8_t command;                    /**< 设备控制命令*/
     uint16_t command_addr;              /**< 设备参数地址*/
     VALUE_Type_t value_type;            /**< 数值类型*/
     uint64_t default_value;             /**< 参数默认值*/
-    PERMISSIONS_TYPE permissions;       /**< 命令权限*/
+    uint32_t permissions;               /**< 命令权限*/
     bool enable_event_flag;             /**< 开始事件标识*/
     bool enable_on_change_flag;         /**< 数值改变时事件上报*/
+    bool (*report_event_confirm)( \
+    const char *dev_name, \
+    const char *param_name, \
+    struct dev_driver_interface *dev_resource, \
+    void *data);                        /**< 事件上报确认*/
     uint64_t start_time;                /**< 事件上报开始时间*/
     uint64_t interval_time;             /**< 事件上报频率*/
     EVENT_REPORT_TIME_UNIT unit;        /**< 事件上报时基*/
 }DEV_DRIVER_INTERFACE_Typedef_t;    
+typedef bool (*REPORT_EVENT_CONFIRM_FUNC)(const char *dev_name, const char *param_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, void *data);
 
 typedef struct 
 {
@@ -181,10 +207,23 @@ typedef struct
     EVENT_REPORT_TIME_UNIT unit;        /**< 事件上报时基*/    
 }INTERVAL_TIME_Typedef_t;
 
+/*设备类型及资源列表*/
+typedef int (*REGISTER_DEV_FUNC)(DEV_INFO_Typedef_t *, DEV_COMMUNICATION_PAR_Typedef_t *, DEV_DRIVER_INTERFACE_Typedef_t *);
+typedef struct 
+{
+    const char* const type_name;    /**< 类型名称*/
+    const DEVICE_Typedef_t dev_type;      /**< 类型*/
+    const REGISTER_DEV_FUNC register_func;/**< 设备注册函数*/
+    const DEV_DRIVER_INTERFACE_Typedef_t *(*get_device_resource)(void);
+    const REPORT_EVENT_CONFIRM_FUNC report_event_confirm;/**< 事件上报确认*/
+}DEVICE_TYPE_MAP_RESOURCE_MAP_Typedef_t;      
+
+typedef DEVICE_TYPE_MAP_RESOURCE_MAP_Typedef_t DEVICE_TYPE_MAP_Typedef_t;
+typedef DEVICE_TYPE_MAP_RESOURCE_MAP_Typedef_t DEVICE_RESOURCE_MAP_Typedef_t;
+
 /*设备驱动同一接口*/
-typedef int (*GET_DEV_VALUE_CALLBACK)(const char *, const void *input_data, void *out_data, VALUE_Type_t *type);/**< 设备读取接口*/
-typedef int (*SET_DEV_VALUE_CALLBACK)(const char *, const void *input_data, const void *out_data, VALUE_Type_t *type);/**< 设备设置接口*/
 typedef struct dev_node_func { 
+    char dev_name[256];/**< 设备名*/
     GET_DEV_VALUE_CALLBACK get_dev_value_callback;/**< 设备读取接口*/
     SET_DEV_VALUE_CALLBACK set_dev_value_callback;/**< 设备设置接口*/
     DEV_COMMUNICATION_PAR_Typedef_t communication_par;/**< 设备通讯参数信息*/
@@ -193,23 +232,6 @@ typedef struct dev_node_func {
     uint32_t major_key_2;         /**< 设备地址或者序号，此值在同类设备中唯一*/
     DEV_DRIVER_INTERFACE_Typedef_t dev_resource_par[];/**< 设备资源表*/
 }DEV_NODE_FUNC_Type_t;
-
-/*设备名称解析*/
-typedef struct 
-{
-    char protocol_str[64];      /**< 协议名*/
-    char location_str[128];     /**< 设备位置信息*/
-    char dev_type_name[64];     /**< 设备类型名称*/
-    char dev_address[16];       /**< 设备地址号*/
-}DEV_INFO_Typedef_t;
-
-/*协议解析器映射*/
-typedef struct 
-{
-  PROTOCOL_Type_t protocol_type;
-  GET_DEV_VALUE_CALLBACK get_callback;
-  SET_DEV_VALUE_CALLBACK set_callback;
-}PROTOCOL_DECODE_CALLBACK_Typedef_t;
 
 /*线程 Used to squelch a -Wcast-function-type warning*/
 typedef void *(*THREAD_FUNC)(void *par);

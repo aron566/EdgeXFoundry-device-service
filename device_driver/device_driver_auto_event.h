@@ -23,6 +23,7 @@ extern "C" {
 #include <string.h>
 #include <limits.h> /**< define max value           */                                                        
 /** Private includes ---------------------------------------------------------*/
+#include "device_driver_list_config.h"
 #include "../service_component/custom-common.h"
 /** Private defines ----------------------------------------------------------*/
 
@@ -36,6 +37,9 @@ extern "C" {
 
 /*事件检测轮询启动*/
 int device_driver_uv_handler_start(void *data);
+
+/*任意时间单位转为ms单位数*/
+uint64_t time_base2ms(INTERVAL_TIME_Typedef_t *time_base);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

@@ -67,24 +67,25 @@ static NODE_TYPE_STRUCT *device_driver_opt_get_interface(const char *devname, io
   int ret = parse_dev_name(devname, &dev_info);
   if(ret != 0)
   {
-    iot_log_warn(lc, "can't parse dev name %s.", devname);
+    iot_log_warn(lc, "[%s][%s] can't parse dev name %s.", __FILE__, __FUNCTION__, devname);
     return pnode;
   }
   DEVICE_Typedef_t dev_type = get_device_protocol_type(&dev_info);
   if(dev_type == DEV_TYPE_MAX)
   {
-    iot_log_warn(lc, "can't parse dev type %s.", devname);
+    iot_log_warn(lc, "[%s][%s] can't parse dev type %s.", __FILE__, __FUNCTION__, devname);
     return pnode;
   }
 
   /*查找设备地址*/
   MAJOR_KEY_1 major_key_1 = get_device_protocol_type(&dev_info);
   MAJOR_KEY_2 major_key_2 = (uint32_t)atoi(dev_info.dev_address);
+  
   pnode = list_find_node(dev_type ,major_key_1, major_key_2);
 
   if(pnode == NULL)
   {
-    iot_log_warn(lc, "no find this device in the listtable.");
+    iot_log_warn(lc, "[%s][%s] not find this device in the listtable.", __FILE__, __FUNCTION__);
     return pnode;
   }
 
@@ -112,23 +113,23 @@ static NODE_TYPE_STRUCT *device_driver_opt_get_interface(const char *devname, io
   */
 int device_driver_opt_get(const char *devname, const char *param, devsdk_commandresult *readings, iot_logger_t *lc)
 {
-  iot_log_info(lc, "call device_driver_opt_get par %s.", param);
+  iot_log_info(lc, "call device_driver_opt_get [%s] par [%s].", devname, param);
   NODE_TYPE_STRUCT *pnode = NULL;
 
   pnode = device_driver_opt_get_interface(devname, lc);
    /*防止访问无效内存区域*/
   if(pnode == NULL)
   {
+    iot_log_warn(lc, "[%s][%s] can't get dev node %s.", __FILE__, __FUNCTION__, devname);
     return -1;
   }
   if(pnode->get_dev_value_callback == NULL)
   {
-    iot_log_warn(lc, "device have not get interface.");
+    iot_log_warn(lc, "[%s][%s] device have not get interface.", __FILE__, __FUNCTION__);
     return -1;
   }
   VALUE_Type_t value_type = VALUE_TYPE_MAX;
-
-  return pnode->get_dev_value_callback(devname, param, readings, &value_type);    
+  return pnode->get_dev_value_callback(devname, param, readings, &value_type);
 }
 
 /**
@@ -146,7 +147,7 @@ int device_driver_opt_get(const char *devname, const char *param, devsdk_command
   */
 int device_driver_opt_set(const char *devname, const char *param, const iot_data_t *values, iot_logger_t *lc)
 {
-  iot_log_info(lc, "call device_driver_opt_set.");
+  iot_log_info(lc, "call device_driver_opt_set [%s] par [%s].", devname, param);
   NODE_TYPE_STRUCT *pnode = NULL;
 
   pnode = device_driver_opt_get_interface(devname, lc);
@@ -155,9 +156,9 @@ int device_driver_opt_set(const char *devname, const char *param, const iot_data
   {
     return -1;
   }
-  if(pnode->get_dev_value_callback == NULL)
+  if(pnode->set_dev_value_callback == NULL)
   {
-    iot_log_warn(lc, "device have not get interface.");
+    iot_log_warn(lc, "device have not set interface.");
     return -1;
   }
   VALUE_Type_t value_type = VALUE_TYPE_MAX;
@@ -251,7 +252,7 @@ void device_driver_opt_init(void *data, const iot_data_t *config)
   register_device_driver(lc);
 
   /*启动uv事件检测*/
-  device_driver_uv_handler_start(user_data);
+  // device_driver_uv_handler_start(user_data);
 }
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

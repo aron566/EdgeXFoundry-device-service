@@ -26,7 +26,7 @@ extern "C" {
 /** Private defines ----------------------------------------------------------*/
                                                                      
 /** Exported typedefines -----------------------------------------------------*/
-typedef void (*QUERY_CALLBACK)(char** pr, int row, int column, void *callback_par);
+typedef int (*QUERY_CALLBACK)(char** pr, int row, int column, void *callback_par);
 
 /*基类数据*/
 typedef struct 

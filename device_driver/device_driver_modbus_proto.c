@@ -287,13 +287,13 @@ static void modbus_master_read_port(int epoll_fd, int read_fd)
 static MODBUS_PARSE_CODE_Typedef_t modbus_wait_new_data(uint8_t addr, uint8_t cmd, uint16_t reg_s,
                                                         uint16_t reg_n, uint16_t **reg_value)
 {
-  uint64_t last_time = get_curent_time_s(CURRENT_TIME);
+  uint64_t last_time = get_current_time_s(CURRENT_TIME);
   uint64_t current_time = 0;
   MODBUS_PARSE_CODE_Typedef_t state = MODBUS_OK;
   uint8_t temp_buf[256];
   for(;;)
   {
-    current_time = get_curent_time_s(CURRENT_TIME);
+    current_time = get_current_time_s(CURRENT_TIME);
 
     /*判断缓冲区是否有新数据*/
     uint32_t buf_len = CQ_getLength(modbus_cb);

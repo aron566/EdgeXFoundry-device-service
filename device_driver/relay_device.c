@@ -314,7 +314,7 @@ static void device_event_recovery(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTER
     INSERT_DATA_Typedef_t insert_data;
     memmove(&insert_data, &data, sizeof(BASE_DATA_Typedef_t));
     get_value_str(insert_data.value_current, &dev_resource_par->default_value, 64, dev_resource_par->value_type);
-    insert_data.time_stamp = get_curent_time_s(CURRENT_TIME);
+    insert_data.time_stamp = get_current_time_s(CURRENT_TIME);
     dev_driver_event_db_record_insert(&insert_data);
     return;
   }

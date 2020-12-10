@@ -18,6 +18,7 @@ extern "C" {
 #endif
 /** Includes -----------------------------------------------------------------*/
 #include <time.h>
+#include <sys/time.h>
 #include <sys/types.h>   
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -119,6 +120,8 @@ char *get_value_str(char *dest_str, void *data, size_t size, VALUE_Type_t value_
       break;
     case INT32:
       snprintf(dest_str, size, "%d", *(int32_t*)data);
+    case INT64:
+      snprintf(dest_str, size, "%ld", *(int64_t*)data);
       break;
     case UINT8:
       snprintf(dest_str, size, "%hhu", *(uint8_t*)data);
@@ -128,6 +131,9 @@ char *get_value_str(char *dest_str, void *data, size_t size, VALUE_Type_t value_
       break;
     case UINT32:
       snprintf(dest_str, size, "%u", *(uint32_t*)data);
+      break;
+    case UINT64:
+      snprintf(dest_str, size, "%lu", *(uint64_t*)data);
       break;
     case FLOAT32:
       snprintf(dest_str, size, "%f", *(float*)data);
@@ -143,16 +149,18 @@ char *get_value_str(char *dest_str, void *data, size_t size, VALUE_Type_t value_
   }
   return dest_str;
 }
-
+    
 /**
  * @brief Get the curent time s object
  * 
  * @return uint64_t 时间秒
  */
-uint64_t get_curent_time_s(UTILITIES_TIME_MODE_Typedef_t mode)
+uint64_t get_current_time_s(UTILITIES_TIME_MODE_Typedef_t mode)
 {
   struct timespec timespe;
+  struct timeval tv;
   struct tm nowTime;
+  
   char str[256];
 #if defined(__linux__)
   switch(mode)
@@ -169,15 +177,25 @@ uint64_t get_curent_time_s(UTILITIES_TIME_MODE_Typedef_t mode)
     case THREAD_CPUTIME:
       clock_gettime(CLOCK_THREAD_CPUTIME_ID ,&timespe);
       break;
+    case CURRENT_TIME_MS:
+      gettimeofday(&tv,NULL);
+      break;
   }
 #else
 	timespe.tv_sec = time(NULL);
 #endif
-  localtime_r(&timespe.tv_sec, &nowTime);
-  sprintf(str ,"GetTime:%04d-%02d-%02d-%02d:%02d:%02d\n"
-    ,nowTime.tm_year + 1900 ,nowTime.tm_mon+1 ,nowTime.tm_mday ,nowTime.tm_hour ,nowTime.tm_min ,nowTime.tm_sec);
-  printf("%s", str);
-  return (uint64_t)timespe.tv_sec;
+  if(mode != CURRENT_TIME_MS)
+  {
+    localtime_r(&timespe.tv_sec, &nowTime);
+    sprintf(str ,"GetTime:%04d-%02d-%02d-%02d:%02d:%02d\n"
+      ,nowTime.tm_year + 1900 ,nowTime.tm_mon+1 ,nowTime.tm_mday ,nowTime.tm_hour ,nowTime.tm_min ,nowTime.tm_sec);
+    printf("%s", str);
+    return (uint64_t)timespe.tv_sec;
+  }
+  // printf("second:%ld\n", tv.tv_sec);
+  // printf("millisecond:%ld\n", tv.tv_sec*1000 + tv.tv_usec/1000);
+  // printf("microsecond:%ld\n", tv.tv_sec*1000000 + tv.tv_usec);
+  return (uint64_t)(tv.tv_sec*1000 + (tv.tv_usec/1000));
 }
 
 /**

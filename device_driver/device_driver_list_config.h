@@ -128,7 +128,11 @@ typedef struct
     PRIVATE_Typedef_t private_par;
 }DEV_COMMUNICATION_PAR_Typedef_t;
 
-/*设备接口数据结构*/
+/**                  
+ * @name 设备接口数据结构
+ * @brief 只读只写用来说明设备内部参数，私有代表自定义的参数，配置读代表需读配置文件，需确认用于事件上报，存储读代表参数存储在数据库并周期更新
+ * @{                
+ */                  
 typedef enum
 {
     READ_ONLY       = 1<<0,             /**< 只读*/
@@ -138,8 +142,10 @@ typedef enum
     PRIVATE_READ    = 1<<4,             /**< 私有读*/
     STORE_READ      = 1<<5,             /**< 存储读*/
     CONFIG_READ     = 1<<6,             /**< 配置读*/
+    CONFIRM         = 1<<7,             /**< 需确认*/     
     UNKNOW,                             /**< 未知*/
 }PERMISSIONS_TYPE;
+/** @}*/  
 
 /*设备服务*/
 typedef enum
@@ -153,6 +159,7 @@ typedef enum
     T_YER,                              /**< 年*/
     T_MAX
 }EVENT_REPORT_TIME_UNIT;
+
 typedef struct 
 {
     const char *const par_name;         /**< 设备服务名称*/
@@ -163,6 +170,7 @@ typedef struct
     PERMISSIONS_TYPE permissions;       /**< 命令权限*/
     bool enable_event_flag;             /**< 开始事件标识*/
     bool enable_on_change_flag;         /**< 数值改变时事件上报*/
+    uint64_t start_time;                /**< 事件上报开始时间*/
     uint64_t interval_time;             /**< 事件上报频率*/
     EVENT_REPORT_TIME_UNIT unit;        /**< 事件上报时基*/
 }DEV_DRIVER_INTERFACE_Typedef_t;    
@@ -211,6 +219,14 @@ typedef union
     THREAD_FUNC_ thread_func_;  /**< 用户线程赋值*/
     THREAD_FUNC thread_func;    /**< 提供线程创建*/
 }THREAD_FUNC_UNION_Type_t;
+
+/*csdk user data*/
+typedef struct custom_device_driver
+{
+  iot_logger_t * lc;
+  devsdk_service_t * service;
+}custom_device_driver;
+
 /** Exported constants -------------------------------------------------------*/
                                                                                 
 /** Exported macros-----------------------------------------------------------*/

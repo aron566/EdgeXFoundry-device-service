@@ -20,7 +20,8 @@ extern "C" {
 #include <stdbool.h>/**< need definition of BOOL    */                        
 #include <stdio.h>  /**< if need printf             */                          
 #include <stdlib.h>                                                             
-#include <string.h>                                                             
+#include <string.h>
+#include <limits.h> /**< define max value           */                                                        
 /** Private includes ---------------------------------------------------------*/
 #include "../service_component/custom-common.h"
 /** Private defines ----------------------------------------------------------*/
@@ -34,7 +35,7 @@ extern "C" {
 /** Exported functions prototypes --------------------------------------------*/
 
 /*事件检测轮询启动*/
-int device_driver_uv_handler_start(iot_logger_t *lc);
+int device_driver_uv_handler_start(void *data);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

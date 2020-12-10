@@ -41,6 +41,10 @@ int temperature_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNI
 /*获取温湿度设备资源表*/
 const DEV_DRIVER_INTERFACE_Typedef_t *get_temperature_device_resource(void);
 
+/*温湿度设备事件上报确认*/
+bool temperature_device_report_event_confirm(const char *dev_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, 
+                                        const void *data);
+
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               
 #endif                                                                          

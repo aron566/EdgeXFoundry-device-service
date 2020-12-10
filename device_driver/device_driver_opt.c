@@ -222,8 +222,11 @@ void device_driver_opt_reconfigure(iot_logger_t *lc, const iot_data_t *config)
   * @date    2020-11-27
   ******************************************************************
   */
-void device_driver_opt_init(iot_logger_t *lc, const iot_data_t *config)
+void device_driver_opt_init(void *data, const iot_data_t *config)
 {
+  custom_device_driver *user_data = (custom_device_driver *)data;
+  iot_logger_t *lc = user_data->lc;
+
   iot_log_info(lc, "start device driver now.");
 
   /*配置初始化*/
@@ -248,7 +251,7 @@ void device_driver_opt_init(iot_logger_t *lc, const iot_data_t *config)
   register_device_driver(lc);
 
   /*启动uv事件检测*/
-  device_driver_uv_handler_start(lc);
+  device_driver_uv_handler_start(user_data);
 }
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

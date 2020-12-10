@@ -85,51 +85,43 @@ static PARSE_COM_PAR_MAP_Typedef_t parse_com_par_map[] =
     },
 };   
 
-/*设备类型映射*/
-static  DEVICE_TYPE_MAP_Typedef_t device_type_map[] = 
+/*设备类型映射/设备资源映射*/
+static  DEVICE_TYPE_MAP_Typedef_t device_type_map_resource_map[] = 
 {
     {
-        .type_name      = "gateway_device",
-        .dev_type       = GATEWAY_DEV_TYPE,
-        .register_func  = gateway_device_driver_register
+        .type_name              = "gateway_device",
+        .dev_type               = GATEWAY_DEV_TYPE,
+        .register_func          = gateway_device_driver_register,
+        .get_device_resource    = get_gateway_device_resource,
+        .report_event_confirm   = gateway_device_report_event_confirm
     },
     {
-        .type_name      = "temperature_device",
-        .dev_type       = TEMPERATURE_DEV_TYPE,
-        .register_func  = temperature_device_driver_register
+        .type_name              = "temperature_device",
+        .dev_type               = TEMPERATURE_DEV_TYPE,
+        .register_func          = temperature_device_driver_register,
+        .get_device_resource    = get_temperature_device_resource,
+        .report_event_confirm   = temperature_device_report_event_confirm
     },
     {
-        .type_name      = "relay_device",
-        .dev_type       = RELAY_DEV_TYPE,
-        .register_func  = relay_device_driver_register
+        .type_name              = "relay_device",
+        .dev_type               = RELAY_DEV_TYPE,
+        .register_func          = relay_device_driver_register,
+        .get_device_resource    = get_relay_device_resource,
+        .report_event_confirm   = relay_device_report_event_confirm
     },
     {
-        .type_name      = NULL,
-        .dev_type       = DEV_TYPE_MAX,
-        .register_func  = NULL
+        .type_name              = NULL,
+        .dev_type               = DEV_TYPE_MAX,
+        .register_func          = NULL,
+        .get_device_resource    = NULL,
+        .report_event_confirm   = NULL
     }
 };
-
+/*设备类型映射*/
+#define device_type_map device_type_map_resource_map
 /*设备资源列表*/
-static DEVICE_RESOURCE_MAP_Typedef_t dev_resource_map[] = 
-{
-    {
-        .dev_type               = GATEWAY_DEV_TYPE,
-        .get_device_resource    = get_gateway_device_resource
-    },
-    {
-        .dev_type               = TEMPERATURE_DEV_TYPE,
-        .get_device_resource    = get_temperature_device_resource
-    },
-    {
-        .dev_type               = RELAY_DEV_TYPE,
-        .get_device_resource    = get_relay_device_resource
-    },
-    {
-        .dev_type               = DEV_TYPE_MAX,
-        .get_device_resource    = NULL
-    },
-};
+#define dev_resource_map device_type_map_resource_map
+
 
 /*事件时间单位查询表*/
 static EVENT_TIME_UNIT_MAP_Typedef_t event_interval_unit[] = 
@@ -705,6 +697,56 @@ int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info)
 
 /**
  ******************************************************************
+ * @brief   合成设备名
+ * @param   [out]dest_str 设备名存储区
+ * @param   [in]proto_type 协议类型
+ * @param   [in]location 位置信息
+ * @param   [in]dev_type 设备类型
+ * @param   [in]address 设备地址号
+ * @return  设备名
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-12-09
+ ******************************************************************
+ */
+char *jonint_dev_name(char *dest_str, size_t size, PROTOCOL_Type_t protocol_type, const char *location, 
+                        DEVICE_Typedef_t dev_type, int address)
+{
+    if(dest_str == NULL || size == 0)
+    {
+        return dest_str;
+    }
+    const char *dev_name = NULL;
+    const char *protocol_name = NULL;
+    for(int index = 0; device_type_map[index].type_name != NULL; index++)
+    {
+        if(device_type_map[index].dev_type == dev_type)
+        {
+            /*获得设备类型名*/
+            dev_name = device_type_map[index].type_name;
+            break;
+        }
+    }
+    for(int i = 0; parse_com_par_map[i].communication_name != NULL; i++)
+    {
+        if(parse_com_par_map[i].protocol_type == protocol_type)
+        {
+            /*获得协议名*/
+            protocol_name = parse_com_par_map[i].communication_name;
+            break;
+        }
+    }
+    if(dev_name == NULL || protocol_name == NULL)
+    {
+        return dest_str;
+    }
+    /*协议名-位置-设备类型名-地址号*/
+    snprintf(dest_str, size, "%s-%s-%s-%d", protocol_name, location, dev_name, address);
+    return dest_str;
+}
+
+/**
+ ******************************************************************
  * @brief   获取设备类型表
  * @param   [in]None.
  * @return  设备表.
@@ -731,6 +773,28 @@ const DEVICE_TYPE_MAP_Typedef_t *get_device_type_list(void)
 const DEVICE_RESOURCE_MAP_Typedef_t *get_device_resource_list(void)
 {
     return dev_resource_map;
+}
+
+/**
+ ******************************************************************
+ * @brief   获取设备上报事件确认接口
+ * @param   [in]dev_type 设备类型.
+ * @return  设备资源表.
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-12-10
+ ******************************************************************
+ */
+const REPORT_EVENT_CONFIRM_FUNC get_device_event_confirm_func(DEVICE_Typedef_t dev_type)
+{
+    for(int index = 0; dev_resource_map[index].report_event_confirm != NULL; index++)
+    {
+        if(dev_resource_map[index].dev_type == dev_type)
+        {
+            return dev_resource_map[index].report_event_confirm;
+        }
+    }
+    return NULL;
 }
 
 /**

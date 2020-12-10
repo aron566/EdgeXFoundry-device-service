@@ -38,6 +38,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = READ_ONLY|WRITE_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },
@@ -50,6 +51,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = STORE_READ|READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },          
@@ -62,6 +64,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = READ_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },          
@@ -74,6 +77,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = READ_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },          
@@ -86,6 +90,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = UNKNOW,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },
@@ -171,6 +176,7 @@ inline static int get_param_index(const char *parm)
   */
 static int get_modbus_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   return 0;
 }
 
@@ -188,6 +194,7 @@ static int get_modbus_dev_value(const char *dev_name, const void *input_data, vo
   */
 static int set_modbus_dev_value(const char *dev_name, const void *input_data, const void *out_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   return 0;
 } 
 
@@ -332,6 +339,34 @@ static void device_event_recovery(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTER
 const DEV_DRIVER_INTERFACE_Typedef_t *get_relay_device_resource(void)
 {
   return (const DEV_DRIVER_INTERFACE_Typedef_t *)resources_interface_par;
+}
+
+/**
+  ******************************************************************
+  * @brief   设备事件上报确认
+  * @param   [in]param_name 参数名.
+  * @param   [in]data 此参数获取的数据. 
+  * @return  true 上报允许 false 不上报.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-10
+  ******************************************************************
+  */
+bool relay_device_report_event_confirm(const char *dev_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, const void *data)
+{
+  if(dev_name == NULL || dev_resource == NULL || data == NULL)
+  {
+    return false;
+  }
+
+  /*检查权限*/
+  if((dev_resource->permissions & CONFIRM) == 0)
+  {
+    return true;
+  }
+
+  const devsdk_commandresult *value = (const devsdk_commandresult *)data;
+  return true;
 }
 
 /**

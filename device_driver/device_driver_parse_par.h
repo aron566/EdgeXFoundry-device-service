@@ -27,21 +27,21 @@ extern "C" {
 /** Private defines ----------------------------------------------------------*/
                                                                       
 /** Exported typedefines -----------------------------------------------------*/
-/*设备类型列表*/
+/*设备类型及资源列表*/
 typedef int (*REGISTER_DEV_FUNC)(DEV_INFO_Typedef_t *, DEV_COMMUNICATION_PAR_Typedef_t *, DEV_DRIVER_INTERFACE_Typedef_t *);
+typedef bool (*REPORT_EVENT_CONFIRM_FUNC)(const char *dev_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, const void *data);
 typedef struct 
 {
     const char* const type_name;    /**< 类型名称*/
-    DEVICE_Typedef_t dev_type;      /**< 类型*/
-    REGISTER_DEV_FUNC register_func;/**< 设备注册函数*/
-}DEVICE_TYPE_MAP_Typedef_t;      
-
-/*设备资源列表*/
-typedef struct 
-{
-    DEVICE_Typedef_t dev_type;
+    const DEVICE_Typedef_t dev_type;      /**< 类型*/
+    const REGISTER_DEV_FUNC register_func;/**< 设备注册函数*/
     const DEV_DRIVER_INTERFACE_Typedef_t *(*get_device_resource)(void);
-}DEVICE_RESOURCE_MAP_Typedef_t;
+    const REPORT_EVENT_CONFIRM_FUNC report_event_confirm;/**< 事件上报确认*/
+}DEVICE_TYPE_MAP_RESOURCE_MAP_Typedef_t;      
+
+typedef DEVICE_TYPE_MAP_RESOURCE_MAP_Typedef_t DEVICE_TYPE_MAP_Typedef_t;
+typedef DEVICE_TYPE_MAP_RESOURCE_MAP_Typedef_t DEVICE_RESOURCE_MAP_Typedef_t;
+
 
 /** Exported constants -------------------------------------------------------*/
                                                                                 
@@ -65,11 +65,18 @@ uint8_t get_modbus_device_addr(const char *dev_name);
 /*解析设备名包含的信息*/
 int parse_dev_name(const char *dev_name, DEV_INFO_Typedef_t *dev_info);
 
+/*合成设备名*/
+char *jonint_dev_name(char *dest_str, size_t size, PROTOCOL_Type_t protocol_type, const char *location, 
+                        DEVICE_Typedef_t dev_type, int address);
+
 /*获取设备类型表*/
 const DEVICE_TYPE_MAP_Typedef_t *get_device_type_list(void);
 
 /*获取设备资源表*/
 const DEVICE_RESOURCE_MAP_Typedef_t *get_device_resource_list(void);
+
+/*获取设备上报事件确认接口*/
+const REPORT_EVENT_CONFIRM_FUNC get_device_event_confirm_func(DEVICE_Typedef_t dev_type);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

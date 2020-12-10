@@ -38,6 +38,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = CONFIG_READ|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },
@@ -50,6 +51,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = STORE_READ|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },          
@@ -57,11 +59,12 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .par_name               = "run_state",
     .command                = 0x03|0x10,
     .command_addr           = 0x0002,
-    .value_type             = INT32,
+    .value_type             = UINT32,
     .default_value          = 0,
     .permissions            = PRIVATE_READ|PRIVATE_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },          
@@ -74,6 +77,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },   
@@ -86,6 +90,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = STORE_READ|PRIVATE_READ|PRIVATE_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },   
@@ -98,6 +103,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = PRIVATE_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },  
@@ -110,6 +116,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = PRIVATE_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },        
@@ -122,6 +129,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = UNKNOW,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },
@@ -200,6 +208,38 @@ inline static int get_param_index(const char *parm)
 
 /**
   ******************************************************************
+  * @brief   网关更新监测任务
+  * @param   [in]None.
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-09
+  ******************************************************************
+  */
+static void edge_gateway_upgruade_monitor(void)
+{
+    /*读取升级文件大小*/
+
+    /*上报*/
+  /* Load the file contents */
+  // uint8_t *data = file_readfile (fname, &size);
+  // if (data)
+  // {
+  //   /* Set up a commandresult. The deviceResource for our profiles is "File" */
+  //   devsdk_commandresult results[1];
+  //   iot_log_info (impl->lc, "File size: %" PRIu32, size);
+  //   results[0].origin = 0;
+  //   results[0].value = iot_data_alloc_array (data, size, IOT_DATA_UINT8, IOT_DATA_TAKE);
+
+  //   /* Trigger an event */
+  //   devsdk_post_readings (service, dname, "File", results);
+
+  //   /* Cleanup the value. Note that as we used IOT_DATA_TAKE, the buffer allocated in file_readfile is free'd here */
+  //   iot_data_free (results[0].value);
+}
+
+/**
+  ******************************************************************
   * @brief   读取mqtt设备数值接口
   * @param   [in]input_data 请求参数
   * @param   [out]out_data 返回数据
@@ -212,6 +252,7 @@ inline static int get_param_index(const char *parm)
   */
 static int get_mqtt_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   const char *parm = (const char *)input_data;
   devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
   for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
@@ -240,6 +281,7 @@ static int get_mqtt_dev_value(const char *dev_name, const void *input_data, void
   */
 static int set_mqtt_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   const char *parm = (const char *)input_data;
   const iot_data_t *set_value = (const iot_data_t *)set_data;
   for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
@@ -268,6 +310,7 @@ static int set_mqtt_dev_value(const char *dev_name, const void *input_data, cons
   */
 static int get_modbus_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   const char *parm = (const char *)input_data;
   devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
   for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
@@ -296,6 +339,7 @@ static int get_modbus_dev_value(const char *dev_name, const void *input_data, vo
   */
 static int set_modbus_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   return 0;
 }
 
@@ -313,6 +357,7 @@ static int set_modbus_dev_value(const char *dev_name, const void *input_data, co
   */
 static int get_private_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   const char *parm = (const char *)input_data;
   devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
   for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
@@ -341,6 +386,7 @@ static int get_private_dev_value(const char *dev_name, const void *input_data, v
   */
 static int set_private_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   return 0;
 }
 
@@ -505,6 +551,34 @@ EdgeGatewayRUN_SATE_Typedef_t get_gateway_device_run_state(void)
 const DEV_DRIVER_INTERFACE_Typedef_t *get_gateway_device_resource(void)
 {
   return (const DEV_DRIVER_INTERFACE_Typedef_t *)resources_interface_par;
+}
+
+/**
+  ******************************************************************
+  * @brief   设备事件上报确认
+  * @param   [in]param_name 参数名.
+  * @param   [in]data 此参数获取的数据. 
+  * @return  true 上报允许 false 不上报.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-10
+  ******************************************************************
+  */
+bool gateway_device_report_event_confirm(const char *dev_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, const void *data)
+{
+  if(dev_name == NULL || dev_resource == NULL || data == NULL)
+  {
+    return false;
+  }
+
+  /*检查权限*/
+  if((dev_resource->permissions & CONFIRM) == 0)
+  {
+    return true;
+  }
+
+  const devsdk_commandresult *value = (const devsdk_commandresult *)data;
+  return true;
 }
 
 /**

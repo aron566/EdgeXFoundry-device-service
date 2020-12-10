@@ -35,7 +35,7 @@ extern "C" {
 /** Exported functions prototypes --------------------------------------------*/
 
 /*设备驱动初始化*/
-void device_driver_opt_init(iot_logger_t *lc, const iot_data_t *config);
+void device_driver_opt_init(void *data, const iot_data_t *config);
 
 /*设备驱动启动*/
 void device_driver_opt_reconfigure(iot_logger_t *lc, const iot_data_t *config);

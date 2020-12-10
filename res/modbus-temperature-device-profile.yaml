@@ -67,6 +67,56 @@ deviceResources:
        { type: "Float32", size: "4", readWrite: "RW", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
        { defaultValue: "-999.9" }
+  -
+    name: temperatureHI
+    description: "temperature max value is arrived"
+    attributes:
+      { parameter: "temperatureHI" }
+    properties:
+      value:
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
+      units:
+       { defaultValue: "-999.9" }
+  -
+    name: humidityHI
+    description: "humidity max value is arrived"
+    attributes:
+      { parameter: "humidityHI" }
+    properties:
+      value:
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
+      units:
+       { defaultValue: "-999.9" }
+  -
+    name: temperatureLOW
+    description: "temperature low value is arrived"
+    attributes:
+      { parameter: "temperatureLOW" }
+    properties:
+      value:
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
+      units:
+       { defaultValue: "-999.9" }
+  -
+    name: humidityLOW
+    description: "humidity low value is arrived"
+    attributes:
+      { parameter: "humidityLOW" }
+    properties:
+      value:
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
+      units:
+       { defaultValue: "-999.9" }
+  -
+    name: online_state
+    description: "device online state"
+    attributes:
+      { parameter: "online_state" }
+    properties:
+      value:
+       { type: "int32", size: "4", readWrite: "R", defaultValue: "0", minimum: "0", maximum: "1" }
+      units:
+       { defaultValue: "0" }
 
 deviceCommands:
   -
@@ -78,6 +128,11 @@ deviceCommands:
       - { deviceResource: "humiditymin" }
       - { deviceResource: "temperaturemax" }
       - { deviceResource: "humiditymax" }
+      - { deviceResource: "temperatureHI" }
+      - { deviceResource: "humidityHI" }
+      - { deviceResource: "temperatureLOW" }
+      - { deviceResource: "humidityLOW" }
+      - { deviceResource: "online_state" }
     set:
       - { deviceResource: "temperaturemin" }
       - { deviceResource: "humiditymin" }
@@ -91,7 +146,7 @@ coreCommands:
       responses:
       - code: "200"
         description: "Successfully read the modbus_temperature_device sensors."
-        expectedValues: [ "temperature", "humidity", "temperaturemin", "humiditymin", "temperaturemax", "humiditymax" ]
+        expectedValues: [ "temperature", "humidity", "temperaturemin", "humiditymin", "temperaturemax", "humiditymax", "temperatureHI", "humidityHI", "temperatureLOW", "humidityLOW", "online_state" ]
       - code: "503"
         description: "service unavailable"
         expectedValues: []
@@ -217,3 +272,68 @@ coreCommands:
       - code: "503"
         description: "service unavailable"
         expectedValues: []
+  -
+    name: temperatureHI
+    get:
+      path: "/api/v1/device/{deviceId}/temperatureHI"
+      responses:
+        -
+          code: "200"
+          description: "Get the temperatureHI reading."
+          expectedValues: ["temperatureHI"]
+        -
+          code: "503"
+          description: "service unavailable"
+          expectedValues: []
+  -
+    name: humidityHI
+    get:
+      path: "/api/v1/device/{deviceId}/humidityHI"
+      responses:
+        -
+          code: "200"
+          description: "Get the humidityHI reading."
+          expectedValues: ["humidityHI"]
+        -
+          code: "503"
+          description: "service unavailable"
+          expectedValues: []
+  -
+    name: temperatureLOW
+    get:
+      path: "/api/v1/device/{deviceId}/temperatureLOW"
+      responses:
+        -
+          code: "200"
+          description: "Get the temperatureLOW reading."
+          expectedValues: ["temperatureLOW"]
+        -
+          code: "503"
+          description: "service unavailable"
+          expectedValues: []
+  -
+    name: humidityLOW
+    get:
+      path: "/api/v1/device/{deviceId}/humidityLOW"
+      responses:
+        -
+          code: "200"
+          description: "Get the humidityLOW reading."
+          expectedValues: ["humidityLOW"]
+        -
+          code: "503"
+          description: "service unavailable"
+          expectedValues: []
+  -
+    name: online_state
+    get:
+      path: "/api/v1/device/{deviceId}/online_state"
+      responses:
+        -
+          code: "200"
+          description: "Get the online state reading."
+          expectedValues: ["online_state"]
+        -
+          code: "503"
+          description: "service unavailable"
+          expectedValues: []

@@ -53,7 +53,7 @@ static ssize_t tcp_write_port(struct DEVICE_COM_FD_Typedef *par, void *buf);
 static DEVICE_COM_FD_Typedef_t device_com_par[] = 
 {
   {
-    .dev_name       = "/dev/ttyS2",
+    .dev_name       = "/dev/ttyUSB0",
     .fd             = -1,
     .protocol_type  = MODBUS_RTU_PROTO,
     .read_callback  = tty_read_port,

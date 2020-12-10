@@ -100,6 +100,65 @@ iot_data_t *common_value2iot_data(void *data, VALUE_Type_t type)
     return value;
 }
 
+/**
+ ******************************************************************
+ * @brief   iot_data转为uint64_t格式*
+ * @param   [in]data 数值
+ * @param   [in]type data的数值类型
+ * @return  uint64 数值
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-12-09
+ ******************************************************************
+ */
+uint64_t common_iot_data2u64(const iot_data_t *data, VALUE_Type_t type)
+{
+    if(data == NULL || type == VALUE_TYPE_MAX)
+    {
+        return 0;
+    }
+    uint64_t value = 0;
+    switch(type)
+    {
+        case INT8:
+            value = (uint64_t)iot_data_i8(data);
+            break;
+        case INT16:
+            value = (uint64_t)iot_data_i16(data);
+            break;
+        case INT32:
+            value = (uint64_t)iot_data_i32(data);
+            break;
+        case INT64:
+            value = (uint64_t)iot_data_i64(data);
+            break;
+        case UINT8:
+            value = (uint64_t)iot_data_ui8(data);
+            break;
+        case UINT16:
+            value = (uint64_t)iot_data_ui16(data);
+            break;
+        case UINT32:
+            value = (uint64_t)iot_data_ui32(data);
+            break;
+        case UINT64:
+            value = (uint64_t)iot_data_ui64(data);
+            break;
+        case FLOAT32:
+            value = (uint64_t)iot_data_f32(data);
+            break;
+        case DOUBLE:      
+            value = (uint64_t)iot_data_f64(data);
+            break;
+        case STRING:
+            value = (uint64_t)iot_data_string(data);
+            break;
+        default:
+            break;
+    }
+    return value;
+}
+
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               
 #endif                                                                          

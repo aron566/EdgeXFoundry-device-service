@@ -28,10 +28,6 @@ extern "C" {
 #include "main_device_service.h"
 /** Private typedef ----------------------------------------------------------*/
 
-typedef struct custom_device_driver
-{
-  iot_logger_t * lc;
-} custom_device_driver;
 /** Private macros -----------------------------------------------------------*/
 #define ERR_CHECK(x) if(x.code){fprintf(stderr, "Error: %d: %s\n", x.code, x.reason); devsdk_service_free (service); free (impl); return x.code;}
 #define ERR_BUFSZ 1024
@@ -84,7 +80,7 @@ static bool custom_device_init(void * impl, struct iot_logger_t * lc, const iot_
   driver->lc = lc;
 
   /*初始化设备驱动*/
-  device_driver_opt_init(lc, config);
+  device_driver_opt_init(impl, config);
 
   return true;
 }
@@ -237,6 +233,7 @@ int main (int argc, char * argv[])
   
   custom_device_driver * impl = malloc (sizeof (custom_device_driver));
   impl->lc = NULL;
+  impl->service = NULL;
 
   devsdk_error e;
   e.code = 0;
@@ -252,6 +249,7 @@ int main (int argc, char * argv[])
   };
 
   devsdk_service_t * service = devsdk_service_new("device-custom_device", "1.0", impl, custom_deviceImpls, &argc, argv, &e);
+  impl->service = service;
   ERR_CHECK (e);
 
   int n = 1;

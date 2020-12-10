@@ -38,6 +38,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = STORE_READ|READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },
@@ -50,6 +51,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = STORE_READ|READ_ONLY,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },          
@@ -62,6 +64,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = STORE_READ|PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },          
@@ -74,6 +77,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = STORE_READ|PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },  
@@ -86,6 +90,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = STORE_READ|PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   }, 
@@ -98,9 +103,75 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = STORE_READ|PRIVATE_WRITE|PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
-  },         
+  },   
+  {         
+    .par_name               = "temperatureHI",
+    .command                = 0x03,
+    .command_addr           = 0x0006,
+    .value_type             = FLOAT32,
+    .default_value          = 0,
+    .permissions            = STORE_READ|PRIVATE_READ|CONFIRM,
+    .enable_event_flag      = false,
+    .enable_on_change_flag  = false,
+    .start_time             = 0,
+    .interval_time          = 0,
+    .unit                   = T_S
+  }, 
+  {         
+    .par_name               = "humidityHI",
+    .command                = 0x03,
+    .command_addr           = 0x0007,
+    .value_type             = FLOAT32,
+    .default_value          = 0,
+    .permissions            = STORE_READ|PRIVATE_READ|CONFIRM,
+    .enable_event_flag      = false,
+    .enable_on_change_flag  = false,
+    .start_time             = 0,
+    .interval_time          = 0,
+    .unit                   = T_S
+  },
+  {         
+    .par_name               = "temperatureLOW",
+    .command                = 0x03,
+    .command_addr           = 0x0008,
+    .value_type             = FLOAT32,
+    .default_value          = 0,
+    .permissions            = STORE_READ|PRIVATE_READ|CONFIRM,
+    .enable_event_flag      = false,
+    .enable_on_change_flag  = false,
+    .start_time             = 0,
+    .interval_time          = 0,
+    .unit                   = T_S
+  }, 
+  {         
+    .par_name               = "humidityLOW",
+    .command                = 0x03,
+    .command_addr           = 0x0009,
+    .value_type             = FLOAT32,
+    .default_value          = 0,
+    .permissions            = STORE_READ|PRIVATE_READ|CONFIRM,
+    .enable_event_flag      = false,
+    .enable_on_change_flag  = false,
+    .start_time             = 0,
+    .interval_time          = 0,
+    .unit                   = T_S
+  },  
+  {         
+    .par_name               = "online_state",
+    .command                = 0x03,
+    .command_addr           = 0x000A,
+    .value_type             = UINT8,
+    .default_value          = 0,
+    .permissions            = PRIVATE_READ|CONFIRM,
+    .enable_event_flag      = false,
+    .enable_on_change_flag  = false,
+    .start_time             = 0,
+    .interval_time          = 0,
+    .unit                   = T_S
+  },       
   {         
     .par_name               = NULL,
     .command                = 0x00,
@@ -110,6 +181,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = UNKNOW,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
+    .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
   },
@@ -128,6 +200,7 @@ static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type);
 static int get_param_index(const char *parm);
 static void query_callback(char** pr, int row, int column, void *callback_par);
 static void device_event_recovery(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par);
+static int update_db_data(DEV_INFO_Typedef_t *dev_info, const char *param_name, const iot_data_t *data);
 
 static void read_msg_callback(uv_work_t *req, int status);
 /** Private variables --------------------------------------------------------*/
@@ -205,6 +278,54 @@ static void read_msg_callback(uv_work_t *req, int status)
 
 /**
   ******************************************************************
+  * @brief   更新数据库数据
+  * @param   [in]dev_info 设备信息
+  * @param   [in]param_name 参数名称
+  * @param   [in]data 数值
+  * @return  0成功.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-10
+  ******************************************************************
+  */
+static int update_db_data(DEV_INFO_Typedef_t *dev_info, const char *param_name, const iot_data_t *data)
+{
+  if(dev_info == NULL || data == NULL)
+  {
+    return -1;
+  }
+  MAJOR_KEY_1 major_key_1 = get_device_protocol_type(dev_info);
+  MAJOR_KEY_2 major_key_2 = (uint32_t)get_device_addr(dev_info);
+  NODE_TYPE_STRUCT *p_node = list_find_node(TEMPERATURE_DEV_TYPE, major_key_1, major_key_2);
+  if(p_node == NULL)
+  {
+    return -1;
+  }
+  int index = get_param_index(param_name);
+  if(index == -1)
+  {
+    return -1;
+  }
+  /*写入数据*/
+  p_node->dev_resource_par[index].default_value = common_iot_data2u64(data, p_node->dev_resource_par[index].value_type);
+  
+  /*写入数据库*/
+  if(STORE_READ & p_node->dev_resource_par[index].permissions)
+  {
+    UPDATE_DATA_Typedef_t update_data;
+    update_data.addr = (uint32_t)get_device_addr(dev_info);
+    strncopy(update_data.param_name, param_name, 64);
+    strncopy(update_data.table_name, dev_info->dev_type_name, 64);
+    get_value_str(update_data.value_current, &p_node->dev_resource_par[index].default_value, 
+                    64, p_node->dev_resource_par[index].value_type);
+    update_data.time_stamp = get_current_time_s(CURRENT_TIME);
+    return dev_driver_event_db_record_update(&update_data);
+  }
+  return 0;
+}
+
+/**
+  ******************************************************************
   * @brief   读取mqtt设备数值接口
   * @param   [in]input_data 请求参数
   * @param   [out]out_data 返回数据
@@ -217,6 +338,7 @@ static void read_msg_callback(uv_work_t *req, int status)
   */
 static int get_mqtt_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   const char *parm = (const char *)input_data;
   devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
   for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
@@ -245,6 +367,7 @@ static int get_mqtt_dev_value(const char *dev_name, const void *input_data, void
   */
 static int set_mqtt_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   const char *parm = (const char *)input_data;
   const iot_data_t *set_value = (const iot_data_t *)set_data;
   for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
@@ -252,7 +375,7 @@ static int set_mqtt_dev_value(const char *dev_name, const void *input_data, cons
     if(strcmp(parm, resources_interface_par[index].par_name) == 0)
     {
       /*获取设备数据*/
-
+      
       // out_value->value = iot_data_alloc_i32 ((random () % 501) - 250);
     }
   }
@@ -273,14 +396,21 @@ static int set_mqtt_dev_value(const char *dev_name, const void *input_data, cons
   */
 static int get_modbus_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
 {
+  UNUSED(type);
   MODBUS_PARSE_CODE_Typedef_t state = MODBUS_OK;
-  const char *parm = (const char *)input_data;
+  const char *param_name = (const char *)input_data;
   devsdk_commandresult *out_value = (devsdk_commandresult *)out_data;
-  
-  uint8_t addr = get_modbus_device_addr(dev_name);
+  DEV_INFO_Typedef_t dev_info;
+
   uint16_t reg_n = 1;
   uint16_t *reg_value = NULL;
-  int index = get_param_index(parm);
+  int ret = parse_dev_name(dev_name, &dev_info);
+  if(ret != 0)
+  {
+    return -1;
+  }
+  uint8_t addr = (uint8_t)get_device_addr(&dev_info);
+  int index = get_param_index(param_name);
   if(index == -1)
   {
     return -1;
@@ -296,7 +426,12 @@ static int get_modbus_dev_value(const char *dev_name, const void *input_data, vo
     {
       if(reg_value != NULL)
       {
+        out_value->origin = get_current_time_s(CURRENT_TIME);
         out_value->value = iot_data_alloc_f32((float)(*reg_value)/10.0);
+
+        /*写入新数据*/
+        update_db_data(&dev_info, param_name, out_value->value);
+
         free(reg_value);
       }
       return 0;
@@ -308,51 +443,6 @@ static int get_modbus_dev_value(const char *dev_name, const void *input_data, vo
     return get_private_dev_value(dev_name, input_data, out_data, type);
   }
   return -1;
-}
-
-/**
-  ******************************************************************
-  * @brief   读取private设备数值接口
-  * @param   [in]input_data 请求参数
-  * @param   [out]out_data 返回数据
-  * @param   [out]type 数据类型
-  * @return  None.
-  * @author  aron566
-  * @version V1.0
-  * @date    2020-11-13
-  ******************************************************************
-  */
-static int get_private_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
-{
-  const char *parm = (const char *)input_data;
-  devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
-  for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
-  {
-    if(strcmp(parm, resources_interface_par[index].par_name) == 0)
-    {
-      /*获取设备数据*/
-
-      // out_value->value = iot_data_alloc_i32 ((random () % 501) - 250);
-    }
-  }
-  return 0;
-}
-
-/**
-  ******************************************************************
-  * @brief   设置private设备数值接口
-  * @param   [in]input_data 设置参数
-  * @param   [out]out_data 返回数据
-  * @param   [out]type 数据类型
-  * @return  None.
-  * @author  aron566
-  * @version V1.0
-  * @date    2020-11-13
-  ******************************************************************
-  */
-static int set_private_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type)
-{
-  return 0;
 }
 
 /**
@@ -385,6 +475,7 @@ static int set_modbus_dev_value(const char *dev_name, const void *input_data, co
   /*检测权限*/
   if(WRITE_ONLY & resources_interface_par[index].permissions)
   {
+    /*写入设备*/
     uint16_t reg_s = resources_interface_par[index].command_addr;
     uint16_t reg_d = iot_data_ui16 (data);
     state = device_driver_modbus_master_write(addr, reg_s, reg_n, &reg_d);
@@ -400,6 +491,70 @@ static int set_modbus_dev_value(const char *dev_name, const void *input_data, co
     return set_private_dev_value(dev_name, input_data, set_data, type);
   }
   return -1;
+}
+
+/**
+  ******************************************************************
+  * @brief   读取private设备数值接口
+  * @param   [in]input_data 请求参数
+  * @param   [out]out_data 返回数据
+  * @param   [out]type 数据类型
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-11-13
+  ******************************************************************
+  */
+static int get_private_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
+{
+  UNUSED(type);
+  const char *parm = (const char *)input_data;
+  devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
+  for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
+  {
+    if(strcmp(parm, resources_interface_par[index].par_name) == 0)
+    {
+      /*获取设备数据*/
+      if(PRIVATE_READ & resources_interface_par[index].permissions)
+      {
+
+      }
+
+    }
+  }
+  return 0;
+}
+
+/**
+  ******************************************************************
+  * @brief   设置private设备数值接口
+  * @param   [in]input_data 设置参数
+  * @param   [out]out_data 返回数据
+  * @param   [out]type 数据类型
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-11-13
+  ******************************************************************
+  */
+static int set_private_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type)
+{
+  UNUSED(type);
+  if(dev_name == NULL || input_data == NULL || set_data == NULL)
+  {
+    return -1;
+  }
+  DEV_INFO_Typedef_t dev_info;
+  int ret = parse_dev_name(dev_name, &dev_info);
+  if(ret == -1)
+  {
+    return -1;
+  }
+  const char *param_name = (const char *)input_data;
+  const iot_data_t *set_par = (const iot_data_t *)set_data;
+
+  /*写入数据*/
+  return update_db_data(&dev_info, param_name, set_par);
 }
 
 /**
@@ -518,7 +673,7 @@ static void device_event_recovery(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTER
     INSERT_DATA_Typedef_t insert_data;
     memmove(&insert_data, &data, sizeof(BASE_DATA_Typedef_t));
     get_value_str(insert_data.value_current, &dev_resource_par->default_value, 64, dev_resource_par->value_type);
-    insert_data.time_stamp = get_curent_time_s(CURRENT_TIME);
+    insert_data.time_stamp = get_current_time_s(CURRENT_TIME);
     dev_driver_event_db_record_insert(&insert_data);
     return;
   }
@@ -530,20 +685,6 @@ static void device_event_recovery(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTER
 *                                                                               
 ********************************************************************************
 */
-/**
-  ******************************************************************
-  * @brief   获取温湿度设备数值
-  * @param   [in]dev_name 设备名
-  * @param   [in]req_param 请求参数
-  * @author  aron566
-  * @version V1.0
-  * @date    2020-11-09
-  ******************************************************************
-  */
-void *get_temperature_device_value(const char *dev_name, const char *req_param)
-{
-  return NULL;
-}
 
 /**
   ******************************************************************
@@ -558,6 +699,34 @@ void *get_temperature_device_value(const char *dev_name, const char *req_param)
 const DEV_DRIVER_INTERFACE_Typedef_t *get_temperature_device_resource(void)
 {
   return (const DEV_DRIVER_INTERFACE_Typedef_t *)resources_interface_par;
+}
+
+/**
+  ******************************************************************
+  * @brief   设备事件上报确认
+  * @param   [in]param_name 参数名.
+  * @param   [in]data 此参数获取的数据. 
+  * @return  true 上报允许 false 不上报.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-09
+  ******************************************************************
+  */
+bool temperature_device_report_event_confirm(const char *dev_name, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, const void *data)
+{
+  if(dev_name == NULL || dev_resource == NULL || data == NULL)
+  {
+    return false;
+  }
+
+  /*检查权限*/
+  if((dev_resource->permissions & CONFIRM) == 0)
+  {
+    return true;
+  }
+
+  const devsdk_commandresult *value = (const devsdk_commandresult *)data;
+  return true;
 }
 
 /**

@@ -48,6 +48,9 @@ extern "C" {
 /*数值转为iot_data格式*/
 iot_data_t *common_value2iot_data(void *data, VALUE_Type_t type);
 
+/*iot_data转为uint64_t格式*/
+uint64_t common_iot_data2u64(const iot_data_t *data, VALUE_Type_t type);
+
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               
 #endif                                                                          

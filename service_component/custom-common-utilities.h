@@ -29,6 +29,7 @@ extern "C" {
 typedef enum
 {
     CURRENT_TIME = 0,   /**< 当前时间即从UTC1970-1-1 0:0:0开始*/
+    CURRENT_TIME_MS,    /**< 当前时间即从UTC1970-1-1 0:0:0开始us/ms/s级别*/
     RUN_TIME,           /**< 系统启动运行时间*/
     PROCESS_CPUTIME,    /**< 本进程到当前代码系统CPU花费的时间*/
     THREAD_CPUTIME,     /**< 本线程到当前代码系统CPU花费的时间*/
@@ -38,11 +39,13 @@ typedef enum
 typedef enum
 {
     INT8 = 0,       
-    UINT8,
     INT16,
+    INT32,
+    INT64,
+    UINT8,
     UINT16,
     UINT32,
-    INT32,
+    UINT64,
     FLOAT32,
     DOUBLE,
     STRING,
@@ -76,7 +79,7 @@ char *strncopy(char *dest_str, const char *src_str, size_t size);
 char *get_value_str(char *dest_str, void *data, size_t size, VALUE_Type_t value_type);
 
 /*获取时间*/
-uint64_t get_curent_time_s(UTILITIES_TIME_MODE_Typedef_t mode);
+uint64_t get_current_time_s(UTILITIES_TIME_MODE_Typedef_t mode);
 
 /*秒转为时间字符串*/
 const char *get_time_str(time_t sec);

@@ -128,10 +128,6 @@ deviceCommands:
       - { deviceResource: "humiditymin" }
       - { deviceResource: "temperaturemax" }
       - { deviceResource: "humiditymax" }
-      - { deviceResource: "temperatureHI" }
-      - { deviceResource: "humidityHI" }
-      - { deviceResource: "temperatureLOW" }
-      - { deviceResource: "humidityLOW" }
       - { deviceResource: "online_state" }
     set:
       - { deviceResource: "temperaturemin" }
@@ -142,16 +138,17 @@ coreCommands:
   -
     name: get_temperature_device_all
     get:
-      path: "/api/v1/device/{deviceId}/get_temperature_device_all"
+      path: "/api/v1/device/{deviceId}/modbus_temperature_device"
       responses:
       - code: "200"
         description: "Successfully read the modbus_temperature_device sensors."
-        expectedValues: [ "temperature", "humidity", "temperaturemin", "humiditymin", "temperaturemax", "humiditymax", "temperatureHI", "humidityHI", "temperatureLOW", "humidityLOW", "online_state" ]
+        #expectedValues: [ "modbus_temperature_device" ]
+        expectedValues: [ "temperature", "humidity", "temperaturemin", "humiditymin", "temperaturemax", "humiditymax", "online_state" ]
       - code: "503"
         description: "service unavailable"
         expectedValues: []
     put:
-      path: "/api/v1/device/{deviceId}/get_temperature_device_all"
+      path: "/api/v1/device/{deviceId}/modbus_temperature_device"
       parameterNames: [ "temperaturemin", "humiditymin", "temperaturemax", "humiditymax" ]
       responses:
       - code: "200"

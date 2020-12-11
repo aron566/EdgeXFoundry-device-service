@@ -214,8 +214,106 @@ void device_driver_opt_reconfigure(iot_logger_t *lc, const iot_data_t *config)
 
 /**
   ******************************************************************
+  * @brief   设备驱动添加设备接口
+  * @param   [in]impl 自定义数据.
+  * @param   [in]devname 设备名.
+  * @param   [in]protocols 协议.
+  * @param   [in]resources 设备资源.
+  * @param   [in]adminEnabled Whether the device is administratively enabled..
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-11
+  ******************************************************************
+  */
+void device_driver_add_device(void *impl, const char *devname, const devsdk_protocols *protocols, const devsdk_device_resources *resources, bool adminEnabled)
+{
+
+}
+
+/**
+  ******************************************************************
+  * @brief   设备驱动更新设备接口
+  * @param   [in]impl 自定义数据.
+  * @param   [in]devname 设备名.
+  * @param   [in]protocols 协议.
+  * @param   [in]resources 设备资源.
+  * @param   [in]adminEnabled Whether the device is administratively enabled..
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-11
+  ******************************************************************
+  */
+void device_driver_update_device(void *impl, const char *devname, const devsdk_protocols *protocols, bool adminEnabled)
+{
+
+}
+
+/**
+  ******************************************************************
+  * @brief   设备驱动移除设备接口
+  * @param   [in]impl 自定义数据.
+  * @param   [in]devname 设备名.
+  * @param   [in]protocols 协议.
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-11
+  ******************************************************************
+  */
+void device_driver_remove_device(void *impl, const char *devname, const devsdk_protocols *protocols)
+{
+
+}
+
+/**
+  ******************************************************************
+  * @brief   设备驱动启动事件接口
+  * @param   [in]impl 自定义数据.
+  * @param   [in]devname 设备名.
+  * @param   [in]protocols 协议.
+  * @param   [in]resources 设备资源.
+  * @param   [in]nreadings 请求列表数目
+  * @param   [in]requests 请求列表
+  * @param   [in]interval 间隔
+  * @param   [in]onChange If true, events should only be generated if one or more readings have changed.
+  * @return  * .
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-11
+  ******************************************************************
+  */
+void *device_driver_autoevent_start_handler(void *impl, const char *devname, const devsdk_protocols *protocols,
+                                            const char *resource_name,
+                                            uint32_t nreadings,
+                                            const devsdk_commandrequest *requests,
+                                            uint64_t interval,
+                                            bool onChange)
+{
+
+}
+
+/**
+  ******************************************************************
+  * @brief   设备驱动停止事件接口
+  * @param   [in]impl 自定义数据.
+  * @param   [in]handle The data structure returned by a previous call to the start handler..
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-11
+  ******************************************************************
+  */
+void device_driver_autoevent_stop_handler(void *impl, void *handle)
+{
+
+}
+
+/**
+  ******************************************************************
   * @brief   设备驱动初始化
-  * @param   [in]lc 日志记录器.
+  * @param   [in]data 自定义数据.
   * @param   [in]config 配置数据.
   * @return  None.
   * @author  aron566
@@ -252,7 +350,10 @@ void device_driver_opt_init(void *data, const iot_data_t *config)
   register_device_driver(lc);
 
   /*启动uv事件检测*/
-  // device_driver_uv_handler_start(user_data);
+  device_driver_uv_handler_start(user_data);
+
+  /*启动fd监听*/
+  epoll_stander_alone_start(lc);
 }
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

@@ -78,7 +78,7 @@ deviceResources:
 
 deviceCommands:
   -
-    name: gateway_temperature
+    name: gateway_device_resource
     get:
       - { deviceResource: "temperature" }
       - { deviceResource: "temperaturemax" }
@@ -90,9 +90,9 @@ deviceCommands:
 
 coreCommands:
   -
-    name: gateway_temperature
+    name: gateway_device_resource
     get:
-      path: "/api/v1/device/{deviceId}/gateway_temperature"
+      path: "/api/v1/device/{deviceId}/gateway_device_resource"
       responses:
       - code: "200"
         description: "Successfully read the Gateway temperature parameter."
@@ -101,7 +101,7 @@ coreCommands:
         description: "service unavailable"
         expectedValues: []
     put:
-      path: "/api/v1/device/{deviceId}/mqtt_gateway_device"
+      path: "/api/v1/device/{deviceId}/gateway_device_resource"
       parameterNames: [ "run_state", "upgrade_file", "cmd", "temperaturemax" ]
       responses:
       - code: "200"

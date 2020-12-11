@@ -152,6 +152,8 @@ static ssize_t tty_read_port(struct DEVICE_COM_FD_Typedef *par, void *buf)
 static ssize_t tty_write_port(struct DEVICE_COM_FD_Typedef *par, void *buf)
 {
   BASE_BUF_STRUCT_Typedef_t *base_buf = (BASE_BUF_STRUCT_Typedef_t *)buf;
+  printf("\n发送数据:");
+  debug_print(base_buf->buf, base_buf->buf_len);
   return write(par->fd, base_buf->buf, base_buf->buf_len);
 }
 

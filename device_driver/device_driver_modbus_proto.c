@@ -164,8 +164,10 @@ static MODBUS_PARSE_CODE_Typedef_t modbus_read_response_data(uint8_t addr, uint1
   {
     return MODBUS_FRAME_MISS;
   }
+
   /*校验CRC*/
-  if(return_check_crc(data, len))
+  uint32_t package_len = GET_READ_RESPONSE_DATA_LEN(reg_n)-2;
+  if(return_check_crc(data, package_len))
   {
     /*解析数据内容*/
     uint16_t *value_buf = NULL;
@@ -267,7 +269,8 @@ static void modbus_master_read_port(int epoll_fd, int read_fd)
     }
     CQ_putData(modbus_cb ,modbus_buf ,(uint32_t)len);
   }
-
+  printf("\n接收数据:");
+  debug_print(buf.base_buf.buf, len);
 }
 
 /**
@@ -298,7 +301,7 @@ static MODBUS_PARSE_CODE_Typedef_t modbus_wait_new_data(uint8_t addr, uint8_t cm
     /*判断缓冲区是否有新数据*/
     uint32_t buf_len = CQ_getLength(modbus_cb);
     buf_len = buf_len > 256?256:buf_len;
-    if(buf_len > MODBUS_FRAME_LEN_MIN)
+    if(buf_len >= MODBUS_FRAME_LEN_MIN)
     {
       /*获取数据*/
       CQ_ManualGetData(modbus_cb, temp_buf, buf_len);
@@ -327,6 +330,7 @@ static MODBUS_PARSE_CODE_Typedef_t modbus_wait_new_data(uint8_t addr, uint8_t cm
         default:
           break;
       }
+      sleep(10);
     }
     /*判断超时*/
     if((current_time - last_time) > 350)

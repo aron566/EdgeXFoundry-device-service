@@ -47,8 +47,8 @@ typedef enum
 	CQ_BUF_2KB 	= 1 << 11,
 	CQ_BUF_4KB 	= 1 << 12,
 	CQ_BUF_8KB 	= 1 << 13,
-    CQ_BUF_1MB 	= 1 << (10 * 2), ///< 2*10
-    CQ_BUF_1GB 	= 1 << (10 * 3), ///< 3*10
+	CQ_BUF_1MB 	= 1 << (10 * 2), ///< 2*10
+	CQ_BUF_1GB 	= 1 << (10 * 3), ///< 3*10
     // CQ_BUF_1TB 	= 1 << (10 * 4), ///< 4*10
     // CQ_BUF_1PB 	= 1 << (10 * 5), ///< 5*10
 }CQ_BUF_SIZE_ENUM_TypeDef;

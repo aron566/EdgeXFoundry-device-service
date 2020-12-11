@@ -41,7 +41,7 @@ bool get_crc_result(uint8_t *puchMsg ,uint16_t usDataLen);
 /*计算CRC*/
 uint16_t modbus_crc_return(uint8_t *Crc_Buf ,uint16_t Crc_Len);
 /*计算CRC16并对比数据包中的CRC，返回结果，数据包含crc计算内容+crc结果，否则可能指针越界访问*/ 
-uint8_t return_check_crc(uint8_t *msg ,uint16_t len);
+uint8_t return_check_crc(uint8_t *msg ,uint32_t len);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

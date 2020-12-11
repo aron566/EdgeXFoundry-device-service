@@ -59,6 +59,21 @@ static void custom_device_reconfigure(void *impl, const iot_data_t *config);
 static void custom_device_discover(void *impl);
 /*响应停止请求*/
 static void custom_device_stop(void * impl, bool force);
+/*响应添加设备*/
+static void custom_device_add_device(void *impl, const char *devname, const devsdk_protocols *protocols, const devsdk_device_resources *resources, bool adminEnabled);
+/*响应更新设备*/
+static void custom_device_update_device(void *impl, const char *devname, const devsdk_protocols *protocols, bool adminEnabled);
+/*响应移除设备*/
+static void custom_device_remove_device(void *impl, const char *devname, const devsdk_protocols *protocols);
+/*启动事件*/
+static void * custom_device_autoevent_start_handler(void *impl, const char *devname, const devsdk_protocols *protocols,
+                                            const char *resource_name,
+                                            uint32_t nreadings,
+                                            const devsdk_commandrequest *requests,
+                                            uint64_t interval,
+                                            bool onChange);
+/*停止事件*/
+static void custom_device_autoevent_stop_handler(void *impl, void *handle);
 /** Private user code --------------------------------------------------------*/                                                                         
 /** Private application code -------------------------------------------------*/
 /*******************************************************************************
@@ -216,6 +231,80 @@ static void custom_device_stop(void *impl, bool force)
   device_driver_opt_stop(driver->lc, force);
 }
 
+/**
+ * @brief Callback function indicating that a new device has been added.
+ * @param impl The context data passed in when the service was created.
+ * @param devname The name of the new device.
+ * @param protocols The protocol properties that comprise the device's address.
+ * @param resources The operations supported by the device.
+ * @param adminEnabled Whether the device is administratively enabled.
+ */
+static void custom_device_add_device(void *impl, const char *devname, const devsdk_protocols *protocols, const devsdk_device_resources *resources, bool adminEnabled)
+{
+  device_driver_add_device(impl, devname, protocols, resources, adminEnabled);
+}
+
+/**
+ * @brief Callback function indicating that a device's address or adminstate has been updated.
+ * @param impl The context data passed in when the service was created.
+ * @param devname The name of the updated device.
+ * @param protocols The protocol properties that comprise the device's address.
+ * @param state The device's current adminstate.
+ */
+static void custom_device_update_device(void *impl, const char *devname, const devsdk_protocols *protocols, bool adminEnabled)
+{
+  device_driver_update_device(impl, devname, protocols, adminEnabled);
+}
+
+/**
+ * @brief Callback function indicating that a device has been removed.
+ * @param impl The context data passed in when the service was created.
+ * @param devname The name of the removed device.
+ * @param protocols The protocol properties that comprise the device's address.
+ */
+static void custom_device_remove_device(void *impl, const char *devname, const devsdk_protocols *protocols)
+{
+  device_driver_remove_device(impl, devname, protocols);
+}
+
+/**
+ * @brief Callback function requesting that automatic events should begin. These should be generated according to the schedule given,
+ *        and posted using devsdk_post_readings().
+ * @param impl The context data passed in when the service was created.
+ * @param devname The name of the device to be queried.
+ * @param protocols The location of the device to be queried.
+ * @param resource_name The resource on which autoevents have been configured.
+ * @param nreadings The number of readings requested.
+ * @param requests An array specifying the readings that have been requested.
+ * @param interval The time between events, in milliseconds.
+ * @param onChange If true, events should only be generated if one or more readings have changed.
+ * @return A pointer to a data structure that will be provided in a subsequent call to the stop handler.
+ */
+static void * custom_device_autoevent_start_handler
+(
+  void *impl,
+  const char *devname,
+  const devsdk_protocols *protocols,
+  const char *resource_name,
+  uint32_t nreadings,
+  const devsdk_commandrequest *requests,
+  uint64_t interval,
+  bool onChange
+)
+{
+  return device_driver_autoevent_start_handler(impl, devname, protocols, resource_name,
+                                            nreadings, requests, interval, onChange);
+}
+
+/**
+ * @brief Callback function requesting that automatic events should cease.
+ * @param impl The context data passed in when the service was created.
+ * @param handle The data structure returned by a previous call to the start handler.
+ */
+static void custom_device_autoevent_stop_handler(void *impl, void *handle)
+{
+  device_driver_autoevent_stop_handler(impl, handle);
+}
 /** Public application code --------------------------------------------------*/
 /*******************************************************************************
 *                                                                               
@@ -245,7 +334,12 @@ int main (int argc, char * argv[])
     custom_device_discover,     /* Discovery */
     custom_device_get_handler,  /* Get */
     custom_device_put_handler,  /* Put */
-    custom_device_stop          /* Stop */
+    custom_device_stop,         /* Stop */
+    custom_device_add_device,   /* Add dev*/
+    custom_device_update_device,/* Update dev*/
+    custom_device_remove_device,/* Remove dev*/
+    // custom_device_autoevent_start_handler,/*Autoevent start*/
+    // custom_device_autoevent_stop_handler/*Autoevent stop*/
   };
 
   devsdk_service_t * service = devsdk_service_new("device-custom_device", "1.0", impl, custom_deviceImpls, &argc, argv, &e);

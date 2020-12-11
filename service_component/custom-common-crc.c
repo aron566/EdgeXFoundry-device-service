@@ -19,6 +19,7 @@ extern "C" {
 /** Includes -----------------------------------------------------------------*/
 /* Private includes ----------------------------------------------------------*/
 #include "custom-common-crc.h"
+#include "custom-common-utilities.h"
 /** Private typedef ----------------------------------------------------------*/
                                                                                 
 /** Private macros -----------------------------------------------------------*/
@@ -198,7 +199,7 @@ uint16_t modbus_crc_return(uint8_t *data ,uint16_t data_len)
  * @param len 带入CRC计算的数据长度
  * @return uint8_t 0错误 1校验正确 
  */
-uint8_t return_check_crc(uint8_t *msg ,uint16_t len)
+uint8_t return_check_crc(uint8_t *msg ,uint32_t len)
 {
 	uint8_t CRC_value_L,CRC_value_H,CRC_value_L_temp,CRC_value_H_temp;
 	uint16_t crc_ret = 0;

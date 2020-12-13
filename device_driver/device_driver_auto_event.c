@@ -39,6 +39,7 @@ extern "C" {
 static pthread_t auto_event_task_thread_id;/**< 自动事件任务句柄*/
 static iot_logger_t *g_lc = NULL;
 static devsdk_service_t *g_service = NULL;
+static uv_idle_t g_idler;
 /** Private function prototypes ----------------------------------------------*/
 /*事件检测轮询*/
 static void *polling_uv_event_loop(void *par);
@@ -239,17 +240,16 @@ static void polling_report_event_task(uv_idle_t* handle)
 static void *polling_uv_event_loop(void *par)
 {
     UNUSED(par);
-    static uv_idle_t idler;
 
     iot_log_debug(g_lc, "start uv idel task...");
 
     uv_loop_t *loop = uv_default_loop();
 
     /*init idel*/
-    uv_idle_init(loop, &idler);
+    uv_idle_init(loop, &g_idler);
 
     /*set task*/
-    uv_idle_start(&idler, polling_report_event_task);
+    uv_idle_start(&g_idler, polling_report_event_task);
 
     /*start uv loop*/
     uv_run(loop, UV_RUN_DEFAULT);
@@ -314,6 +314,28 @@ uint64_t time_base2ms(INTERVAL_TIME_Typedef_t *time_base)
         ms = ULONG_MAX;
     }
     return ms;
+}
+
+/**
+  ******************************************************************
+  * @brief   事件检测轮询停止
+  * @param   [in]None.
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-12
+  ******************************************************************
+  */
+void device_driver_uv_handler_stop(void)
+{
+    /*停止idel*/
+    uv_idle_stop(&g_idler);
+
+    /*停止uv loop*/
+    uv_stop(uv_default_loop());
+
+    /*停止线程*/
+    pthread_cancel(auto_event_task_thread_id);
 }
 
 /**

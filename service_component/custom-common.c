@@ -58,7 +58,7 @@ extern "C" {
  * @date    2020-12-09
  ******************************************************************
  */
-iot_data_t *common_value2iot_data(void *data, VALUE_Type_t type)
+iot_data_t *common_value2iot_data(const void *data, VALUE_Type_t type)
 {
     if(data == NULL || type == VALUE_TYPE_MAX)
     {
@@ -68,28 +68,28 @@ iot_data_t *common_value2iot_data(void *data, VALUE_Type_t type)
     switch(type)
     {
         case INT8:
-            value = iot_data_alloc_i8(*(int8_t*)data);
+            value = iot_data_alloc_i8(*(const int8_t*)data);
             break;
         case INT16:
-            value = iot_data_alloc_i16(*(int16_t*)data);
+            value = iot_data_alloc_i16(*(const int16_t*)data);
             break;
         case INT32:
-            value = iot_data_alloc_i32(*(int32_t*)data);
+            value = iot_data_alloc_i32(*(const int32_t*)data);
             break;
         case UINT8:
-            value = iot_data_alloc_ui8(*(uint8_t*)data);
+            value = iot_data_alloc_ui8(*(const uint8_t*)data);
             break;
         case UINT16:
-            value = iot_data_alloc_ui16(*(uint16_t*)data);
+            value = iot_data_alloc_ui16(*(const uint16_t*)data);
             break;
         case UINT32:
-            value = iot_data_alloc_ui32(*(uint32_t*)data);
+            value = iot_data_alloc_ui32(*(const uint32_t*)data);
             break;
         case FLOAT32:
-            value = iot_data_alloc_f32(*(float*)data);
+            value = iot_data_alloc_f32(*(const float*)data);
             break;
         case DOUBLE:      
-            value = iot_data_alloc_f64(*(double*)data);
+            value = iot_data_alloc_f64(*(const double*)data);
             break;
         case STRING:
             value = iot_data_alloc_string((const char*)data, IOT_DATA_COPY);
@@ -102,7 +102,7 @@ iot_data_t *common_value2iot_data(void *data, VALUE_Type_t type)
 
 /**
  ******************************************************************
- * @brief   iot_data转为uint64_t格式*
+ * @brief   iot_data转为uint64_t格式，字符串将给出申请的地址
  * @param   [in]data 数值
  * @param   [in]type data的数值类型
  * @return  uint64 数值
@@ -151,7 +151,20 @@ uint64_t common_iot_data2u64(const iot_data_t *data, VALUE_Type_t type)
             value = (uint64_t)iot_data_f64(data);
             break;
         case STRING:
-            value = (uint64_t)iot_data_string(data);
+            /*获取字符串*/
+            {
+                const char *str = iot_data_string(data);
+                if(str != NULL)
+                {
+                    size_t len = strlen(str);
+                    char *str_buf = (char*)calloc(len+1, sizeof(char));
+                    if(str_buf != NULL)
+                    {
+                        strncopy(str_buf, str, len+1);
+                        value = (uint64_t)str_buf;
+                    }
+                }
+            }
             break;
         default:
             break;

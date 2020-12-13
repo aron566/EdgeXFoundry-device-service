@@ -48,7 +48,9 @@ static ssize_t tty_write_port(struct DEVICE_COM_FD_Typedef *par, void *buf);
 static ssize_t udp_read_port(struct DEVICE_COM_FD_Typedef *par, void *buf);
 static ssize_t udp_write_port(struct DEVICE_COM_FD_Typedef *par, void *buf);    
 static ssize_t tcp_read_port(struct DEVICE_COM_FD_Typedef *par, void *buf);
-static ssize_t tcp_write_port(struct DEVICE_COM_FD_Typedef *par, void *buf);   
+static ssize_t tcp_write_port(struct DEVICE_COM_FD_Typedef *par, void *buf);
+static ssize_t mqtt_read_port(struct DEVICE_COM_FD_Typedef *par, void *buf);
+static ssize_t mqtt_write_port(struct DEVICE_COM_FD_Typedef *par, void *buf); 
 /** Private constants --------------------------------------------------------*/
 static DEVICE_COM_FD_Typedef_t device_com_par[] = 
 {
@@ -60,11 +62,11 @@ static DEVICE_COM_FD_Typedef_t device_com_par[] =
     .write_callback = tty_write_port,
   },
   {
-    .dev_name       = NULL,
+    .dev_name       = "mqtt_client",
     .fd             = -1,
     .protocol_type  = MQTT_PROTO,
-    .read_callback  = tcp_read_port,
-    .write_callback = tcp_write_port,
+    .read_callback  = mqtt_read_port,
+    .write_callback = mqtt_write_port,
   },
   {
     .dev_name       = NULL,
@@ -77,8 +79,8 @@ static DEVICE_COM_FD_Typedef_t device_com_par[] =
     .dev_name       = NULL,
     .fd             = -1,
     .protocol_type  = UNKNOW_PROTO,
-    .read_callback  = NULL,
-    .write_callback = NULL,
+    .read_callback  = tcp_read_port,
+    .write_callback = tcp_write_port,
   },
   {
     .dev_name       = NULL,
@@ -188,6 +190,39 @@ static ssize_t udp_write_port(struct DEVICE_COM_FD_Typedef *par, void *buf)
 {
   PORT_BUF_STRUCT_Typedef_t *udp_buf = (PORT_BUF_STRUCT_Typedef_t *)buf;
   return sendto(par->fd ,udp_buf->base_buf.buf ,udp_buf->base_buf.buf_len ,0 ,(struct sockaddr*)&udp_buf->remote_host_addr ,sizeof(struct sockaddr_in));
+}
+
+/**
+  ******************************************************************
+  * @brief   mqtt读取
+  * @param   [in]par 通讯参数
+  * @param   [in]buf 存储区
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-13
+  ******************************************************************
+  */
+static ssize_t mqtt_read_port(struct DEVICE_COM_FD_Typedef *par, void *buf)
+{
+  BASE_BUF_STRUCT_Typedef_t *mqtt_buf = (BASE_BUF_STRUCT_Typedef_t *)buf;
+  return 0;
+}
+
+/**
+  ******************************************************************
+  * @brief   mqtt写入
+  * @param   [in]par 通讯参数
+  * @param   [in]buf 数据区
+  * @param   [in]size 数据大小
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-13
+  ******************************************************************
+  */
+static ssize_t mqtt_write_port(struct DEVICE_COM_FD_Typedef *par, void *buf)
+{
+  BASE_BUF_STRUCT_Typedef_t *mqtt_buf = (BASE_BUF_STRUCT_Typedef_t *)buf;
+  return 0;
 }
 
 /**

@@ -338,8 +338,8 @@ static MODBUS_PARSE_CODE_Typedef_t modbus_wait_new_data(uint8_t addr, uint8_t cm
       return MODBUS_TIMEOUT;
     }
   }
-
 }
+
 /** Public application code --------------------------------------------------*/
 /*******************************************************************************
 *                                                                               

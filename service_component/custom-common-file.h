@@ -81,6 +81,9 @@ size_t file_write(const char *filename ,const void* buffer ,size_t size ,size_t 
 /*读取文件内容,使用完需进行释放内存*/
 uint8_t *file_readfile_alloc(const char *filename, uint32_t *size);
 
+/*获取文件大小*/
+int get_file_size(const char *filename);
+
 /*替换字符*/
 size_t file_replace_ch(char *sourcebuf ,char sourcech,char destch);
 

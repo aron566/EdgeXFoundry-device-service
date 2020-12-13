@@ -217,7 +217,7 @@ static SET_DEV_VALUE_CALLBACK get_set_callback(PROTOCOL_Type_t protocol_type)
 {
   if(protocol_type == UNKNOW_PROTO)
   {
-      return NULL;
+    return NULL;
   }
   for(int index = 0; protocol_decoder_map[index].protocol_type != UNKNOW_PROTO; index++)
   {
@@ -243,7 +243,7 @@ static GET_DEV_VALUE_CALLBACK get_get_callback(PROTOCOL_Type_t protocol_type)
 {
   if(protocol_type == UNKNOW_PROTO)
   {
-      return NULL;
+    return NULL;
   }
   for(int index = 0; protocol_decoder_map[index].protocol_type != UNKNOW_PROTO; index++)
   {
@@ -403,8 +403,8 @@ int relay_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATION
   DEVICE_Typedef_t dev_type = get_device_type(dev_info);
   if(dev_type == DEV_TYPE_MAX || major_key_1 == UNKNOW_PROTO)
   {
-      printf("[%s][%s] can't get the dev type or protocol.\n", __FILE__, __FUNCTION__);
-      return -1;
+    printf("[%s][%s] can't get the dev type or protocol.\n", __FILE__, __FUNCTION__);
+    return -1;
   }
   p_node = list_find_node(dev_type, major_key_1, major_key_2);
   if(p_node == NULL)

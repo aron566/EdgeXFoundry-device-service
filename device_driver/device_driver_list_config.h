@@ -179,7 +179,7 @@ typedef enum
     T_MAX
 }EVENT_REPORT_TIME_UNIT;
 
-/*设备资源表*/
+/*设备资源表 64Byte*/
 typedef struct dev_driver_interface
 {
     const char *const par_name;         /**< 设备服务名称*/

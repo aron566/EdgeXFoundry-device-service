@@ -197,11 +197,13 @@ static int parse_mqtt_par(toml_table_t *tab, DEV_COMMUNICATION_PAR_Typedef_t *pa
     if(subcribe_topic.ok)
     {
         printf("subcribe_topic = %s\n", subcribe_topic.u.s);
+        strncopy(par->mqtt_par.subcribe_topic, subcribe_topic.u.s, 128);
         free(subcribe_topic.u.s);
     }
     if(publish_topic.ok)
     {
         printf("publish_topic = %s\n", publish_topic.u.s);
+        strncopy(par->mqtt_par.publish_topic, publish_topic.u.s, 128);
         free(publish_topic.u.s);
     }
     return 0;
@@ -290,6 +292,7 @@ static EVENT_REPORT_TIME_UNIT get_event_time_unit(const char *unit_name)
     }
     return T_MAX;
 }
+
 /**
  ******************************************************************
  * @brief   解析设备事件上报间隔参数
@@ -461,7 +464,6 @@ static toml_table_t* load_service_config(void)
         fprintf(stderr, "ERROR: cannot parse - %s\n", errbuf);
         return NULL;
     }
-
     return conf;
 }
 

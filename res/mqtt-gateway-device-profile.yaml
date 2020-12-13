@@ -15,7 +15,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "degrees Celsius"}
   -
     name: run_state
     description: "run state:update running stoped closed "
@@ -25,7 +25,7 @@ deviceResources:
       value:
        { type: "int32", size: "4", readWrite: "RW", defaultValue: "0", minimum: "0", maximum: "4" }
       units:
-       { defaultValue: "0" }
+       { defaultValue: "" }
   -
     name: update_progress
     description: "device upgrade progress"
@@ -33,9 +33,9 @@ deviceResources:
       { parameter: "update_progress" }
     properties:
       value:
-       { type: "int32", size: "4", readWrite: "R", defaultValue: "0", minimum: "0", maximum: "100" }
+       { type: "uint32", size: "4", readWrite: "R", defaultValue: "0", minimum: "0", maximum: "100" }
       units:
-       { defaultValue: "0" }
+       { type: "String", readWrite: "R", defaultValue: "%"}
   -
     name: temperaturemax
     description: "temperature max value"
@@ -45,7 +45,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "RW", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "degrees Celsius"}
   -
     name: upgrade_file
     description: "The device driver upgrade file"

@@ -34,7 +34,7 @@ typedef DEVICE_Typedef_t LIST_Type_t;
 /*节点数据结构*/
 typedef DEV_NODE_FUNC_Type_t NODE_TYPE_STRUCT;   
 
-/*节点信息*/
+/*节点信息 808Byte*/
 typedef struct NODE_TYPE
 {  
 	struct NODE_TYPE *next;

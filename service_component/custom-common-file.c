@@ -17,6 +17,7 @@
 extern "C" {
 #endif
 /** Includes -----------------------------------------------------------------*/
+#include <sys/stat.h>
 /* Private includes ----------------------------------------------------------*/
 #include "custom-common-file.h"
 /** Private typedef ----------------------------------------------------------*/
@@ -377,6 +378,23 @@ uint8_t *file_readfile_alloc(const char *filename, uint32_t *size)
     fclose(fd);
   }
   return result;
+}
+
+/**
+  ******************************************************************
+  * @brief   获取文件大小
+  * @param   [in]fileName
+  * @return  文件大小字节数
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-13
+  ******************************************************************
+  */
+int get_file_size(const char *filename)
+{ 
+	struct stat st;
+	stat(filename, &st);
+	return st.st_size;
 }
 
 /**

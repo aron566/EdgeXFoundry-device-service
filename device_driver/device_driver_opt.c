@@ -167,7 +167,7 @@ int device_driver_opt_set(const char *devname, const char *param, const iot_data
 
 /**
   ******************************************************************
-  * @brief   设备驱动重配置接口
+  * @brief   设备驱动搜寻接口
   * @param   [in]lc 日志记录.
   * @return  None.
   * @author  aron566
@@ -194,6 +194,9 @@ void device_driver_opt_discover(iot_logger_t *lc)
 void device_driver_opt_stop(iot_logger_t *lc, bool force)
 {
   iot_log_info(lc, "call device_driver_opt_stop.");
+
+  /*stop auto events*/
+  device_driver_uv_handler_stop();
 }
 
 /**

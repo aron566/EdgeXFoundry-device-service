@@ -47,16 +47,20 @@ void device_driver_opt_stop(iot_logger_t *lc, bool force);
 void device_driver_opt_discover(iot_logger_t *lc);
 
 /*设备驱动get接口*/
-int device_driver_opt_get(const char *devname, const char *param, devsdk_commandresult *readings, iot_logger_t *lc);
+int device_driver_opt_get(const char *devname, const char *param, devsdk_commandresult *readings, 
+                          iot_logger_t *lc);
 
 /*设备驱动set接口*/
-int device_driver_opt_set(const char *devname, const char *param, const iot_data_t *values, iot_logger_t *lc);
+int device_driver_opt_set(const char *devname, const char *param, const iot_data_t *values, 
+                          iot_logger_t *lc);
 
 /*响应添加设备*/
-void device_driver_add_device(void *impl, const char *devname, const devsdk_protocols *protocols, const devsdk_device_resources *resources, bool adminEnabled);
+void device_driver_add_device(void *impl, const char *devname, const devsdk_protocols *protocols, 
+                              const devsdk_device_resources *resources, bool adminEnabled);
 
 /*响应更新设备*/
-void device_driver_update_device(void *impl, const char *devname, const devsdk_protocols *protocols, bool adminEnabled);
+void device_driver_update_device(void *impl, const char *devname, const devsdk_protocols *protocols, 
+                                  bool adminEnabled);
 
 /*响应移除设备*/
 void device_driver_remove_device(void *impl, const char *devname, const devsdk_protocols *protocols);

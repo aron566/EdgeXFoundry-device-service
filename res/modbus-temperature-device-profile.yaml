@@ -1,3 +1,15 @@
+    name: humidity
+    description: "humidity realtime value"
+    attributes:
+      { parameter: "humidity", rawType: "INT16" }
+    properties:
+      value:
+       { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00", scale: "0.01"}
+      units:
+       { type: "String", readWrite: "R", defaultValue: "%RH"}
+```
+我的温湿度设备配置文件如下，其实还是可以写寄存器地址给设备驱动读取
+```yaml
 name: "modbus_temperature_device_profile"
 manufacturer: "IoTechSystems"
 model: "IoT6"
@@ -16,7 +28,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "degrees Celsius"}
   -
     name: humidity
     description: "humidity realtime value"
@@ -26,7 +38,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "%RH"}
   -
     name: humiditymin
     description: "humidity min value"
@@ -36,7 +48,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "RW", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "%RH"}
   -
     name: temperaturemin
     description: "temperature min value"
@@ -46,7 +58,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "RW", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "degrees Celsius"}
   -
     name: humiditymax
     description: "humidity max value"
@@ -56,7 +68,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "RW", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "%RH"}
   -
     name: temperaturemax
     description: "temperature max value"
@@ -66,7 +78,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "RW", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "degrees Celsius"}
   -
     name: temperatureHI
     description: "temperature max value is arrived"
@@ -76,7 +88,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "degrees Celsius"}
   -
     name: humidityHI
     description: "humidity max value is arrived"
@@ -86,7 +98,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "%RH"}
   -
     name: temperatureLOW
     description: "temperature low value is arrived"
@@ -96,7 +108,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "degrees Celsius"}
   -
     name: humidityLOW
     description: "humidity low value is arrived"
@@ -106,7 +118,7 @@ deviceResources:
       value:
        { type: "Float32", size: "4", readWrite: "R", defaultValue: "0.00", minimum: "-1000.00", maximum: "1000.00" }
       units:
-       { defaultValue: "-999.9" }
+       { type: "String", readWrite: "R", defaultValue: "%RH"}
   -
     name: online_state
     description: "device online state"
@@ -116,7 +128,7 @@ deviceResources:
       value:
        { type: "int32", size: "4", readWrite: "R", defaultValue: "0", minimum: "0", maximum: "1" }
       units:
-       { defaultValue: "0" }
+       { type: "String", readWrite: "R", defaultValue: "leave time"}
 
 deviceCommands:
   -
@@ -142,8 +154,8 @@ coreCommands:
       responses:
       - code: "200"
         description: "Successfully read the modbus_temperature_device sensors."
-        #expectedValues: [ "modbus_temperature_device" ]
-        expectedValues: [ "temperature", "humidity", "temperaturemin", "humiditymin", "temperaturemax", "humiditymax", "online_state" ]
+        expectedValues: [ "modbus_temperature_device" ]
+        #expectedValues: [ "temperature", "humidity", "temperaturemin", "humiditymin", "temperaturemax", "humiditymax", "online_state" ]
       - code: "503"
         description: "service unavailable"
         expectedValues: []

@@ -38,6 +38,9 @@ extern "C" {
 /*事件检测轮询启动*/
 int device_driver_uv_handler_start(void *data);
 
+/*事件检测轮询启动*/
+void device_driver_uv_handler_stop(void);
+
 /*任意时间单位转为ms单位数*/
 uint64_t time_base2ms(INTERVAL_TIME_Typedef_t *time_base);
 

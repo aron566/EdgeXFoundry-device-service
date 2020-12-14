@@ -7,7 +7,7 @@
  *                                                                              
  *  @brief None.                                                                
  *                                                                              
- *  @version V1.0                                                               
+ *  @version V1.1                                                               
  */                                                                             
 #ifndef DEVICE_DRIVER_EVENT_DB_H                                                          
 #define DEVICE_DRIVER_EVENT_DB_H                                                          

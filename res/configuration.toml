@@ -37,18 +37,18 @@
       Password = ''
       ClientId = 1
       Topic = 'subcribe_test'
-  [[DeviceList.AutoEvents]]
-    Resource = 'temperature'
-    OnChange = false
-    Frequency = '1s'
-  [[DeviceList.AutoEvents]]
-    Resource = 'run_state'
-    OnChange = true
-    Frequency = '3s'
-  [[DeviceList.AutoEvents]]
-    Resource = 'temperaturemax'
-    OnChange = false
-    Frequency = '3s'
+  # [[DeviceList.AutoEvents]]
+  #   Resource = 'temperature'
+  #   OnChange = false
+  #   Frequency = '1s'
+  # [[DeviceList.AutoEvents]]
+  #   Resource = 'run_state'
+  #   OnChange = true
+  #   Frequency = '3s'
+  # [[DeviceList.AutoEvents]]
+  #   Resource = 'temperaturemax'
+  #   OnChange = false
+  #   Frequency = '3s'
     
 [[DeviceList]]
   Name = 'modbus_rtu-gateway_01_hangzhou-temperature_device-1'
@@ -62,18 +62,18 @@
       StopBits = 1
       Parity = 'N'
       UnitID = 1
-  [[DeviceList.AutoEvents]]
-    Resource = 'temperature'
-    OnChange = false
-    Frequency = '10s'
-  [[DeviceList.AutoEvents]]
-    Resource = 'humidity'
-    OnChange = true
-    Frequency = '3s'
-  [[DeviceList.AutoEvents]]
-    Resource = 'online_state'
-    OnChange = true
-    Frequency = '3s'
+  # [[DeviceList.AutoEvents]]
+  #   Resource = 'temperature'
+  #   OnChange = false
+  #   Frequency = '10s'
+  # [[DeviceList.AutoEvents]]
+  #   Resource = 'humidity'
+  #   OnChange = true
+  #   Frequency = '3s'
+  # [[DeviceList.AutoEvents]]
+  #   Resource = 'online_state'
+  #   OnChange = true
+  #   Frequency = '3s'
 
 [[DeviceList]]
   Name = 'modbus_rtu-gateway_01_hangzhou-temperature_device-2'
@@ -87,11 +87,11 @@
       StopBits = 1
       Parity = 'N'
       UnitID = 2
-  [[DeviceList.AutoEvents]]
-    Resource = 'temperature'
-    OnChange = false
-    Frequency = '3s'
-  [[DeviceList.AutoEvents]]
-    Resource = 'humidity'
-    OnChange = true
-    Frequency = '3s'
+  # [[DeviceList.AutoEvents]]
+  #   Resource = 'temperature'
+  #   OnChange = false
+  #   Frequency = '3s'
+  # [[DeviceList.AutoEvents]]
+  #   Resource = 'humidity'
+  #   OnChange = true
+  #   Frequency = '3s'

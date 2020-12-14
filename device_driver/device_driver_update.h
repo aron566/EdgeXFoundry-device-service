@@ -1,7 +1,7 @@
 /**                                                                             
- *  @file custom-common.h                                                    
+ *  @file device_driver_update.h                                                    
  *                                                                              
- *  @date 2020年11月09日 10:46:21 星期一
+ *  @date 2020年12月15日 00:05:05 星期二
  *                                                                              
  *  @author aron566                                                             
  *                                                                              
@@ -9,8 +9,8 @@
  *                                                                              
  *  @version V1.0                                                               
  */                                                                             
-#ifndef CUSTOM_COMMON_H                                                          
-#define CUSTOM_COMMON_H                                                          
+#ifndef DEVICE_DRIVER_UPDATE_H                                                          
+#define DEVICE_DRIVER_UPDATE_H                                                          
 #ifdef __cplusplus ///<use C compiler                                           
 extern "C" {                                                                   
 #endif                                                                          
@@ -21,41 +21,47 @@ extern "C" {
 #include <stdio.h>  /**< if need printf             */                          
 #include <stdlib.h>                                                             
 #include <string.h>                                                             
+#include <limits.h> /**< need variable max value    */                          
 /** Private includes ---------------------------------------------------------*/
-#include "devsdk/devsdk.h"
-#include "3third_party/cJSON/cJSON.h"
-#include "3third_party/libsqlite/sqlite3.h"
-#include "3third_party/tomlc99/toml.h"
-#include "3third_party/tomlc99/toml_utilities.h"
-#include "3third_party/libyaml/yaml.h"
-#include "3third_party/libuv/include/uv.h"
-#include "custom-common-circularqueue.h"
-#include "custom-common-utilities.h"
-#include "custom-common-file.h"    
-#include "custom-common-crc.h"
-#include "custom-common-epoll.h"
-#include "custom-common-listen-list.h"
+#include "../service_component/custom-common.h"                                                                 
 /** Private defines ----------------------------------------------------------*/
-                                                                      
-/** Exported typedefines -----------------------------------------------------*/
-
+                                                 
+/** Exported typedefines -----------------------------------------------------*/                                                  
+/*升级记录表*/
+typedef struct 
+{
+    uint16_t package_total;         /**< 数据总包数*/
+    uint16_t package_sub;           /**< 数据子包号 start at zero*/
+    uint8_t *data;                  /**< 数据地址*/
+    bool     is_empty;              /**< 当前包数据是否为空*/
+}UPDATE_DATA_RECORD_Typedef;                                                                      
 /** Exported constants -------------------------------------------------------*/
                                                                                 
 /** Exported macros-----------------------------------------------------------*/
 /** Exported variables -------------------------------------------------------*/
 /** Exported functions prototypes --------------------------------------------*/
 
-/*数值转为iot_data格式*/
-iot_data_t *common_value2iot_data(const void *data, VALUE_Type_t type);
+/*更新表初始化*/
+void update_data_table_init(UPDATE_DATA_RECORD_Typedef *table, uint16_t table_size);
 
-/*iot_data转为uint64_t格式*/
-uint64_t common_iot_data2u64(const iot_data_t *data, VALUE_Type_t type);
+/*更新表数据内容释放*/
+void update_data_table_free(UPDATE_DATA_RECORD_Typedef *table, uint16_t table_size);
 
-/*array转为base64,使用完需释放*/
-uint8_t *base64_encode(const char *str);
+/*向更新记录表添加数据*/
+void update_data_table_add(UPDATE_DATA_RECORD_Typedef *table, uint16_t table_size, uint8_t *package, 
+                              uint16_t package_num, uint16_t package_total);
 
-/*base64转为array,使用完需释放*/
-uint8_t *base64_decode(const char *code, uint16_t *size);
+/*移除更新记录表中指定package*/
+void update_data_table_remove(UPDATE_DATA_RECORD_Typedef *table, uint16_t table_size, uint16_t package_num);
+
+/*检查更新记录表是否已满*/
+bool update_data_table_is_full(UPDATE_DATA_RECORD_Typedef *table, uint16_t table_size);
+
+/*显示进度条*/
+void update_data_table_show_progressbar(size_t process, size_t total);
+
+/*重置进度条*/
+void update_data_table_reset_progressbar(void);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

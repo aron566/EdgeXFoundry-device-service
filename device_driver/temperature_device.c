@@ -23,6 +23,7 @@ extern "C" {
 #include "device_driver_parse_par.h"
 #include "device_driver_modbus_proto.h"
 #include "device_driver_event_db.h"
+#include "device_driver_auto_event.h"
 /** Private typedef ----------------------------------------------------------*/
 
 /** Private macros -----------------------------------------------------------*/
@@ -77,7 +78,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
-  },          
+  },
   {         
     .par_name               = "humiditymin",
     .command                = 0x03|0x10,
@@ -91,7 +92,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
-  },  
+  },
   {         
     .par_name               = "temperaturemax",
     .command                = 0x03|0x10,
@@ -306,7 +307,6 @@ static int online_query_callback(char** pr, int row, int column, void *callback_
   }
   /*0地址号,1参数名,2当前值,3时间戳*/
 	int i, j;
-  uint64_t time_stamp = 0;
 	for(i = 1; i <= row; i++)
 	{
     j = i * column;
@@ -622,7 +622,7 @@ static int get_mqtt_dev_value(const char *dev_name, const void *input_data, void
 {
   UNUSED(type);
   const char *param_name = (const char *)input_data;
-  devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
+  // devsdk_commandresult *return_value = (devsdk_commandresult *)out_data;
   for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
   {
     if(strcmp(param_name, resources_interface_par[index].par_name) == 0)
@@ -651,7 +651,7 @@ static int set_mqtt_dev_value(const char *dev_name, const void *input_data, cons
 {
   UNUSED(type);
   const char *param_name = (const char *)input_data;
-  const iot_data_t *set_value = (const iot_data_t *)set_data;
+  // const iot_data_t *set_value = (const iot_data_t *)set_data;
   for(int index = 0; resources_interface_par[index].par_name != NULL; index++)
   {
     if(strcmp(param_name, resources_interface_par[index].par_name) == 0)
@@ -734,7 +734,8 @@ static int get_modbus_dev_value(const char *dev_name, const void *input_data, vo
   }
   return 0;
 __error:
-  out_value->value = iot_data_alloc_f32(-999.9);
+  out_value->origin = get_current_time_s(CURRENT_TIME);
+  out_value->value = common_value2iot_data(&resources_interface_par[index].default_value, FLOAT32);
   return -1;
 }
 
@@ -827,7 +828,7 @@ static int get_private_dev_value(const char *dev_name, const void *input_data, v
   {
     return -1;
   }
-  return_value->value = iot_data_alloc_ui64(p_node->dev_resource_par[index].default_value);
+  return_value->value = common_value2iot_data(&p_node->dev_resource_par[index].default_value, p_node->dev_resource_par[index].value_type);
   return_value->origin = get_current_time_s(CURRENT_TIME);
   return 0;
 }
@@ -1030,7 +1031,6 @@ bool temperature_device_report_event_confirm(const char *dev_name, const char *p
   {
     return false;
   }
-  int temp_index = 0;
 
   /*检查权限*/
   if((dev_resource->permissions & CONFIRM) == 0)
@@ -1038,7 +1038,6 @@ bool temperature_device_report_event_confirm(const char *dev_name, const char *p
     return true;
   }
 
-  devsdk_commandresult *value = (devsdk_commandresult *)data;
   /*取出参数索引号*/
   int index = get_param_index(param_name);
   if(index == -1)

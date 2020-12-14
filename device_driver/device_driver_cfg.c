@@ -54,7 +54,9 @@ static char mqttPUB_ResponseTopic[64] = "/v1/i1_Protocol/device/request";/**< mq
 static char mqttPUB_ServiceTopic[64] = "/v1/i1_protocol/service/reply";/**< mqtt服务发布主题*/
 static char mqttPUB_ControlTopic[64] = "/v1/i1_protocol/device/reply";/**< mqtt控制发布主题*/
 static char mqttPUB_ReportTopic[64] = "/v1/i1_protocol/service/data";/**< mqtt上报发布主题*/
-
+static char deviceDriver_DownloadFileName[64] = "/temp/device_driver.so.download";/**< 设备驱动文件下载名*/
+/*设备驱动升级成功状态*/
+static int updateSuccessful = 1;        /**< 默认为成功升级状态，若为失败状态则将备份驱动恢复*/
 /*配置是否启用日志输出*/
 static int enableLogOutput = 1;         /**< 开启日志输出状态标志，默认为开启输出状态*/
 /*配置文件启用状态*/
@@ -93,7 +95,7 @@ static bool creat_config_file(void)
   FILE  *fp 	= 	NULL;
   cJSON *root = 	NULL;
 
-  fp = file_open(CONFIG_FILE_PATH ,READ_WRITE_CREAT_CLEAR_FILE);
+  fp = file_open(CONFIG_FILE_PATH, READ_WRITE_CREAT_CLEAR_FILE);
   if(NULL == fp)
   {
     PRINT_ERRMSG("fopen");
@@ -103,42 +105,47 @@ static bool creat_config_file(void)
   root = cJSON_CreateObject();
 
   /*作为服务器 配置网络参数*/
-  cJSON_AddStringToObject(root ,"Software_Ver",Software_Ver);
-  cJSON_AddNumberToObject(root ,"udpServerPortNum" ,udpServerPortNum);
-  cJSON_AddNumberToObject(root ,"tcpServerPortNum" ,tcpServerPortNum);
+  cJSON_AddStringToObject(root, "Software_Ver",Software_Ver);
+  cJSON_AddNumberToObject(root, "udpServerPortNum", udpServerPortNum);
+  cJSON_AddNumberToObject(root, "tcpServerPortNum", tcpServerPortNum);
 
   /*作为客户端设置远程属性*/
-  cJSON_AddStringToObject(root ,"udpRemoteServerIP" ,udpRemoteServerIP);
-  cJSON_AddNumberToObject(root ,"udpRemotePortNum" ,udpRemotePortNum);
-  cJSON_AddStringToObject(root ,"tcpRemoteServerIP" ,tcpRemoteServerIP);
-  cJSON_AddNumberToObject(root ,"tcpRemotePortNum" ,tcpRemotePortNum);
+  cJSON_AddStringToObject(root, "udpRemoteServerIP", udpRemoteServerIP);
+  cJSON_AddNumberToObject(root, "udpRemotePortNum", udpRemotePortNum);
+  cJSON_AddStringToObject(root, "tcpRemoteServerIP", tcpRemoteServerIP);
+  cJSON_AddNumberToObject(root, "tcpRemotePortNum", tcpRemotePortNum);
 
   /*mqtt 配置参数*/
-  cJSON_AddStringToObject(root ,"mqttClientID" ,mqttClientID);
-  cJSON_AddStringToObject(root ,"mqttServer" ,mqttServer);
-  cJSON_AddNumberToObject(root ,"mqttPort" ,mqttPort);
-  cJSON_AddStringToObject(root ,"mqttUserName" ,mqttUserName);
-  cJSON_AddStringToObject(root ,"mqttUserKey" ,mqttUserKey);
+  cJSON_AddStringToObject(root, "mqttClientID", mqttClientID);
+  cJSON_AddStringToObject(root, "mqttServer", mqttServer);
+  cJSON_AddNumberToObject(root, "mqttPort", mqttPort);
+  cJSON_AddStringToObject(root, "mqttUserName", mqttUserName);
+  cJSON_AddStringToObject(root, "mqttUserKey", mqttUserKey);
 
-  cJSON_AddStringToObject(root ,"mqttSUB_ExternTopic" ,mqttSUB_ExternTopic);
-  cJSON_AddStringToObject(root ,"mqttPUB_ExternTopic" ,mqttPUB_ExternTopic);
+  cJSON_AddStringToObject(root, "mqttSUB_ExternTopic", mqttSUB_ExternTopic);
+  cJSON_AddStringToObject(root, "mqttPUB_ExternTopic", mqttPUB_ExternTopic);
 
-  cJSON_AddStringToObject(root ,"mqttSUB_ResponseTopic" ,mqttSUB_ResponseTopic);
-  cJSON_AddStringToObject(root ,"mqttPUB_ResponseTopic" ,mqttPUB_ResponseTopic);
+  cJSON_AddStringToObject(root, "mqttSUB_ResponseTopic", mqttSUB_ResponseTopic);
+  cJSON_AddStringToObject(root, "mqttPUB_ResponseTopic", mqttPUB_ResponseTopic);
 
-  cJSON_AddStringToObject(root ,"mqttSUB_ServiceTopic" ,mqttSUB_ServiceTopic);
-  cJSON_AddStringToObject(root ,"mqttPUB_ServiceTopic" ,mqttPUB_ServiceTopic);
+  cJSON_AddStringToObject(root, "mqttSUB_ServiceTopic", mqttSUB_ServiceTopic);
+  cJSON_AddStringToObject(root, "mqttPUB_ServiceTopic", mqttPUB_ServiceTopic);
 
-  cJSON_AddStringToObject(root ,"mqttSUB_ControlTopic" ,mqttSUB_ControlTopic);
-  cJSON_AddStringToObject(root ,"mqttPUB_ControlTopic" ,mqttPUB_ControlTopic);
+  cJSON_AddStringToObject(root, "mqttSUB_ControlTopic", mqttSUB_ControlTopic);
+  cJSON_AddStringToObject(root, "mqttPUB_ControlTopic", mqttPUB_ControlTopic);
 
-  cJSON_AddStringToObject(root ,"mqttPUB_ReportTopic" ,mqttPUB_ReportTopic);
+  cJSON_AddStringToObject(root, "mqttPUB_ReportTopic", mqttPUB_ReportTopic);
+
+  cJSON_AddStringToObject(root, "deviceDriver_DownloadFileName", deviceDriver_DownloadFileName);
+
+  /*设备驱动升级状态*/
+  cJSON_AddNumberToObject(root, "updateSuccessful", updateSuccessful);
 
   /*配置启用日志输出*/
-  cJSON_AddNumberToObject(root ,"enableLogOutput" ,enableLogOutput);
+  cJSON_AddNumberToObject(root, "enableLogOutput", enableLogOutput);
 
   /*配置文件启用状态*/
-  cJSON_AddNumberToObject(root ,"enableConfigFile" ,enableConfigFile);
+  cJSON_AddNumberToObject(root, "enableConfigFile", enableConfigFile);
 
   char *out = cJSON_Print(root);
   fprintf(fp,"%s",out);
@@ -164,51 +171,55 @@ static bool creat_config_file(void)
   */
 static bool starup_read_config(void)
 {
-  read_config("Software_Ver" ,Software_Ver ,PARA_STRING);			/**< 读取软件版本信息*/
+  read_config("Software_Ver", Software_Ver, PARA_STRING);			/**< 读取软件版本信息*/
 
-  read_config("udpServerPortNum" ,&udpServerPortNum ,PARA_INT);	/**< UDP端口号*/
+  read_config("udpServerPortNum", &udpServerPortNum, PARA_INT);	/**< UDP端口号*/
 
-  read_config("tcpServerPortNum" ,&tcpServerPortNum ,PARA_INT);	/**< TCP端口号*/
+  read_config("tcpServerPortNum", &tcpServerPortNum, PARA_INT);	/**< TCP端口号*/
 
-  read_config("udpRemoteServerIP" ,udpRemoteServerIP ,PARA_STRING);/**< UDP远程服务器IP*/
+  read_config("udpRemoteServerIP", udpRemoteServerIP, PARA_STRING);/**< UDP远程服务器IP*/
 
-  read_config("udpRemotePortNum" ,&udpRemotePortNum ,PARA_INT);/**< UDP远程服务器端口*/
+  read_config("udpRemotePortNum", &udpRemotePortNum, PARA_INT);/**< UDP远程服务器端口*/
 
-  read_config("tcpRemoteServerIP" ,tcpRemoteServerIP ,PARA_STRING);/**< TCP远程服务器IP*/
+  read_config("tcpRemoteServerIP", tcpRemoteServerIP, PARA_STRING);/**< TCP远程服务器IP*/
 
-  read_config("tcpRemotePortNum" ,&tcpRemotePortNum ,PARA_INT);/**< TCP远程服务器端口*/	
+  read_config("tcpRemotePortNum", &tcpRemotePortNum, PARA_INT);/**< TCP远程服务器端口*/	
 
-  read_config("mqttClientID" ,mqttClientID ,PARA_STRING);			/**< 读取mqtt客户端id*/
+  read_config("mqttClientID", mqttClientID, PARA_STRING);			/**< 读取mqtt客户端id*/
 
-  read_config("mqttServer" ,mqttServer ,PARA_STRING);				/**< 读取mqtt服务器ip*/
+  read_config("mqttServer", mqttServer, PARA_STRING);				/**< 读取mqtt服务器ip*/
 
-  read_config("mqttPort" ,&mqttPort ,PARA_INT);					/**< 读取mqtt服务器端口号*/
+  read_config("mqttPort", &mqttPort, PARA_INT);					/**< 读取mqtt服务器端口号*/
 
-  read_config("mqttUserName" ,mqttUserName ,PARA_STRING);			/**< 读取mqtt用户名*/
+  read_config("mqttUserName", mqttUserName, PARA_STRING);			/**< 读取mqtt用户名*/
 
-  read_config("mqttUserKey" ,mqttUserKey ,PARA_STRING);			/**< 读取mqtt用户密码*/
+  read_config("mqttUserKey", mqttUserKey, PARA_STRING);			/**< 读取mqtt用户密码*/
 
-  read_config("mqttSUB_ExternTopic" ,mqttSUB_ExternTopic ,PARA_STRING);			/**< 读取mqtt扩展订阅主题*/
+  read_config("mqttSUB_ExternTopic", mqttSUB_ExternTopic, PARA_STRING);			/**< 读取mqtt扩展订阅主题*/
 
-  read_config("mqttPUB_ExternTopic" ,mqttPUB_ExternTopic ,PARA_STRING);			/**< 读取mqtt扩展发布主题*/
+  read_config("mqttPUB_ExternTopic", mqttPUB_ExternTopic, PARA_STRING);			/**< 读取mqtt扩展发布主题*/
 
-  read_config("mqttSUB_ResponseTopic" ,mqttSUB_ResponseTopic ,PARA_STRING);			/**< 读取mqtt响应订阅主题*/
+  read_config("mqttSUB_ResponseTopic", mqttSUB_ResponseTopic, PARA_STRING);			/**< 读取mqtt响应订阅主题*/
 
-  read_config("mqttPUB_ResponseTopic" ,mqttPUB_ResponseTopic ,PARA_STRING);			/**< 读取mqtt响应发布主题*/
+  read_config("mqttPUB_ResponseTopic", mqttPUB_ResponseTopic, PARA_STRING);			/**< 读取mqtt响应发布主题*/
 
-  read_config("mqttSUB_ServiceTopic" ,mqttSUB_ServiceTopic ,PARA_STRING);			/**< 读取mqtt服务订阅主题*/
+  read_config("mqttSUB_ServiceTopic", mqttSUB_ServiceTopic, PARA_STRING);			/**< 读取mqtt服务订阅主题*/
 
-  read_config("mqttPUB_ServiceTopic" ,mqttPUB_ServiceTopic ,PARA_STRING);			/**< 读取mqtt服务发布主题*/
+  read_config("mqttPUB_ServiceTopic", mqttPUB_ServiceTopic, PARA_STRING);			/**< 读取mqtt服务发布主题*/
 
-  read_config("mqttSUB_ControlTopic" ,mqttSUB_ControlTopic ,PARA_STRING);			/**< 读取mqtt控制订阅主题*/
+  read_config("mqttSUB_ControlTopic", mqttSUB_ControlTopic, PARA_STRING);			/**< 读取mqtt控制订阅主题*/
 
-  read_config("mqttPUB_ControlTopic" ,mqttPUB_ControlTopic ,PARA_STRING);			/**< 读取mqtt控制发布主题*/
+  read_config("mqttPUB_ControlTopic", mqttPUB_ControlTopic, PARA_STRING);			/**< 读取mqtt控制发布主题*/
 
-  read_config("mqttPUB_ReportTopic" ,mqttPUB_ReportTopic ,PARA_STRING);			/**< 读取mqtt上报发布主题*/
+  read_config("mqttPUB_ReportTopic", mqttPUB_ReportTopic, PARA_STRING);			/**< 读取mqtt上报发布主题*/
 
-  read_config("enableLogOutput" ,&enableLogOutput ,PARA_INT);	/**< 读取启用日志输出标志*/
+  read_config("deviceDriver_DownloadFileName", deviceDriver_DownloadFileName, PARA_STRING);   /**< 读取设备驱动下载文件名*/
 
-  read_config("enableConfigFile" ,&enableConfigFile ,PARA_INT);	/**< 读取启用配置文件标志*/
+  read_config("updateSuccessful", &updateSuccessful, PARA_INT);/**< 设备更新状态*/
+  
+  read_config("enableLogOutput", &enableLogOutput, PARA_INT);	/**< 读取启用日志输出标志*/
+
+  read_config("enableConfigFile", &enableConfigFile, PARA_INT);	/**< 读取启用配置文件标志*/
 
   return true;
 }
@@ -305,7 +316,7 @@ static void cjson_add_string_to_object(cJSON * const object, const char * const 
   * @date    2020-08-31
   ******************************************************************
   */
-int midify_config(const char * const identifier ,const void *value ,PARA_DATA_Type_t data_type)
+int midify_config(const char * const identifier, const void *value, PARA_DATA_Type_t data_type)
 {
 	FILE  *fp 	= 	NULL;
 	cJSON *root = 	NULL;
@@ -315,16 +326,16 @@ int midify_config(const char * const identifier ,const void *value ,PARA_DATA_Ty
 	double float_value;
 	const char *char_value = NULL;
 
-	fp = file_open(CONFIG_FILE_PATH ,READ_FILE_ONLY);
+	fp = file_open(CONFIG_FILE_PATH, READ_FILE_ONLY);
 	if(NULL == fp) {
       PRINT_ERRMSG("fopen");
       exit(errno);
 	}
 
-	while((fgets(txt ,64 ,fp)) != NULL)
+	while((fgets(txt, 64, fp)) != NULL)
 	{
 		/*去掉字符串所有空白,注释也忽略*/
-		if(strip_comments(txt ,' '))
+		if(strip_comments(txt, ' '))
 		{
 			  strcat(str,txt);
 		}
@@ -333,7 +344,7 @@ int midify_config(const char * const identifier ,const void *value ,PARA_DATA_Ty
 	usleep(100);
 
 	/*写入新配置*/
-	fp = file_open(CONFIG_FILE_PATH ,READ_WRITE_CREAT_CLEAR_FILE);
+	fp = file_open(CONFIG_FILE_PATH, READ_WRITE_CREAT_CLEAR_FILE);
 	root = cJSON_Parse(str);
 	cJSON *item = cJSON_GetObjectItem(root,identifier);
 	switch(data_type)
@@ -387,25 +398,25 @@ int midify_config(const char * const identifier ,const void *value ,PARA_DATA_Ty
   * @date    2020-08-31
   ******************************************************************
   */
-int read_config(const char * const identifier ,void *value ,PARA_DATA_Type_t data_type)
+int read_config(const char * const identifier, void *value, PARA_DATA_Type_t data_type)
 {
     FILE  *fp 	= 	NULL;
     cJSON *root = 	NULL;
     char str[1024] = {0};
     char txt[64] = {0};
 
-    fp = file_open(CONFIG_FILE_PATH ,READ_FILE_ONLY);
+    fp = file_open(CONFIG_FILE_PATH, READ_FILE_ONLY);
     if(NULL == fp) {
         PRINT_ERRMSG("fopen");
         return -1;
     }
 
-    while((fgets(txt ,64 ,fp)) != NULL)
+    while((fgets(txt, 64, fp)) != NULL)
     {
       /*去掉字符串所有空白,注释也忽略*/
-      if(strip_comments(txt ,' '))
+      if(strip_comments(txt, ' '))
       {
-          strcat(str ,txt);
+          strcat(str, txt);
       }
     }
     root = cJSON_Parse(str);
@@ -609,7 +620,7 @@ void SetConfigFileState(bool state)
   if(state_flag != enableConfigFile)
   {
     enableConfigFile = state_flag;
-    midify_config("enableConfigFile" ,&enableConfigFile ,PARA_INT);
+    midify_config("enableConfigFile", &enableConfigFile, PARA_INT);
   }
 }
 
@@ -629,7 +640,7 @@ void SetudpServerPortNum(int num)
   if(num != udpServerPortNum)
   {
     udpServerPortNum = num;
-    midify_config("udpServerPortNum" ,&udpServerPortNum ,PARA_INT);
+    midify_config("udpServerPortNum", &udpServerPortNum, PARA_INT);
   }
 }
 
@@ -663,7 +674,7 @@ void SettcpServerPortNum(int num)
   if(num != tcpServerPortNum)
   {
     tcpServerPortNum = num;
-    midify_config("tcpServerPortNum" ,&tcpServerPortNum ,PARA_INT);
+    midify_config("tcpServerPortNum", &tcpServerPortNum, PARA_INT);
   }
 }
 
@@ -712,7 +723,7 @@ void SettcpRemotePortNum(int num)
   if(num != tcpRemotePortNum)
   {
     tcpRemotePortNum = num;
-    midify_config("tcpRemotePortNum" ,&tcpRemotePortNum ,PARA_INT);
+    midify_config("tcpRemotePortNum", &tcpRemotePortNum, PARA_INT);
   }
 }
 
@@ -761,7 +772,7 @@ void SetudpRemotePortNum(int num)
   if(num != udpRemotePortNum)
   {
     udpRemotePortNum = num;
-    midify_config("udpRemotePortNum" ,&udpRemotePortNum ,PARA_INT);
+    midify_config("udpRemotePortNum", &udpRemotePortNum, PARA_INT);
   }
 }
 
@@ -823,7 +834,7 @@ char *GetMqttServerAddr(void)
 char *GetMqttServerPort(void)
 {
   static char port_str[6];
-  sprintf(port_str ,"%d" ,mqttPort);
+  sprintf(port_str, "%d", mqttPort);
   return port_str;
 }
 
@@ -990,6 +1001,70 @@ char *GetMqttPublishResponseTopic(void)
 char *GetMqttPublishReportTopic(void)
 {
   return mqttPUB_ReportTopic;
+}
+
+/**
+  ******************************************************************
+  * @brief   获取设备驱动下载文件名
+  * @param   [in]None
+  * @return  设备驱动下载文件名
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-14
+  ******************************************************************
+  */
+char *GetDeviceDriver_DownloadFileName(void)
+{
+  return deviceDriver_DownloadFileName;
+}
+
+/**
+  ******************************************************************
+  * @brief   获得设备驱动升级状态
+  * @return  true表示升级成功
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-14
+  ******************************************************************
+  */
+bool GetDeviceDriverUpdateState(void)
+{
+  if(updateSuccessful == 0)
+  {
+    printf("device driver update faild.\n");
+    return false;
+  }
+  printf("device driver update successful.\n");
+  return true;
+}
+
+/**
+  ******************************************************************
+  * @brief   设置设备驱动升级状态
+  * @param   [in]state：设置状态
+  * @return  None
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-14
+  ******************************************************************
+  */
+void SetDeviceDriverUpdateState(bool state)
+{
+  int state_flag = 0;
+  if(state == true)
+  {
+    state_flag = 1;
+  }
+  else
+  {
+    state_flag = 0;
+  }
+
+  if(state_flag != updateSuccessful)
+  {
+    updateSuccessful = state_flag;
+    midify_config("updateSuccessful", &updateSuccessful, PARA_INT);
+  }
 }
 
 #ifdef __cplusplus ///<end extern c

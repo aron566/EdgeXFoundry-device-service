@@ -71,9 +71,9 @@ bool CQ_init(CQ_handleTypeDef *CircularQueue ,uint8_t *memAdd ,uint32_t len)
     	return FALSE;
     }
 
-    CircularQueue->dataBufer = memAdd;
+    CircularQueue->Buffer.data8Buffer = memAdd;
 
-    memset(CircularQueue->dataBufer, 0, len);
+    memset(CircularQueue->Buffer.data8Buffer, 0, len);
     CircularQueue->entrance = CircularQueue->exit = 0;
 
     return TRUE;
@@ -131,7 +131,7 @@ uint32_t CQ_getLength(CQ_handleTypeDef*CircularQueue)
 void CQ_emptyData(CQ_handleTypeDef*CircularQueue)
 {
     CircularQueue->entrance = CircularQueue->exit = 0;
-    memset(CircularQueue->dataBufer, 0, CircularQueue->size);
+    memset(CircularQueue->Buffer.data8Buffer, 0, CircularQueue->size);
 }
 
 /**
@@ -148,8 +148,8 @@ uint32_t CQ_getData(CQ_handleTypeDef *CircularQueue ,uint8_t *targetBuf ,uint32_
     len = GET_MIN(len, CircularQueue->entrance - CircularQueue->exit);
     /*原理雷同存入*/
     size = GET_MIN(len, CircularQueue->size - (CircularQueue->exit & (CircularQueue->size - 1)));
-    memcpy(targetBuf, CircularQueue->dataBufer + (CircularQueue->exit & (CircularQueue->size - 1)), size);
-    memcpy(targetBuf + size, CircularQueue->dataBufer, len - size);
+    memcpy(targetBuf, CircularQueue->Buffer.data8Buffer + (CircularQueue->exit & (CircularQueue->size - 1)), size);
+    memcpy(targetBuf + size, CircularQueue->Buffer.data8Buffer, len - size);
 	
     /*利用无符号数据的溢出特性*/
     CircularQueue->exit += len;
@@ -173,8 +173,8 @@ uint32_t CQ_putData(CQ_handleTypeDef *CircularQueue ,uint8_t * sourceBuf ,uint32
     
     /*&(size-1)代替取模运算，同上原理，得到此次存入队列入口到末尾的大小*/
     size = GET_MIN(len, CircularQueue->size - (CircularQueue->entrance & (CircularQueue->size - 1)));
-    memcpy(CircularQueue->dataBufer + (CircularQueue->entrance & (CircularQueue->size - 1)), sourceBuf, size);
-    memcpy(CircularQueue->dataBufer, sourceBuf + size, len - size);
+    memcpy(CircularQueue->Buffer.data8Buffer + (CircularQueue->entrance & (CircularQueue->size - 1)), sourceBuf, size);
+    memcpy(CircularQueue->Buffer.data8Buffer, sourceBuf + size, len - size);
 
     /*利用无符号数据的溢出特性*/
     CircularQueue->entrance += len;
@@ -200,9 +200,9 @@ uint32_t DQ_putData(CQ_handleTypeDef *CircularQueue ,uint8_t * sourceBuf ,uint32
 	/*对kfifo->size取模运算可以转化为与运算，如：kfifo->in % kfifo->size 可以转化为 kfifo->in & (kfifo->size – 1)*/
     /*&(size-1)代替取模运算，同上原理，得到此次存入队列入口到末尾的大小*/
     size = GET_MIN(len, CircularQueue->size - (CircularQueue->entrance & (CircularQueue->size - 1)));
-    memcpy(CircularQueue->dataBufer + (CircularQueue->entrance & (CircularQueue->size - 1)), &pack_len, lenth);
-    memcpy(CircularQueue->dataBufer + (CircularQueue->entrance & (CircularQueue->size - 1))+lenth, sourceBuf, size-lenth);
-    memcpy(CircularQueue->dataBufer, sourceBuf + size - lenth, len - size);
+    memcpy(CircularQueue->Buffer.data8Buffer + (CircularQueue->entrance & (CircularQueue->size - 1)), &pack_len, lenth);
+    memcpy(CircularQueue->Buffer.data8Buffer + (CircularQueue->entrance & (CircularQueue->size - 1))+lenth, sourceBuf, size-lenth);
+    memcpy(CircularQueue->Buffer.data8Buffer, sourceBuf + size - lenth, len - size);
 
     /*利用无符号数据的溢出特性*/
     CircularQueue->entrance += len;
@@ -229,8 +229,8 @@ uint32_t DQ_getData(CQ_handleTypeDef *CircularQueue ,uint8_t *targetBuf)
     len = GET_MIN(len, CircularQueue->entrance - CircularQueue->exit);
     /*原理雷同存入*/
     size = GET_MIN(len, CircularQueue->size - (CircularQueue->exit & (CircularQueue->size - 1)));
-    memcpy(targetBuf, CircularQueue->dataBufer + (CircularQueue->exit & (CircularQueue->size - 1)), size);
-    memcpy(targetBuf + size, CircularQueue->dataBufer, len - size);
+    memcpy(targetBuf, CircularQueue->Buffer.data8Buffer + (CircularQueue->exit & (CircularQueue->size - 1)), size);
+    memcpy(targetBuf + size, CircularQueue->Buffer.data8Buffer, len - size);
 	
     /*利用无符号数据的溢出特性*/
     CircularQueue->exit += len;
@@ -411,8 +411,8 @@ uint32_t CQ_ManualGetData(CQ_handleTypeDef *CircularQueue ,uint8_t *targetBuf ,u
     len = GET_MIN(len, CircularQueue->entrance - CircularQueue->exit);
     /*原理雷同存入*/
     size = GET_MIN(len, CircularQueue->size - (CircularQueue->exit & (CircularQueue->size - 1)));
-    memcpy(targetBuf, CircularQueue->dataBufer + (CircularQueue->exit & (CircularQueue->size - 1)), size);
-    memcpy(targetBuf + size, CircularQueue->dataBufer, len - size);
+    memcpy(targetBuf, CircularQueue->Buffer.data8Buffer + (CircularQueue->exit & (CircularQueue->size - 1)), size);
+    memcpy(targetBuf + size, CircularQueue->Buffer.data8Buffer, len - size);
     
     return len;
 }
@@ -427,7 +427,7 @@ uint8_t CQ_ManualGet_Offset_Data(CQ_handleTypeDef *CircularQueue, uint32_t index
     /*计算偏移*/
 	uint32_t read_offset = ((CircularQueue->exit + index) & (CircularQueue->size - 1));
     /*取出数据*/
-	uint8_t data = *((uint8_t*)CircularQueue->dataBufer + read_offset);
+	uint8_t data = *((uint8_t*)CircularQueue->Buffer.data8Buffer + read_offset);
 
 	return data;
 }
@@ -454,7 +454,7 @@ CQ_handleTypeDef *cb_create(uint32_t buffsize)
         return NULL;
     }
 	
-	CQ_handleTypeDef *cb = (CQ_handleTypeDef *)malloc(sizeof(CQ_handleTypeDef));
+	CQ_handleTypeDef *cb = (CQ_handleTypeDef *)calloc(1, sizeof(CQ_handleTypeDef));
 	if(NULL == cb)
 	{
 		return NULL;
@@ -464,12 +464,32 @@ CQ_handleTypeDef *cb_create(uint32_t buffsize)
 	cb->exit = 0;
 	cb->entrance = 0;
 	//the buff never release!
-	cb->dataBufer = (uint8_t *)malloc(sizeof(uint8_t)*cb->size);
-	if(NULL == cb->dataBufer)
+	cb->Buffer.data8Buffer = (uint8_t *)calloc((size_t)cb->size, sizeof(uint8_t));
+	if(NULL == cb->Buffer.data8Buffer)
 	{
 		return NULL;
 	}
+    cb->is_malloc = true;
 	return cb;
+}
+
+/**
+ * @brief 删除一个缓冲区
+ * 
+ * @param CircularQueue 
+ */
+void cb_delete(CQ_handleTypeDef *CircularQueue)
+{
+    if(CircularQueue == NULL)
+    {
+        return;
+    }
+    if(CircularQueue->is_malloc == false)
+    {
+        return;
+    }
+    free(CircularQueue->Buffer.data8Buffer);
+    free(CircularQueue);
 }
 
 /**
@@ -493,9 +513,9 @@ bool CQ_16_init(CQ_handleTypeDef *CircularQueue ,uint16_t *memAdd ,uint32_t len)
     	return FALSE;
     }
 
-    CircularQueue->data16Bufer = memAdd;
+    CircularQueue->Buffer.data16Buffer = memAdd;
 
-    memset(CircularQueue->data16Bufer, 0, len*2);
+    memset(CircularQueue->Buffer.data16Buffer, 0, len*2);
     CircularQueue->entrance = CircularQueue->exit = 0;
 
     return TRUE;
@@ -513,7 +533,7 @@ CQ_handleTypeDef *cb_16create(uint32_t buffsize)
         return NULL;
     }
 	
-	CQ_handleTypeDef *cb = (CQ_handleTypeDef *)malloc(sizeof(CQ_handleTypeDef));
+	CQ_handleTypeDef *cb = (CQ_handleTypeDef *)calloc(1, sizeof(CQ_handleTypeDef));
 	if(NULL == cb)
 	{
 		return NULL;
@@ -523,11 +543,12 @@ CQ_handleTypeDef *cb_16create(uint32_t buffsize)
 	cb->exit = 0;
 	cb->entrance = 0;
 	//the buff never release!
-	cb->data16Bufer = (uint16_t *)malloc(sizeof(uint16_t)*cb->size);
-	if(NULL == cb->data16Bufer)
+	cb->Buffer.data16Buffer = (uint16_t *)calloc((size_t)cb->size, sizeof(uint16_t));
+	if(NULL == cb->Buffer.data16Buffer)
 	{
 		return NULL;
 	}
+    cb->is_malloc = true;
 	return cb;
 }
 
@@ -551,8 +572,8 @@ uint32_t CQ_16getData(CQ_handleTypeDef *CircularQueue ,uint16_t *targetBuf ,uint
     len_temp = 2*len;
     size_temp = 2*size;
 
-    memcpy(targetBuf, CircularQueue->data16Bufer + (CircularQueue->exit & (CircularQueue->size - 1)), size_temp);
-    memcpy(targetBuf + size, CircularQueue->data16Bufer, len_temp - size_temp);
+    memcpy(targetBuf, CircularQueue->Buffer.data16Buffer + (CircularQueue->exit & (CircularQueue->size - 1)), size_temp);
+    memcpy(targetBuf + size, CircularQueue->Buffer.data16Buffer, len_temp - size_temp);
 	
     /*利用无符号数据的溢出特性*/
     CircularQueue->exit += len;
@@ -582,8 +603,8 @@ uint32_t CQ_16putData(CQ_handleTypeDef *CircularQueue ,uint16_t *sourceBuf ,uint
     len_temp = 2*len;
     size_temp = 2*size;
 
-    memcpy(CircularQueue->data16Bufer + (CircularQueue->entrance & (CircularQueue->size - 1)), sourceBuf, size_temp);
-    memcpy(CircularQueue->data16Bufer, sourceBuf + size, len_temp - size_temp);
+    memcpy(CircularQueue->Buffer.data16Buffer + (CircularQueue->entrance & (CircularQueue->size - 1)), sourceBuf, size_temp);
+    memcpy(CircularQueue->Buffer.data16Buffer, sourceBuf + size, len_temp - size_temp);
 
     /*利用无符号数据的溢出特性*/
     CircularQueue->entrance += len; //写入数据记录
@@ -612,9 +633,9 @@ bool CQ_32_init(CQ_handleTypeDef *CircularQueue, uint32_t *memAdd, uint32_t len)
     	return FALSE;
     }
 
-    CircularQueue->data32Bufer = memAdd;
+    CircularQueue->Buffer.data32Buffer = memAdd;
 
-    memset(CircularQueue->data32Bufer, 0, len*4);
+    memset(CircularQueue->Buffer.data32Buffer, 0, len*4);
     CircularQueue->entrance = CircularQueue->exit = 0;
 
     return TRUE;
@@ -632,7 +653,7 @@ CQ_handleTypeDef *cb_32create(uint32_t buffsize)
         return NULL;
     }
 	
-	CQ_handleTypeDef *cb = (CQ_handleTypeDef *)malloc(sizeof(CQ_handleTypeDef));
+	CQ_handleTypeDef *cb = (CQ_handleTypeDef *)calloc(1, sizeof(CQ_handleTypeDef));
 	if(NULL == cb)
 	{
 		return NULL;
@@ -642,11 +663,12 @@ CQ_handleTypeDef *cb_32create(uint32_t buffsize)
 	cb->exit = 0;
 	cb->entrance = 0;
 
-	cb->data32Bufer = (uint32_t *)malloc(sizeof(uint32_t)*cb->size);
-	if(NULL == cb->data32Bufer)
+	cb->Buffer.data32Buffer = (uint32_t *)calloc((size_t)cb->size, sizeof(uint32_t));
+	if(NULL == cb->Buffer.data32Buffer)
 	{
 		return NULL;
 	}
+    cb->is_malloc = true;
 	return cb;
 }
 
@@ -671,8 +693,8 @@ uint32_t CQ_32putData(CQ_handleTypeDef *CircularQueue ,uint32_t * sourceBuf ,uin
     len_temp = 4*len;
     size_temp = 4*size;
 
-    memcpy(CircularQueue->data32Bufer + (CircularQueue->entrance & (CircularQueue->size - 1)), sourceBuf, size_temp);
-    memcpy(CircularQueue->data32Bufer, sourceBuf + size, len_temp - size_temp);
+    memcpy(CircularQueue->Buffer.data32Buffer + (CircularQueue->entrance & (CircularQueue->size - 1)), sourceBuf, size_temp);
+    memcpy(CircularQueue->Buffer.data32Buffer, sourceBuf + size, len_temp - size_temp);
 
     /*利用无符号数据的溢出特性*/
     CircularQueue->entrance += len;
@@ -700,14 +722,15 @@ uint32_t CQ_32getData(CQ_handleTypeDef *CircularQueue ,uint32_t *targetBuf ,uint
     len_temp = 4*len;
     size_temp = 4*size;
 
-    memcpy(targetBuf, CircularQueue->data32Bufer + (CircularQueue->exit & (CircularQueue->size - 1)), size_temp);
-    memcpy(targetBuf + size, CircularQueue->data32Bufer, len_temp - size_temp);
+    memcpy(targetBuf, CircularQueue->Buffer.data32Buffer + (CircularQueue->exit & (CircularQueue->size - 1)), size_temp);
+    memcpy(targetBuf + size, CircularQueue->Buffer.data32Buffer, len_temp - size_temp);
     
 	/*利用无符号数据的溢出特性*/
     CircularQueue->exit += len;
 
     return len;
 }
+
 #ifdef __cplusplus ///<end extern c
 }
 #endif

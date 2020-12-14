@@ -134,6 +134,15 @@ char *GetMqttPublishResponseTopic(void);
 /*获取主动上报发布主题*/
 char *GetMqttPublishReportTopic(void);
 
+/*获取设备驱动下载文件名*/
+char *GetDeviceDriver_DownloadFileName(void);
+
+/*获得设备驱动升级状态*/
+bool GetDeviceDriverUpdateState(void);
+
+/*设置设备驱动升级状态*/
+void SetDeviceDriverUpdateState(bool state);
+
 #ifdef __cplusplus ///<end extern c
 }
 #endif

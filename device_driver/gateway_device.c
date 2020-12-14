@@ -24,10 +24,11 @@ extern "C" {
 #include "device_driver_modbus_proto.h"
 #include "device_driver_event_db.h"
 #include "device_driver_cfg.h"
+#include "device_driver_update.h"
 /** Private typedef ----------------------------------------------------------*/
-                                                                               
+
 /** Private macros -----------------------------------------------------------*/
-                                                                                
+#define UPDATE_PACKAGE_NUM_MAX 100U /**< 定义最大数据包总数*/                                                                  
 /** Private constants --------------------------------------------------------*/
 static bool temperature_hi_confirm(const char *dev_name, const char *param_name, 
                                     DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, void *data);
@@ -68,7 +69,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .command                = 0x03|0x10,
     .command_addr           = 0x0002,
     .value_type             = INT32,
-    .default_value          = 0,
+    .default_value          = 0,/**< run state:0-running 1-update*/
     .permissions            = PRIVATE_READ|PRIVATE_WRITE,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
@@ -204,8 +205,9 @@ static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] =
   },
 };
 
+static UPDATE_DATA_RECORD_Typedef update_data_table[UPDATE_PACKAGE_NUM_MAX+1] = {0};
 /** Private user code --------------------------------------------------------*/                                                                       
-                                                                                
+
 /** Private application code -------------------------------------------------*/
 /*******************************************************************************
 *                                                                               
@@ -375,49 +377,25 @@ static int update_db_data(DEV_INFO_Typedef_t *dev_info, const char *param_name, 
 static int get_mqtt_dev_value(const char *dev_name, const void *input_data, void *out_data, VALUE_Type_t *type)
 {
   UNUSED(type);
-  MODBUS_PARSE_CODE_Typedef_t state = MODBUS_OK;
   const char *param_name = (const char *)input_data;
   devsdk_commandresult *out_value = (devsdk_commandresult *)out_data;
   DEV_INFO_Typedef_t dev_info;
 
-  uint16_t reg_n = 1;
-  uint16_t *reg_value = NULL;
   int ret = parse_dev_name(dev_name, &dev_info);
   if(ret != 0)
   {
     goto __error;
   }
-  uint8_t addr = (uint8_t)get_device_addr(&dev_info);
   int index = get_param_index(param_name);
   if(index == -1)
   {
     goto __error;
   }
-printf("intput : %s\n\n\n",param_name);
+
   /*检测权限*/
   if(READ_ONLY & resources_interface_par[index].permissions)
   {
     /*获取设备数据*/
-    // uint16_t reg_s = resources_interface_par[index].command_addr;
-    // state = device_driver_modbus_master_read(addr, reg_s, reg_n, &reg_value);
-    // if(state == MODBUS_OK)
-    // {
-    //   if(reg_value != NULL)
-    //   {
-        out_value->origin = get_current_time_s(CURRENT_TIME);
-        out_value->value = common_value2iot_data(param_name, STRING);
-        
-        /*写入新数据*/
-        update_db_data(&dev_info, param_name, out_value->value);
-
-        // free(reg_value);
-      // }
-      return 0;
-    // }
-    // else
-    // {
-    //   goto __error;
-    // }
   }
   else if(PRIVATE_READ & resources_interface_par[index].permissions)
   {
@@ -430,7 +408,7 @@ printf("intput : %s\n\n\n",param_name);
   }
   return 0;
 __error:
-  out_value->value = iot_data_alloc_f32(-999.9);
+  out_value->value = common_value2iot_data(&resources_interface_par[index].default_value, UINT64);
   return -1;
 }
 
@@ -449,12 +427,8 @@ __error:
 static int set_mqtt_dev_value(const char *dev_name, const void *input_data, const void *set_data, VALUE_Type_t *type)
 {
   UNUSED(type);
-  MODBUS_PARSE_CODE_Typedef_t state = MODBUS_OK;
   const char *param_name = (const char *)input_data;
-  const iot_data_t *data = (const iot_data_t *)set_data;
-  uint8_t addr = get_modbus_device_addr(dev_name);
-  uint16_t reg_n = 1;
-
+  printf("\n\n\n写设备\n\n\n");
   int index = get_param_index(param_name);
   if(index == -1)
   {
@@ -465,18 +439,11 @@ static int set_mqtt_dev_value(const char *dev_name, const void *input_data, cons
   if(WRITE_ONLY & resources_interface_par[index].permissions)
   {
     /*写入设备*/
-    uint16_t reg_s = resources_interface_par[index].command_addr;
-    uint16_t reg_d = iot_data_ui16 (data);
-    state = device_driver_modbus_master_write(addr, reg_s, reg_n, &reg_d);
-    if(state == MODBUS_OK)
-    {
-      return 0;
-    }
-    return -1;
   }
   else if(PRIVATE_WRITE & resources_interface_par[index].permissions)
   {
     /*写内部参数*/
+    printf("写内部设备\n");
     return set_private_dev_value(dev_name, input_data, set_data, type);
   }
   return -1;
@@ -651,7 +618,36 @@ static int get_private_dev_value(const char *dev_name, const void *input_data, v
   {
     return get_config_dev_value(&p_node->dev_resource_par[index], return_value);
   }
-  return_value->value = iot_data_alloc_ui64(p_node->dev_resource_par[index].default_value);
+
+  /*匹配参数名*/
+  if(strcmp(p_node->dev_resource_par[index].par_name, "temperature") == 0)
+  {
+    return_value->origin = get_current_time_s(CURRENT_TIME);
+    return_value->value = iot_data_alloc_f32(22.2);
+    return 0;
+  }
+  else if(strcmp(p_node->dev_resource_par[index].par_name, "run_state") == 0)
+  {
+    return_value->origin = get_current_time_s(CURRENT_TIME);
+    return_value->value = iot_data_alloc_i32((int32_t)p_node->dev_resource_par[index].default_value);
+    return 0;
+  }
+  else if(strcmp(p_node->dev_resource_par[index].par_name, "update_progress") == 0)
+  {
+    return_value->origin = get_current_time_s(CURRENT_TIME);
+    const char *device_driver_lib_name = GetDeviceDriver_DownloadFileName();
+    int size = get_file_size(device_driver_lib_name);
+    return_value->value = common_value2iot_data(&size, UINT32);
+    return 0;
+  }
+  else if(strcmp(p_node->dev_resource_par[index].par_name, "temperaturemax") == 0)
+  {
+    return_value->origin = get_current_time_s(CURRENT_TIME);
+    return_value->value = iot_data_alloc_f32(22.2);
+    return 0;
+  }
+
+  return_value->value = common_value2iot_data(&p_node->dev_resource_par[index].default_value, p_node->dev_resource_par[index].value_type);
   return_value->origin = get_current_time_s(CURRENT_TIME);
   return 0;
 }
@@ -683,6 +679,30 @@ static int set_private_dev_value(const char *dev_name, const void *input_data, c
   }
   const char *param_name = (const char *)input_data;
   const iot_data_t *set_par = (const iot_data_t *)set_data;
+
+  /*判断是否是升级请求*/
+  if(strcmp(param_name, "upgrade_file") == 0)
+  {
+    printf("升级请求...\n");
+    uint16_t len = 0;
+    uint8_t *data = base64_decode(iot_data_string(set_data), &len);
+    if(data == NULL)
+    {
+      printf("base64解码失败！\n");
+      return -1;
+    }
+    else if(len > 6)
+    {
+      uint16_t package_number = (uint16_t)data[0]<<8|data[1];
+      uint16_t package_total = (uint16_t)data[2]<<8|data[3];
+      uint16_t package_size = (uint16_t)data[4]<<8|data[5];
+      return 0;
+    }
+    
+    /*升级数据*/
+
+    return 0;
+  }
 
   /*写入数据*/
   return update_db_data(&dev_info, param_name, set_par);
@@ -902,7 +922,6 @@ bool gateway_device_report_event_confirm(const char *dev_name, const char *param
   {
     return false;
   }
-  int temp_index = 0;
 
   /*检查权限*/
   if((dev_resource->permissions & CONFIRM) == 0)
@@ -910,7 +929,6 @@ bool gateway_device_report_event_confirm(const char *dev_name, const char *param
     return true;
   }
 
-  devsdk_commandresult *value = (devsdk_commandresult *)data;
   /*取出参数索引号*/
   int index = get_param_index(param_name);
   if(index == -1)
@@ -972,7 +990,8 @@ int gateway_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATI
     memmove(&p_node->communication_par, communication_par, sizeof(DEV_COMMUNICATION_PAR_Typedef_t));
     p_node->get_dev_value_callback = get_get_callback(communication_par->protocol_type);
     p_node->set_dev_value_callback = get_set_callback(communication_par->protocol_type);
-
+    /*数据更新记录表初始化*/
+    update_data_table_init(update_data_table, UPDATE_PACKAGE_NUM_MAX);
     /*注册*/
     list_add_to_list(node_p ,dev_type);
 

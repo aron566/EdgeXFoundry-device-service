@@ -32,7 +32,7 @@ extern "C" {
 #define ERR_CHECK(x) if(x.code){fprintf(stderr, "Error: %d: %s\n", x.code, x.reason); devsdk_service_free (service); free (impl); return x.code;}
 #define ERR_BUFSZ 1024
 #define ERR_CUSTOM_DEVICE_WRITE "PUT called for custom_device device. This is a read-only device."
-#define ERR_CUSTOM_DEVICE_NO_PARAM "No parameter attribute in GET request."
+#define ERR_CUSTOM_DEVICE_NO_PARAM "No parameter attribute in GET/PUT request."
 
 /** Private constants --------------------------------------------------------*/
 /** Public variables ---------------------------------------------------------*/

@@ -98,7 +98,6 @@ static void dev_event_monitor(NODE_TYPE_STRUCT *p_node, DEVICE_Typedef_t dev_typ
         return;
     }
     DEV_DRIVER_INTERFACE_Typedef_t *dev_resource = p_node->dev_resource_par;
-    char dev_name[sizeof(DEV_INFO_Typedef_t)];
     devsdk_commandresult results[1] = {0};
     VALUE_Type_t value_type = VALUE_TYPE_MAX;
     INTERVAL_TIME_Typedef_t interval_time_base;

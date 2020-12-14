@@ -36,6 +36,7 @@ extern "C" {
 /** Private variables --------------------------------------------------------*/
                                                                     
 /** Private function prototypes ----------------------------------------------*/
+static void device_driver_set_log_out(iot_logger_t *lc);
 static NODE_TYPE_STRUCT *device_driver_opt_get_interface(const char *devname, iot_logger_t *lc);
 
 /** Private user code --------------------------------------------------------*/                                                                     
@@ -46,7 +47,34 @@ static NODE_TYPE_STRUCT *device_driver_opt_get_interface(const char *devname, io
 *       Static code                                                             
 *                                                                               
 ********************************************************************************
-*/   
+*/
+/**
+  ******************************************************************
+  * @brief   设置日志输出使能
+  * @param   [in]lc 日志记录.
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-14
+  ******************************************************************
+  */
+static void device_driver_set_log_out(iot_logger_t *lc)
+{
+  if(lc == NULL)
+  {
+    return;
+  }
+  bool enable_flag = GetLogOutputEnableState();
+  if(enable_flag == true)
+  {
+    iot_logger_set_level(lc, IOT_LOG_TRACE);
+  }
+  else
+  {
+    iot_logger_set_level(lc, IOT_LOG_ERROR);
+  }
+}
+
 /**
   ******************************************************************
   * @brief   获取设备驱动接口
@@ -161,6 +189,7 @@ int device_driver_opt_set(const char *devname, const char *param, const iot_data
     iot_log_warn(lc, "device have not set interface.");
     return -1;
   }
+  
   VALUE_Type_t value_type = VALUE_TYPE_MAX;
   return pnode->set_dev_value_callback(devname, param, values, &value_type);
 }
@@ -294,7 +323,7 @@ void *device_driver_autoevent_start_handler(void *impl, const char *devname, con
                                             uint64_t interval,
                                             bool onChange)
 {
-
+  return NULL;
 }
 
 /**
@@ -333,6 +362,9 @@ void device_driver_opt_init(void *data, const iot_data_t *config)
 
   /*配置初始化*/
   config_file_init();
+
+  /*设置日志输出使能*/
+  device_driver_set_log_out(lc);
 
   /*初始化链表*/
   list_table_init();

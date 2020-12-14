@@ -9,9 +9,9 @@
  *
  *  @brief 设备事件数据库操作.
  *
- *  @details None.
+ *  @details 优化查询接口的回调，优化配置为线程安全模式.
  *
- *  @version V1.0
+ *  @version V1.1
  */
 #ifdef __cplusplus ///<use C compiler
 extern "C" {

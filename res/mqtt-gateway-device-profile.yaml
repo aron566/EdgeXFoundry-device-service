@@ -48,7 +48,7 @@ deviceResources:
        { type: "String", readWrite: "R", defaultValue: "degrees Celsius"}
   -
     name: upgrade_file
-    description: "The device driver upgrade file ,the first is package number(u16) after is package total(u16) and after is package size(u16)"
+    description: "The device driver upgrade file ,the first is package total(u16) after is package num(u16) and after is package size(u16)"
     attributes:
       { parameter: "upgrade_file" }
     properties:

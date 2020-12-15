@@ -37,16 +37,16 @@
       Password = ''
       ClientId = 1
       Topic = 'subcribe_test'
-  # [[DeviceList.AutoEvents]]
-  #   Resource = 'temperature'
-  #   OnChange = false
-  #   Frequency = '1s'
+  [[DeviceList.AutoEvents]]
+    Resource = 'update_progress'
+    OnChange = false
+    Frequency = '1s'
   # [[DeviceList.AutoEvents]]
   #   Resource = 'run_state'
   #   OnChange = true
   #   Frequency = '3s'
   # [[DeviceList.AutoEvents]]
-  #   Resource = 'temperaturemax'
+  #   Resource = 'temperature'
   #   OnChange = false
   #   Frequency = '3s'
     

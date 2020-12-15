@@ -33,6 +33,8 @@ extern "C" {
 static bool temperature_hi_confirm(const char *dev_name, const char *param_name, 
                                     DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, void *data);
 
+static bool update_progress_confirm(const char *dev_name, const char *param_name, 
+                                    DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, void *data);
 
 static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] = 
 {
@@ -87,7 +89,7 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .permissions            = PRIVATE_READ,
     .enable_event_flag      = false,
     .enable_on_change_flag  = false,
-    .report_event_confirm   = NULL,
+    .report_event_confirm   = update_progress_confirm,
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
@@ -179,6 +181,9 @@ static int query_callback(char** pr, int row, int column, void *callback_par);
 static void device_event_recovery(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTERFACE_Typedef_t *dev_resource_par);
 
 static int get_config_dev_value(void *input_data, void *out_data);
+
+static void edge_gateway_update_run_state(EdgeGatewayRUN_SATE_Typedef_t state);
+static int edge_gateway_upgruade_is_ok_monitor(void);
 /** Private variables --------------------------------------------------------*/
 /*协议解析回调映射*/
 static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] = 
@@ -283,34 +288,74 @@ static bool temperature_hi_confirm(const char *dev_name, const char *param_name,
 
 /**
   ******************************************************************
+  * @brief   确认更新进度上报事件
+  * @param   [in]dev_name 设备名.
+  * @param   [in]param_name 参数名.
+  * @param   [in]dev_resource 设备总资源.
+  * @param   [in]data 此参数获取的数据. 
+  * @return  true 上报允许 false 不上报.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-15
+  ******************************************************************
+  */
+static bool update_progress_confirm(const char *dev_name, const char *param_name, 
+                                    DEV_DRIVER_INTERFACE_Typedef_t *dev_resource, void *data)
+{
+  UNUSED(dev_name);
+  UNUSED(param_name);
+  UNUSED(dev_resource);
+  UNUSED(data);
+  /*判断是否是更新状态*/
+  if(get_gateway_device_run_state() == UPDATING_STATE)
+  {
+    return true;
+  }
+  return false;
+}
+
+/**
+  ******************************************************************
+  * @brief   网关更新状态
+  * @param   [in]state 状态.
+  * @return  None.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-15
+  ******************************************************************
+  */
+inline static void edge_gateway_update_run_state(EdgeGatewayRUN_SATE_Typedef_t state)
+{
+  int index = get_param_index("run_state");
+  if(index == -1)
+  {
+    return;
+  }
+  resources_interface_par[index].default_value = (uint64_t)state;
+}
+
+/**
+  ******************************************************************
   * @brief   网关更新监测
   * @param   [in]None.
-  * @return  None.
+  * @return  0正常.
   * @author  aron566
   * @version V1.0
   * @date    2020-12-09
   ******************************************************************
   */
-static void edge_gateway_upgruade_monitor(void)
+static int edge_gateway_upgruade_is_ok_monitor(void)
 {
-    /*读取升级文件大小*/
+  /*释放升级缓冲区*/
+  update_data_table_free(update_data_table, UPDATE_PACKAGE_NUM_MAX);
 
-    /*上报*/
-  /* Load the file contents */
-  // uint8_t *data = file_readfile (fname, &size);
-  // if (data)
-  // {
-  //   /* Set up a commandresult. The deviceResource for our profiles is "File" */
-  //   devsdk_commandresult results[1];
-  //   iot_log_info (impl->lc, "File size: %" PRIu32, size);
-  //   results[0].origin = 0;
-  //   results[0].value = iot_data_alloc_array (data, size, IOT_DATA_UINT8, IOT_DATA_TAKE);
+  /*读取升级文件大小*/
+  int file_size = get_file_size(GetDeviceDriver_DownloadFileName());
+  printf("更新后文件%s大小：[%d]KB\n", GetDeviceDriver_DownloadFileName(), file_size);
 
-  //   /* Trigger an event */
-  //   devsdk_post_readings (service, dname, "File", results);
-
-  //   /* Cleanup the value. Note that as we used IOT_DATA_TAKE, the buffer allocated in file_readfile is free'd here */
-  //   iot_data_free (results[0].value);
+  /*更新运行状态*/
+  edge_gateway_update_run_state(NORMAL_RUNNING_STATE);
+  return 0;
 }
 
 /**
@@ -428,7 +473,6 @@ static int set_mqtt_dev_value(const char *dev_name, const void *input_data, cons
 {
   UNUSED(type);
   const char *param_name = (const char *)input_data;
-  printf("\n\n\n写设备\n\n\n");
   int index = get_param_index(param_name);
   if(index == -1)
   {
@@ -443,7 +487,6 @@ static int set_mqtt_dev_value(const char *dev_name, const void *input_data, cons
   else if(PRIVATE_WRITE & resources_interface_par[index].permissions)
   {
     /*写内部参数*/
-    printf("写内部设备\n");
     return set_private_dev_value(dev_name, input_data, set_data, type);
   }
   return -1;
@@ -635,10 +678,14 @@ static int get_private_dev_value(const char *dev_name, const void *input_data, v
   else if(strcmp(p_node->dev_resource_par[index].par_name, "update_progress") == 0)
   {
     return_value->origin = get_current_time_s(CURRENT_TIME);
-    const char *device_driver_lib_name = GetDeviceDriver_DownloadFileName();
-    int size = get_file_size(device_driver_lib_name);
-    return_value->value = common_value2iot_data(&size, UINT32);
-    return 0;
+    /*判断是否是更新状态*/
+    if(get_gateway_device_run_state() == UPDATING_STATE)
+    {
+      /*显示进度条*/
+      uint32_t progress = (uint32_t)update_data_table_show_progressbar(update_data_table, UPDATE_PACKAGE_NUM_MAX);
+      return_value->value = common_value2iot_data(&progress, UINT32);
+      return 0;
+    }
   }
   else if(strcmp(p_node->dev_resource_par[index].par_name, "temperaturemax") == 0)
   {
@@ -684,23 +731,53 @@ static int set_private_dev_value(const char *dev_name, const void *input_data, c
   if(strcmp(param_name, "upgrade_file") == 0)
   {
     printf("升级请求...\n");
-    uint16_t len = 0;
-    uint8_t *data = base64_decode(iot_data_string(set_data), &len);
-    if(data == NULL)
+    uint16_t package_num = 0;
+    uint16_t package_total = 0;
+    uint16_t package_size = 0;
+    uint64_t size = 0;
+    uint8_t *package = base64_decode(iot_data_string(set_data), &size);
+    if(package == NULL)
     {
       printf("base64解码失败！\n");
       return -1;
     }
-    else if(len > 6)
+    else if(update_data_get_head_info(package, (uint16_t)size, &package_total, 
+                                &package_num, &package_size) == true)
     {
-      uint16_t package_number = (uint16_t)data[0]<<8|data[1];
-      uint16_t package_total = (uint16_t)data[2]<<8|data[3];
-      uint16_t package_size = (uint16_t)data[4]<<8|data[5];
-      return 0;
+      if(UPDATE_DATA_IS_CHECK_OK(size,package_size))
+      {
+        /*更新运行状态*/
+        edge_gateway_update_run_state(UPDATING_STATE);
+        update_data_table_add(update_data_table, UPDATE_PACKAGE_NUM_MAX, package, 
+                              package_num, package_total, package_size);
+      }
+      else
+      {
+        /*升级数据不完整，丢弃*/
+        printf("升级数据不完整，丢弃,total:%lu,pack:%u\n",size,package_size);
+        debug_print(package, 10);
+        free(package);
+        return -1;
+      }
+      
+    }
+    else
+    {
+      /*获取头部信息失败，数据不完整丢弃*/
+      printf("获取头部信息失败，数据不完整丢弃\n");
+      debug_print(package, 10);
+      free(package);
+      return -1;
     }
     
     /*升级数据*/
-
+    /*检测升级进度*/
+    if(update_data_table_is_full(update_data_table, UPDATE_PACKAGE_NUM_MAX) == true)
+    {
+      /*写入文件*/
+      update_data_table_write_binary(update_data_table, UPDATE_PACKAGE_NUM_MAX, 
+                                      GetDeviceDriver_DownloadFileName(), edge_gateway_upgruade_is_ok_monitor);
+    }
     return 0;
   }
 

@@ -52,10 +52,10 @@ iot_data_t *common_value2iot_data(const void *data, VALUE_Type_t type);
 uint64_t common_iot_data2u64(const iot_data_t *data, VALUE_Type_t type);
 
 /*array转为base64,使用完需释放*/
-uint8_t *base64_encode(const char *str);
+uint8_t *base64_encode(const uint8_t *buf, uint64_t size);
 
 /*base64转为array,使用完需释放*/
-uint8_t *base64_decode(const char *code, uint16_t *size);
+uint8_t *base64_decode(const char *base64str, uint64_t *size);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

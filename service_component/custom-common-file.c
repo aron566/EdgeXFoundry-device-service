@@ -59,7 +59,7 @@ extern "C" {
   */
 int file_is_exist(const char *fimename)
 {
-  return access(fimename ,F_OK | W_OK | R_OK);
+  return access(fimename, F_OK | W_OK | R_OK);
 }
 
 /**
@@ -124,13 +124,13 @@ int file_copy(const char *source_fimename, const char *dest_fimename)
   {
     return -1;
   }
-  FILE *fp = file_open(dest_fimename ,READ_WRITE_CREAT_CLEAR_FILE);
+  FILE *fp = file_open(dest_fimename, READ_WRITE_CREAT_CLEAR_FILE);
   if(fp == NULL)
   {
     return -1;
   }
   /*数据地址，数据总大小字节，单位数据大小字节，fp*/
-  fwrite(pdata ,size, 1, fp);
+  fwrite(pdata, size, 1, fp);
   free(pdata);
   return fclose(fp);
 }
@@ -146,29 +146,32 @@ int file_copy(const char *source_fimename, const char *dest_fimename)
   * @date    2020-08-28
   ******************************************************************
   */
-FILE *file_open(const char *filename ,FILE_OPEN_MODE mode)
+FILE *file_open(const char *filename, FILE_OPEN_MODE mode)
 {
   FILE *fp = NULL;
   switch(mode)
   {
   case READ_FILE_ONLY:
-    fp = fopen(filename ,"r");
+    fp = fopen(filename, "r");
     break;
   case READ_WRITE_FILE_ONLY:
-    fp = fopen(filename ,"r+");
+    fp = fopen(filename, "r+");
     break;
   case WRITE_CREAT_CLEAR_FILE:
-    fp = fopen(filename ,"w");
+    fp = fopen(filename, "w");
     break;
   case READ_WRITE_CREAT_CLEAR_FILE:
-    fp = fopen(filename ,"w+");
+    fp = fopen(filename, "w+");
     break;
   case WRITE_APPEND_CREAT_FILE:
-    fp = fopen(filename ,"a");
+    fp = fopen(filename, "a");
     break;
   case READ_WRITE_APPEND_CREAT_FILE:
-    fp = fopen(filename ,"a+");/**< 首次读取时，从文件头部开始读*/
+    fp = fopen(filename, "a+");/**< 首次读取时，从文件头部开始读*/
     break;
+	case READ_WRITE_APPEND_CREAT_FILE_B:
+		fp = fopen(filename, "a+b");/**< 首次读取时，从文件头部开始读*/
+		break;
   }
   return fp;
 }
@@ -188,19 +191,19 @@ int file_get_line_cnt(const char *filename)
 {
   int cnt = 0;
   char buf[256];
-  FILE *fp = file_open(filename ,READ_FILE_ONLY);
+  FILE *fp = file_open(filename, READ_FILE_ONLY);
   if(fp == NULL)
   {
     PRINT_ERRMSG("fopen");
-    printf("read file name :%s error.\n" ,filename);
+    printf("read file name :%s error.\n", filename);
     return -1;
   }
 
   char *ret = NULL;
   /*读取文件流中的内容*/
-  while((fgets(buf ,256 ,fp)) != NULL)
+  while((fgets(buf, 256, fp)) != NULL)
   {
-    ret = strchr(buf ,'\n');
+    ret = strchr(buf, '\n');
     if(ret != NULL)
     {
       cnt++;
@@ -225,7 +228,7 @@ int file_get_line_cnt(const char *filename)
   * @date    2020-08-28
   ******************************************************************
   */
-size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
+size_t file_read(const char *filename, char *destbuf, size_t size, int linenum)
 {
   int cnt = 0;
   char buf[1024];
@@ -237,7 +240,7 @@ size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
   }
 
   /*打开文件流*/
-  FILE *fp = file_open(filename ,READ_FILE_ONLY);
+  FILE *fp = file_open(filename, READ_FILE_ONLY);
   if(fp == NULL)
   {
     PRINT_ERRMSG("fopen");
@@ -247,9 +250,9 @@ size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
   /*读取文件流中的内容*/
   char *ret = NULL;
   size_t len = 0;
-  while((fgets(buf ,1024 ,fp)) != NULL)
+  while((fgets(buf, 1024, fp)) != NULL)
   {
-    ret = strchr(buf ,'\n');
+    ret = strchr(buf, '\n');
     if(ret != NULL)
     {
       cnt++;
@@ -257,7 +260,7 @@ size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
       {
         if(len == 0)
         {
-          strncpy(destbuf ,buf ,1024);
+          strncpy(destbuf, buf, 1024);
           if(size > 1024)
           {
             destbuf[1024] = '\0';
@@ -277,7 +280,7 @@ size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
           }
           else
           {
-            strcat(destbuf ,buf);
+            strcat(destbuf, buf);
           }
         }
         fclose(fp);
@@ -297,7 +300,7 @@ size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
         len = strlen(destbuf);
         if(len == 0)
         {
-          strncpy(destbuf ,buf ,1024);
+          strncpy(destbuf, buf, 1024);
           destbuf[1024] = '\0';
         }
         else
@@ -310,7 +313,7 @@ size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
           }
           else
           {
-            strcat(destbuf ,buf);
+            strcat(destbuf, buf);
           }
         }
       }
@@ -325,7 +328,7 @@ size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
   * @brief   写入指定的内容到文件
   * @param   [in]filename 文件名称
   * @param   [in]buffer数据存储区
-  * @param   [in]size写入的元素占总字节数
+  * @param   [in]size写入的元素数据结构占总字节数
   * @param 	 [in]count写入元素数目
   * @param 	 [in]mode文件写入模式
   * @return  执行结果，写入元素的总数
@@ -334,19 +337,43 @@ size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum)
   * @date    2020-10-09
   ******************************************************************
   */
-size_t file_write(const char *filename ,const void* buffer ,size_t size ,size_t count ,FILE_OPEN_MODE mode)
+size_t file_write(const char *filename, const void* buffer, size_t size, size_t count, FILE_OPEN_MODE mode)
 {
   /*打开文件流*/
-  FILE *fp = file_open(filename ,mode);
+  FILE *fp = file_open(filename, mode);
   if(fp == NULL)
   {
     return 0;
   }
-  size_t cnt = fwrite(buffer ,size ,count ,fp);
+  size_t cnt = fwrite(buffer, size, count, fp);
   /*同步到文件中*/
   fflush(fp);
   fclose(fp);
   return cnt;
+}
+
+/**
+  ******************************************************************
+  * @brief   读取文件内容到指定的存储区
+  * @param   [in]filename 文件名称
+  * @param   [in]buffer数据存储区
+  * @param   [in]size写入的元素数据结构占总字节数
+  * @param 	 [in]count写入元素数目
+  * @param 	 [in]mode文件写入模式
+  * @return  执行结果，读取元素的总数
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-15
+  ******************************************************************
+  */
+size_t file_read_with_mode(const char *filename, void* buffer, size_t size, size_t count, FILE_OPEN_MODE mode)
+{
+  FILE *fp = file_open(filename, mode);
+  if(fp == NULL)
+  {
+    return 0;
+  }
+  return fread(buffer, size, count, fp);
 }
 
 /**
@@ -363,7 +390,7 @@ size_t file_write(const char *filename ,const void* buffer ,size_t size ,size_t 
 uint8_t *file_readfile_alloc(const char *filename, uint32_t *size)
 {
   uint8_t *result = NULL;
-  FILE *fd = file_open(filename ,READ_FILE_ONLY);
+  FILE *fd = file_open(filename, READ_FILE_ONLY);
   if(fd)
   {
     fseek (fd, 0L, SEEK_END);
@@ -409,7 +436,7 @@ int get_file_size(const char *filename)
   * @date    2020-08-28
   ******************************************************************
   */
-size_t file_replace_ch(char *sourcebuf ,char sourcech,char destch)
+size_t file_replace_ch(char *sourcebuf, char sourcech,char destch)
 {
   int i;
   i = strlen(sourcebuf) - 1;

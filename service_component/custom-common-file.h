@@ -38,6 +38,7 @@ typedef enum
 	READ_WRITE_CREAT_CLEAR_FILE,
 	WRITE_APPEND_CREAT_FILE,
 	READ_WRITE_APPEND_CREAT_FILE,
+	READ_WRITE_APPEND_CREAT_FILE_B,
 }FILE_OPEN_MODE;
 
 /*文件分割方式*/
@@ -67,16 +68,19 @@ int file_delete(const char *fimename);
 int file_copy(const char *source_fimename, const char *dest_fimename);
 
 /*打开指定文件返回文件描述符*/
-FILE *file_open(const char *filename ,FILE_OPEN_MODE mode);
+FILE *file_open(const char *filename, FILE_OPEN_MODE mode);
 
 /*读取指定打开的文件，返回总行数*/
 int file_get_line_cnt(const char *filename);
 
 /*读取指定打开的文件指定行的内容到缓冲区*/
-size_t file_read(const char *filename ,char *destbuf ,size_t size ,int linenum);
+size_t file_read(const char *filename, char *destbuf, size_t size, int linenum);
 
 /*写入指定的内容到文件*/
-size_t file_write(const char *filename ,const void* buffer ,size_t size ,size_t count ,FILE_OPEN_MODE mode);
+size_t file_write(const char *filename, const void* buffer, size_t size, size_t count, FILE_OPEN_MODE mode);
+
+/*读取文件内容到指定的存储区*/
+size_t file_read_with_mode(const char *filename, void* buffer, size_t size, size_t count, FILE_OPEN_MODE mode);
 
 /*读取文件内容,使用完需进行释放内存*/
 uint8_t *file_readfile_alloc(const char *filename, uint32_t *size);
@@ -85,7 +89,7 @@ uint8_t *file_readfile_alloc(const char *filename, uint32_t *size);
 int get_file_size(const char *filename);
 
 /*替换字符*/
-size_t file_replace_ch(char *sourcebuf ,char sourcech,char destch);
+size_t file_replace_ch(char *sourcebuf, char sourcech,char destch);
 
 /*清除字符串空格*/
 char *strtriml(char *pstr);

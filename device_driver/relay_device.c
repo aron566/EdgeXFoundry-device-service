@@ -375,7 +375,6 @@ bool relay_device_report_event_confirm(const char *dev_name, const char *param_n
     return true;
   }
 
-  devsdk_commandresult *value = (devsdk_commandresult *)data;
   return true;
 }
 

@@ -54,7 +54,7 @@ static char mqttPUB_ResponseTopic[64] = "/v1/i1_Protocol/device/request";/**< mq
 static char mqttPUB_ServiceTopic[64] = "/v1/i1_protocol/service/reply";/**< mqtt服务发布主题*/
 static char mqttPUB_ControlTopic[64] = "/v1/i1_protocol/device/reply";/**< mqtt控制发布主题*/
 static char mqttPUB_ReportTopic[64] = "/v1/i1_protocol/service/data";/**< mqtt上报发布主题*/
-static char deviceDriver_DownloadFileName[64] = "/temp/device_driver.so.download";/**< 设备驱动文件下载名*/
+static char deviceDriver_DownloadFileName[64] = "device_driver.so.download";/**< 设备驱动文件下载名*/
 /*设备驱动升级成功状态*/
 static int updateSuccessful = 1;        /**< 默认为成功升级状态，若为失败状态则将备份驱动恢复*/
 /*配置是否启用日志输出*/

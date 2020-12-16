@@ -351,8 +351,8 @@ static int edge_gateway_upgruade_is_ok_monitor(void)
 
   /*读取升级文件大小*/
   int file_size = get_file_size(GetDeviceDriver_DownloadFileName());
-  printf("更新后文件%s大小：[%d]KB\n", GetDeviceDriver_DownloadFileName(), file_size);
-
+  printf("更新后文件%s大小：[%d]Bytes\n", GetDeviceDriver_DownloadFileName(), file_size);
+  file_move(GetDeviceDriver_DownloadFileName(), "../device_driver/libdevice_driver.so");
   /*更新运行状态*/
   edge_gateway_update_run_state(NORMAL_RUNNING_STATE);
   return 0;
@@ -677,12 +677,12 @@ static int get_private_dev_value(const char *dev_name, const void *input_data, v
   }
   else if(strcmp(p_node->dev_resource_par[index].par_name, "update_progress") == 0)
   {
-    return_value->origin = get_current_time_s(CURRENT_TIME);
     /*判断是否是更新状态*/
     if(get_gateway_device_run_state() == UPDATING_STATE)
     {
       /*显示进度条*/
       uint32_t progress = (uint32_t)update_data_table_show_progressbar(update_data_table, UPDATE_PACKAGE_NUM_MAX);
+      return_value->origin = get_current_time_s(CURRENT_TIME);
       return_value->value = common_value2iot_data(&progress, UINT32);
       return 0;
     }
@@ -733,7 +733,7 @@ static int set_private_dev_value(const char *dev_name, const void *input_data, c
     printf("升级请求...\n");
     uint16_t package_num = 0;
     uint16_t package_total = 0;
-    uint16_t package_size = 0;
+    uint32_t package_size = 0;
     uint64_t size = 0;
     uint8_t *package = base64_decode(iot_data_string(set_data), &size);
     if(package == NULL)
@@ -741,7 +741,7 @@ static int set_private_dev_value(const char *dev_name, const void *input_data, c
       printf("base64解码失败！\n");
       return -1;
     }
-    else if(update_data_get_head_info(package, (uint16_t)size, &package_total, 
+    else if(update_data_get_head_info(package, (uint32_t)size, &package_total, 
                                 &package_num, &package_size) == true)
     {
       if(UPDATE_DATA_IS_CHECK_OK(size,package_size))
@@ -754,8 +754,7 @@ static int set_private_dev_value(const char *dev_name, const void *input_data, c
       else
       {
         /*升级数据不完整，丢弃*/
-        printf("升级数据不完整，丢弃,total:%lu,pack:%u\n",size,package_size);
-        debug_print(package, 10);
+        printf("升级数据不完整，丢弃 all%lu size%u\n",size, package_size);
         free(package);
         return -1;
       }
@@ -765,7 +764,6 @@ static int set_private_dev_value(const char *dev_name, const void *input_data, c
     {
       /*获取头部信息失败，数据不完整丢弃*/
       printf("获取头部信息失败，数据不完整丢弃\n");
-      debug_print(package, 10);
       free(package);
       return -1;
     }
@@ -779,6 +777,11 @@ static int set_private_dev_value(const char *dev_name, const void *input_data, c
                                       GetDeviceDriver_DownloadFileName(), edge_gateway_upgruade_is_ok_monitor);
     }
     return 0;
+  }
+  else if(strcmp(param_name, "cmd") == 0)
+  {
+    printf("执行命令：%s\n", iot_data_string(set_data));
+    return system(iot_data_string(set_data));
   }
 
   /*写入数据*/

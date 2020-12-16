@@ -32,14 +32,14 @@ typedef struct
 {
     uint16_t package_total;         /**< 数据总包数*/
     uint16_t package_sub;           /**< 数据子包号 start at zero*/
-    uint16_t package_size;          /**< 不含包信息数据包大小*/
+    uint32_t package_size;          /**< 不含包信息数据包大小*/
     uint8_t *data;                  /**< 数据地址*/
     bool     is_empty;              /**< 当前包数据是否为空*/
 }UPDATE_DATA_RECORD_Typedef;                                                                      
 /** Exported constants -------------------------------------------------------*/
                                                                                 
 /** Exported macros-----------------------------------------------------------*/
-#define UPDATE_DATA_HEAD_SIZE 6U/**< 数据包桢头信息长度*/
+#define UPDATE_DATA_HEAD_SIZE 8/**< 数据包桢头信息长度*/
 #define GET_UPDATE_DATA_SIZE(total_size) (total_size-UPDATE_DATA_HEAD_SIZE)/**< 获得真实数据包大小*/
 #define GET_UPDATE_DATA_TOTAL_SIZE(valid_data_size) (valid_data_size+UPDATE_DATA_HEAD_SIZE)
 #define UPDATE_DATA_IS_CHECK_OK(total_size,package_size) \
@@ -55,7 +55,7 @@ void update_data_table_free(UPDATE_DATA_RECORD_Typedef *table, uint16_t table_si
 
 /*向更新记录表添加数据*/
 void update_data_table_add(UPDATE_DATA_RECORD_Typedef *table, uint16_t table_size, uint8_t *package, 
-                            uint16_t package_num, uint16_t package_total, uint16_t package_size);
+                            uint16_t package_num, uint16_t package_total, uint32_t package_size);
 
 /*移除更新记录表中指定package*/
 void update_data_table_remove(UPDATE_DATA_RECORD_Typedef *table, uint16_t table_size, 
@@ -69,8 +69,8 @@ uint16_t update_data_table_get_package_num(UPDATE_DATA_RECORD_Typedef *table, ui
                                     uint16_t package_total);
 
 /*获得更新数据头部信息*/
-bool update_data_get_head_info(uint8_t *package, uint16_t size, uint16_t *package_total, 
-                                uint16_t *package_num, uint16_t *package_size);
+bool update_data_get_head_info(uint8_t *package, uint32_t size, uint16_t *package_total, 
+                                uint16_t *package_num, uint32_t *package_size);
 
 /*更新记录表数据写入二进制到文件*/
 int update_data_table_write_binary(UPDATE_DATA_RECORD_Typedef *table, uint16_t table_size, 

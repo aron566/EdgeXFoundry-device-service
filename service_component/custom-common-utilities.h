@@ -59,7 +59,7 @@ typedef enum
  * @{                                                                           
  */ 
 #define UNUSED(x) (void)(x)/**< 消除未使用参数报警*/
-#define OFFSETOF(type ,member)  ((size_t)(&(((type*)0)->member)))/**< 求成员偏移字节*/
+#define OFFSETOF(type, member)  ((size_t)(&(((type*)0)->member)))/**< 求成员偏移字节*/
 #define BYTES_TO_U8ARRAY_INNDEX(at_bytes) (at_bytes-1)/**< 字节转为数组中的位置*/
 #define GET_U16_HI_BYTE(data)   ((uint8_t)((data>>8)&0x00FF))/**< 获得u16数据高字节*/
 #define GET_U16_LOW_BYTE(data)  ((uint8_t)(data&0x00FF))/**< 获得u16数据低字节*/
@@ -70,7 +70,7 @@ typedef enum
 /** Exported functions prototypes --------------------------------------------*/
 
 /*调试打印*/
-void debug_print(uint8_t *msg ,uint32_t msg_len);
+void debug_print(uint8_t *msg, uint32_t msg_len);
 
 /*安全字符串拷贝*/
 char *strncopy(char *dest_str, const char *src_str, size_t size);
@@ -88,7 +88,7 @@ const char *get_time_str(time_t sec);
 uint8_t hex_char_to_value(uint8_t ch);
 
 /*16进制数组转字符串*/
-void hex_to_str(char *strbuf ,uint8_t *hex_data ,uint32_t len);
+void hex_to_str(char *strbuf, uint8_t *hex_data, uint32_t len);
 
 /*将大写字母转换成小写字母*/
 uint8_t ch_tolower(uint8_t ch);
@@ -100,22 +100,22 @@ int hextoi(char s[]);
 int common_filter_special_char(char ch, const char *str, char *out_str, int size);
 
 /*解析32位数据-低位在前*/
-uint32_t common_get_u32_data(uint8_t *data ,int start_index);
+uint32_t common_get_u32_data(uint8_t *data, int start_index);
 
 /*解析16位数据-低位在前*/
-uint16_t common_get_u16_data(uint8_t *data ,int start_index);
+uint16_t common_get_u16_data(uint8_t *data, int start_index);
 
 /*解析浮点数数据-低位在前*/
-float common_get_float_data(uint8_t *data ,int start_index);
+float common_get_float_data(uint8_t *data, int start_index);
 
 /*解析32位数据-高位在前*/
-uint32_t common_get_modbus_u32_data(uint8_t *data ,int start_index);
+uint32_t common_get_modbus_u32_data(uint8_t *data, int start_index);
 
 /*解析16位数据-高位在前*/
-uint16_t common_get_modbus_u16_data(uint8_t *data ,int start_index);
+uint16_t common_get_modbus_u16_data(uint8_t *data, int start_index);
 
 /*解析浮点数数据-高位在前*/
-float common_get_modbus_float_data(uint8_t *data ,int start_index);
+float common_get_modbus_float_data(uint8_t *data, int start_index);
 
 /*获取主机名*/
 char *get_host_name(void);

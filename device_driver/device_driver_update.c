@@ -105,7 +105,7 @@ static void write_binary_task_cb(uv_work_t *handler)
   WRITE_DATA_Typedef_t *wire_info = (WRITE_DATA_Typedef_t *)handler->data;
   uint16_t package_num = 0;
   uint16_t package_total = 0;
-  uint16_t package_size = 0;
+  uint32_t package_size = 0;
   for(uint16_t seq = 0; seq < wire_info->table[0].package_total; seq++)
   {
     if(wire_info->table[seq].is_empty == false)
@@ -224,7 +224,7 @@ void update_data_table_free(UPDATE_DATA_RECORD_Typedef *table, uint16_t table_si
   ******************************************************************
   */
 void update_data_table_add(UPDATE_DATA_RECORD_Typedef *table, uint16_t table_size, uint8_t *package, 
-                              uint16_t package_num, uint16_t package_total, uint16_t package_size)
+                              uint16_t package_num, uint16_t package_total, uint32_t package_size)
 {
   if(table == NULL || package == NULL || package_num > table_size)
   {
@@ -354,16 +354,16 @@ uint16_t update_data_table_get_package_num(UPDATE_DATA_RECORD_Typedef *table, ui
   * @date    2020-12-15
   ******************************************************************
   */
-bool update_data_get_head_info(uint8_t *package, uint16_t size, uint16_t *package_total, 
-                                uint16_t *package_num, uint16_t *package_size)
+bool update_data_get_head_info(uint8_t *package, uint32_t size, uint16_t *package_total, 
+                                uint16_t *package_num, uint32_t *package_size)
 {
   if(package == NULL || size <= UPDATE_DATA_HEAD_SIZE)
   {
     return false;
   }
-  *package_total  = (uint16_t)package[0]<<8|package[1];
-  *package_num    = (uint16_t)package[2]<<8|package[3];
-  *package_size   = (uint16_t)package[4]<<8|package[5];
+  *package_total  = common_get_modbus_u16_data(package, 0);
+  *package_num    = common_get_modbus_u16_data(package, 2);
+  *package_size   = common_get_modbus_u32_data(package, 4);
   return true;
 }
 

@@ -85,7 +85,7 @@ const char *color_suffix = "\E[0m";
  * @param msg 
  * @param msg_len 
  */
-void debug_print(uint8_t *msg ,uint32_t msg_len)
+void debug_print(uint8_t *msg, uint32_t msg_len)
 {
   for (uint32_t i = 0; i < msg_len; i++)
   printf("%02X ",
@@ -187,16 +187,16 @@ uint64_t get_current_time_s(UTILITIES_TIME_MODE_Typedef_t mode)
   switch(mode)
   {
     case CURRENT_TIME:
-      clock_gettime(CLOCK_REALTIME ,&timespe);
+      clock_gettime(CLOCK_REALTIME, &timespe);
       break;
     case RUN_TIME:
-      clock_gettime(CLOCK_MONOTONIC ,&timespe);
+      clock_gettime(CLOCK_MONOTONIC, &timespe);
       break;
     case PROCESS_CPUTIME:
-      clock_gettime(CLOCK_PROCESS_CPUTIME_ID ,&timespe);
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &timespe);
       break;
     case THREAD_CPUTIME:
-      clock_gettime(CLOCK_THREAD_CPUTIME_ID ,&timespe);
+      clock_gettime(CLOCK_THREAD_CPUTIME_ID, &timespe);
       break;
     case CURRENT_TIME_MS:
       gettimeofday(&tv,NULL);
@@ -208,8 +208,8 @@ uint64_t get_current_time_s(UTILITIES_TIME_MODE_Typedef_t mode)
   if(mode != CURRENT_TIME_MS)
   {
     localtime_r(&timespe.tv_sec, &nowTime);
-    sprintf(str ,"GetTime:%04d-%02d-%02d-%02d:%02d:%02d\n"
-      ,nowTime.tm_year + 1900 ,nowTime.tm_mon+1 ,nowTime.tm_mday ,nowTime.tm_hour ,nowTime.tm_min ,nowTime.tm_sec);
+    sprintf(str, "GetTime:%04d-%02d-%02d-%02d:%02d:%02d\n"
+ ,     nowTime.tm_year + 1900, nowTime.tm_mon+1, nowTime.tm_mday, nowTime.tm_hour, nowTime.tm_min, nowTime.tm_sec);
     // printf("%s", str);
     return (uint64_t)timespe.tv_sec;
   }
@@ -232,8 +232,8 @@ const char *get_time_str(time_t sec)
   struct tm nowTime;
   timespe.tv_sec = sec;
   localtime_r(&timespe.tv_sec, &nowTime);
-  sprintf(date_str ,"%04d-%02d-%02d-%02d:%02d:%02d"
-      ,nowTime.tm_year + 1900 ,nowTime.tm_mon+1 ,nowTime.tm_mday ,nowTime.tm_hour ,nowTime.tm_min ,nowTime.tm_sec);
+  sprintf(date_str, "%04d-%02d-%02d-%02d:%02d:%02d"
+ ,     nowTime.tm_year + 1900, nowTime.tm_mon+1, nowTime.tm_mday, nowTime.tm_hour, nowTime.tm_min, nowTime.tm_sec);
   return (const char*)date_str;
 }
 
@@ -274,7 +274,7 @@ uint8_t hex_char_to_value(uint8_t ch)
  * @param len hex数据字节数
  * @return None 
  */
-void hex_to_str(char *strbuf ,uint8_t *hex_data ,uint32_t len)
+void hex_to_str(char *strbuf, uint8_t *hex_data, uint32_t len)
 {
   if(strbuf == NULL || hex_data == NULL)
   {
@@ -283,7 +283,7 @@ void hex_to_str(char *strbuf ,uint8_t *hex_data ,uint32_t len)
   uint32_t str_offset = 0;
   for(uint32_t index = 0;index < len;index++)
   {
-    snprintf(strbuf+str_offset ,3 ,"%02X" ,hex_data[index]);
+    snprintf(strbuf+str_offset, 3, "%02X", hex_data[index]);
     str_offset +=2;
   }
   strbuf[str_offset] = '\0';
@@ -385,7 +385,7 @@ int common_filter_special_char(char ch, const char *str, char *out_str, int size
   * @date    2020-12-03
   ******************************************************************
   */
-float common_get_float_data(uint8_t *data ,int start_index)
+float common_get_float_data(uint8_t *data, int start_index)
 {
   static float result_float = 0.0;
   if(data == NULL)
@@ -410,7 +410,7 @@ float common_get_float_data(uint8_t *data ,int start_index)
   * @date    2020-12-03
   ******************************************************************
   */
-uint16_t common_get_u16_data(uint8_t *data ,int start_index)
+uint16_t common_get_u16_data(uint8_t *data, int start_index)
 {
   static uint16_t result_u16 = 0;
   if(data == NULL)
@@ -432,7 +432,7 @@ uint16_t common_get_u16_data(uint8_t *data ,int start_index)
   * @date    2020-12-03
   ******************************************************************
   */
-uint32_t common_get_u32_data(uint8_t *data ,int start_index)
+uint32_t common_get_u32_data(uint8_t *data, int start_index)
 {
   static uint32_t result_u32 = 0;
   if(data == NULL)
@@ -456,7 +456,7 @@ uint32_t common_get_u32_data(uint8_t *data ,int start_index)
   * @date    2020-12-03
   ******************************************************************
   */
-uint32_t common_get_modbus_u32_data(uint8_t *data ,int start_index)
+uint32_t common_get_modbus_u32_data(uint8_t *data, int start_index)
 {
   static uint32_t result_u32 = 0;
   if(data == NULL)
@@ -480,7 +480,7 @@ uint32_t common_get_modbus_u32_data(uint8_t *data ,int start_index)
   * @date    2020-12-03
   ******************************************************************
   */
-uint16_t common_get_modbus_u16_data(uint8_t *data ,int start_index)
+uint16_t common_get_modbus_u16_data(uint8_t *data, int start_index)
 {
   static uint16_t result_u16 = 0;
   if(data == NULL)
@@ -502,7 +502,7 @@ uint16_t common_get_modbus_u16_data(uint8_t *data ,int start_index)
   * @date    2020-12-03
   ******************************************************************
   */
-float common_get_modbus_float_data(uint8_t *data ,int start_index)
+float common_get_modbus_float_data(uint8_t *data, int start_index)
 {
   static float result_float = 0.0;
   if(data == NULL)
@@ -558,17 +558,17 @@ char *get_local_mac(const char *hardware_name)
   {
     return mac_addr;
   }
-  sock_mac = socket(AF_INET ,SOCK_STREAM ,0); 
+  sock_mac = socket(AF_INET, SOCK_STREAM, 0); 
   if(sock_mac == -1)
   {
     perror("create socket falise...mac");
     return NULL;
   }
 
-  memset(&ifr_mac ,0,sizeof(ifr_mac));
-  strncpy(ifr_mac.ifr_name ,hardware_name ,sizeof(ifr_mac.ifr_name)-1);
+  memset(&ifr_mac, 0,sizeof(ifr_mac));
+  strncpy(ifr_mac.ifr_name, hardware_name, sizeof(ifr_mac.ifr_name)-1);
 
-  if((ioctl(sock_mac ,SIOCGIFHWADDR ,&ifr_mac)) < 0)
+  if((ioctl(sock_mac, SIOCGIFHWADDR, &ifr_mac)) < 0)
   {
     printf("mac ioctl error.");
   if(sock_mac != -1)
@@ -649,7 +649,7 @@ int get_cpu_num(void)
   FILE* fp = popen("cat /proc/cpuinfo |grep processor|wc -l", "r");
   if(fp) 
   {                                                                                                                                                                             
-    fread(buf, 1, sizeof(buf) - 1 ,fp);
+    fread(buf, 1, sizeof(buf) - 1, fp);
     pclose(fp);
   }   
   num = atoi(buf);
@@ -674,14 +674,14 @@ double get_cpu_frequency(void)
 {
   FILE *fp;
   char str[81];
-  memset(str ,0 ,81);
-  fp = popen("cat /proc/cpuinfo|grep cpu\\ MHz|sed -e 's/.*:[^0-9]//'" ,"r");
+  memset(str, 0, 81);
+  fp = popen("cat /proc/cpuinfo|grep cpu\\ MHz|sed -e 's/.*:[^0-9]//'", "r");
   if(fp < 0)
   {
     printf("can't read CPU main frequency.");
     return 0.0;
   }
-  fgets(str ,80 ,fp);
+  fgets(str, 80, fp);
   fclose(fp);
   double spd = atof(str);
   return spd;

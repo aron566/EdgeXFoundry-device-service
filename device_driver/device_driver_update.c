@@ -102,19 +102,19 @@ static int printf_progress_bar(size_t process, size_t total)
   */
 static void write_binary_task_cb(uv_work_t *handler)
 {
-  WRITE_DATA_Typedef_t *wire_info = (WRITE_DATA_Typedef_t *)handler->data;
+  WRITE_DATA_Typedef_t *write_info = (WRITE_DATA_Typedef_t *)handler->data;
   uint16_t package_num = 0;
   uint16_t package_total = 0;
   uint32_t package_size = 0;
-  for(uint16_t seq = 0; seq < wire_info->table[0].package_total; seq++)
+  for(uint16_t seq = 0; seq < write_info->table[0].package_total; seq++)
   {
-    if(wire_info->table[seq].is_empty == false)
+    if(write_info->table[seq].is_empty == false)
     {
       /*取出参数*/
-      if(update_data_get_head_info(wire_info->table[seq].data, UPDATE_DATA_HEAD_SIZE+1, &package_total, 
+      if(update_data_get_head_info(write_info->table[seq].data, UPDATE_DATA_HEAD_SIZE+1, &package_total, 
                                       &package_num, &package_size) == true)
       {
-        file_write(wire_info->filename ,wire_info->table[seq].data+UPDATE_DATA_HEAD_SIZE ,1 ,(size_t)package_size ,READ_WRITE_APPEND_CREAT_FILE_B);
+        file_write(write_info->filename ,write_info->table[seq].data+UPDATE_DATA_HEAD_SIZE ,1 ,(size_t)package_size ,READ_WRITE_APPEND_CREAT_FILE_B);
       }
     }
   }
@@ -134,8 +134,8 @@ static void write_binary_task_cb(uv_work_t *handler)
 static void write_binary_task_ok_cb(uv_work_t* handler, int status)
 {
   UNUSED(status);
-  WRITE_DATA_Typedef_t *wire_info = (WRITE_DATA_Typedef_t *)handler->data;
-  wire_info->update_data_is_ok_callback();
+  WRITE_DATA_Typedef_t *write_info = (WRITE_DATA_Typedef_t *)handler->data;
+  write_info->update_data_is_ok_callback();
   free(handler->data);
   printf("\n\n\nUPDATE THE DEVICE DRIVER DYNAMIC LIB OK!\n\n\n");
 }

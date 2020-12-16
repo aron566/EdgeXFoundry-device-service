@@ -224,6 +224,7 @@ uint8_t *base64_decode(const char *base64str, uint64_t *size)
     {
         return NULL;
     }
+
     bool ret = common_b64_decode(base64str, binary_data, &data_len);
     if(ret == false)
     {

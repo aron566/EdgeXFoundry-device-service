@@ -44,6 +44,7 @@ typedef struct
 #define SERVICE_CONFIG_FILE "../../res/configuration.toml"
 /** Private constants --------------------------------------------------------*/
 static iot_logger_t *log_lc = NULL;
+static DRIVER_RELOAD_FUNC device_driver_reload_callback = NULL;
 /** Public variables ---------------------------------------------------------*/
                                                                                
 /** Private function prototypes ----------------------------------------------*/
@@ -791,17 +792,34 @@ const REPORT_EVENT_CONFIRM_FUNC get_device_event_confirm_func(DEVICE_Typedef_t d
 
 /**
  ******************************************************************
+ * @brief   获取设备驱动重载接口
+ * @param   [in]dev_type 设备类型.
+ * @return  设备资源表.
+ * @author  aron566
+ * @version V1.0
+ * @date    2020-12-16
+ ******************************************************************
+ */
+const DRIVER_RELOAD_FUNC get_driver_reload_func(void)
+{
+    return device_driver_reload_callback;
+}
+
+/**
+ ******************************************************************
  * @brief   注册设备驱动
- * @param   [in]lc log.
+ * @param   [in]data 数据.
  * @return  None.
  * @author  aron566
  * @version V1.0
  * @date    2020-11-25
  ******************************************************************
  */
-void register_device_driver(iot_logger_t *lc)
+void register_device_driver(void *data)
 {
-    log_lc = lc;
+    custom_device_driver *user_data = (custom_device_driver *)data;
+    log_lc = user_data->lc;
+    device_driver_reload_callback = user_data->device_driver_reload_callback;
     /*解析设备服务文件*/
     int ret = parse_service_config();
     if(ret != 0)

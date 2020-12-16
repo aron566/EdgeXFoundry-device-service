@@ -149,7 +149,21 @@ static DEV_DRIVER_INTERFACE_Typedef_t resources_interface_par[] =
     .start_time             = 0,
     .interval_time          = 0,
     .unit                   = T_S
-  },        
+  },
+  {         
+    .par_name               = "upgrade_toml",
+    .command                = 0x10,
+    .command_addr           = 0x0008,
+    .value_type             = UINT8,
+    .default_value          = 0,
+    .permissions            = PRIVATE_WRITE,
+    .enable_event_flag      = false,
+    .enable_on_change_flag  = false,
+    .report_event_confirm   = NULL,
+    .start_time             = 0,
+    .interval_time          = 0,
+    .unit                   = T_S
+  },         
   {         
     .par_name               = NULL,
     .command                = 0x00,
@@ -182,8 +196,11 @@ static void device_event_recovery(DEV_INFO_Typedef_t *dev_info, DEV_DRIVER_INTER
 
 static int get_config_dev_value(void *input_data, void *out_data);
 
+static int update_request(UPDATE_DATA_RECORD_Typedef *table, const iot_data_t *set_data, const char *download_filname, int (*update_is_ok_callback)(void));
+
 static void edge_gateway_update_run_state(EdgeGatewayRUN_SATE_Typedef_t state);
 static int edge_gateway_upgruade_is_ok_monitor(void);
+static int edge_gateway_upgruade_config_is_ok_monitor(void);
 /** Private variables --------------------------------------------------------*/
 /*协议解析回调映射*/
 static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] = 
@@ -211,6 +228,7 @@ static PROTOCOL_DECODE_CALLBACK_Typedef_t protocol_decoder_map[] =
 };
 
 static UPDATE_DATA_RECORD_Typedef update_data_table[UPDATE_PACKAGE_NUM_MAX+1] = {0};
+static UPDATE_DATA_RECORD_Typedef update_config_table[UPDATE_PACKAGE_NUM_MAX+1] = {0};
 /** Private user code --------------------------------------------------------*/                                                                       
 
 /** Private application code -------------------------------------------------*/
@@ -352,9 +370,111 @@ static int edge_gateway_upgruade_is_ok_monitor(void)
   /*读取升级文件大小*/
   int file_size = get_file_size(GetDeviceDriver_DownloadFileName());
   printf("更新后文件%s大小：[%d]Bytes\n", GetDeviceDriver_DownloadFileName(), file_size);
-  file_move(GetDeviceDriver_DownloadFileName(), "../device_driver/libdevice_driver.so");
+  file_move(GetDeviceDriver_DownloadFileName(), "libdevice_driver.so");
   /*更新运行状态*/
   edge_gateway_update_run_state(NORMAL_RUNNING_STATE);
+  /*重载驱动*/
+  DRIVER_RELOAD_FUNC driver_reload = get_driver_reload_func();
+  if(driver_reload == NULL)
+  {
+    return -1;
+  }
+  driver_reload();
+  return 0;
+}
+
+/**
+  ******************************************************************
+  * @brief   配置更新监测
+  * @param   [in]None.
+  * @return  0正常.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-16
+  ******************************************************************
+  */
+static int edge_gateway_upgruade_config_is_ok_monitor(void)
+{
+  /*释放升级缓冲区*/
+  update_data_table_free(update_config_table, UPDATE_PACKAGE_NUM_MAX);
+
+  /*读取升级文件大小*/
+  int file_size = get_file_size("configuration.toml.download");
+  printf("更新后文件%s大小：[%d]Bytes\n", "configuration.toml.download", file_size);
+  file_move("configuration.toml.download", "configuration.toml");
+  /*更新运行状态*/
+  edge_gateway_update_run_state(NORMAL_RUNNING_STATE);
+  /*重载驱动*/
+  DRIVER_RELOAD_FUNC driver_reload = get_driver_reload_func();
+  if(driver_reload == NULL)
+  {
+    return -1;
+  }
+  driver_reload();
+  return 0;
+}
+
+/**
+  ******************************************************************
+  * @brief   更新数据写入
+  * @param   [in]table 更新记录表
+  * @param   [in]set_data 数据
+  * @param   [in]download_filname 文件名
+  * @param   [in]update_is_ok_callback 更新完成回调
+  * @return  0正常.
+  * @author  aron566
+  * @version V1.0
+  * @date    2020-12-10
+  ******************************************************************
+  */
+static int update_request(UPDATE_DATA_RECORD_Typedef *table, const iot_data_t *set_data, const char *download_filname, int (*update_is_ok_callback)(void))
+{
+  uint16_t package_num = 0;
+  uint16_t package_total = 0;
+  uint32_t package_size = 0;
+  uint64_t size = 0;
+  uint8_t *package = base64_decode(iot_data_string(set_data), &size);
+
+  if(package == NULL)
+  {
+    printf("base64解码失败！\n");
+    return -1;
+  }
+  else if(update_data_get_head_info(package, (uint32_t)size, &package_total, 
+                              &package_num, &package_size) == true)
+  {
+    if(UPDATE_DATA_IS_CHECK_OK(size,package_size))
+    {
+      /*更新运行状态*/
+      edge_gateway_update_run_state(UPDATING_STATE);
+      update_data_table_add(table, UPDATE_PACKAGE_NUM_MAX, package, 
+                            package_num, package_total, package_size);
+    }
+    else
+    {
+      /*升级数据不完整，丢弃*/
+      printf("升级数据不完整，丢弃 Total%lu Size%u\n",size, package_size);
+      free(package);
+      return -1;
+    }
+    
+  }
+  else
+  {
+    /*获取头部信息失败，数据不完整丢弃*/
+    printf("获取头部信息失败，数据不完整丢弃\n");
+    free(package);
+    return -1;
+  }
+
+  /*升级数据*/
+  /*检测升级进度*/
+  if(update_data_table_is_full(table, UPDATE_PACKAGE_NUM_MAX) == true)
+  {
+    /*写入文件*/
+    update_data_table_write_binary(table, UPDATE_PACKAGE_NUM_MAX, 
+                                    download_filname, update_is_ok_callback);
+  }
   return 0;
 }
 
@@ -730,53 +850,13 @@ static int set_private_dev_value(const char *dev_name, const void *input_data, c
   /*判断是否是升级请求*/
   if(strcmp(param_name, "upgrade_file") == 0)
   {
-    printf("升级请求...\n");
-    uint16_t package_num = 0;
-    uint16_t package_total = 0;
-    uint32_t package_size = 0;
-    uint64_t size = 0;
-    uint8_t *package = base64_decode(iot_data_string(set_data), &size);
-    if(package == NULL)
-    {
-      printf("base64解码失败！\n");
-      return -1;
-    }
-    else if(update_data_get_head_info(package, (uint32_t)size, &package_total, 
-                                &package_num, &package_size) == true)
-    {
-      if(UPDATE_DATA_IS_CHECK_OK(size,package_size))
-      {
-        /*更新运行状态*/
-        edge_gateway_update_run_state(UPDATING_STATE);
-        update_data_table_add(update_data_table, UPDATE_PACKAGE_NUM_MAX, package, 
-                              package_num, package_total, package_size);
-      }
-      else
-      {
-        /*升级数据不完整，丢弃*/
-        printf("升级数据不完整，丢弃 all%lu size%u\n",size, package_size);
-        free(package);
-        return -1;
-      }
-      
-    }
-    else
-    {
-      /*获取头部信息失败，数据不完整丢弃*/
-      printf("获取头部信息失败，数据不完整丢弃\n");
-      free(package);
-      return -1;
-    }
-    
-    /*升级数据*/
-    /*检测升级进度*/
-    if(update_data_table_is_full(update_data_table, UPDATE_PACKAGE_NUM_MAX) == true)
-    {
-      /*写入文件*/
-      update_data_table_write_binary(update_data_table, UPDATE_PACKAGE_NUM_MAX, 
-                                      GetDeviceDriver_DownloadFileName(), edge_gateway_upgruade_is_ok_monitor);
-    }
-    return 0;
+    printf("升级驱动请求...\n");
+    return update_request(update_data_table, set_data, GetDeviceDriver_DownloadFileName(), edge_gateway_upgruade_is_ok_monitor);
+  }
+  else if(strcmp(param_name, "upgrade_toml") == 0)
+  {
+    printf("升级配置请求...\n");
+    return update_request(update_config_table, set_data, "configuration.toml.download", edge_gateway_upgruade_config_is_ok_monitor);
   }
   else if(strcmp(param_name, "cmd") == 0)
   {
@@ -1072,6 +1152,7 @@ int gateway_device_driver_register(DEV_INFO_Typedef_t *dev_info, DEV_COMMUNICATI
     p_node->set_dev_value_callback = get_set_callback(communication_par->protocol_type);
     /*数据更新记录表初始化*/
     update_data_table_init(update_data_table, UPDATE_PACKAGE_NUM_MAX);
+    update_data_table_init(update_config_table, UPDATE_PACKAGE_NUM_MAX);
     /*注册*/
     list_add_to_list(node_p ,dev_type);
 

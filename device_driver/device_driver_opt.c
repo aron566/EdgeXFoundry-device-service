@@ -382,7 +382,7 @@ void device_driver_opt_init(void *data, const iot_data_t *config)
   device_driver_modbus_master_stack_init();
 
   /*注册设备驱动*/
-  register_device_driver(lc);
+  register_device_driver(user_data);
 
   /*启动uv事件检测*/
   device_driver_uv_handler_start(user_data);

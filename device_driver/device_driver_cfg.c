@@ -27,7 +27,7 @@ extern "C" {
 /** Private constants --------------------------------------------------------*/
 /** Public variables ---------------------------------------------------------*/
 /** Private variables --------------------------------------------------------*/
-static char Software_Ver[10] = "1.0.0";			/**< 软件版本号*/
+static char Software_Ver[10] = "1.1.1";			/**< 软件版本号*/
 
 /*server config item*/
 static int  udpServerPortNum = 2000;/**< UDP服务器端口设置*/

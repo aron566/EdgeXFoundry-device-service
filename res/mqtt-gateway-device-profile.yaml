@@ -57,6 +57,16 @@ deviceResources:
         units:
             { defaultValue: "data" }
   -
+    name: upgrade_toml
+    description: "The device driver upgrade toml ,the first is package total(u16) after is package num(u16) and after is package size(u32)"
+    attributes:
+      { parameter: "upgrade_toml" }
+    properties:
+        value:
+            { type: "string", readWrite: "W", mediaType: "text/plain" }
+        units:
+            { defaultValue: "data" }
+  -
     name: cmd
     description: "The name of an activation command"
     attributes:
@@ -87,6 +97,7 @@ deviceCommands:
     set:
       - { deviceResource: "run_state" }
       - { deviceResource: "upgrade_file" }
+      - { deviceResource: "upgrade_toml" }
       - { deviceResource: "cmd" }
       - { deviceResource: "temperaturemax" }
 
@@ -180,6 +191,18 @@ coreCommands:
       responses:
       - code: "200"
         description: "Successfully set the upgrade_file value."
+        expectedValues: []
+      - code: "503"
+        description: "service unavailable"
+        expectedValues: []
+  -
+    name: upgrade_toml
+    put:
+      path: "/api/v1/device/{deviceId}/upgrade_toml"
+      parameterNames: ["upgrade_toml"]
+      responses:
+      - code: "200"
+        description: "Successfully set the upgrade_toml value."
         expectedValues: []
       - code: "503"
         description: "service unavailable"

@@ -247,6 +247,7 @@ typedef struct custom_device_driver
 {
   iot_logger_t * lc;
   devsdk_service_t * service;
+  void (*device_driver_reload_callback)(void);/**< 重新加载驱动*/
 }custom_device_driver;
 
 /** Exported constants -------------------------------------------------------*/

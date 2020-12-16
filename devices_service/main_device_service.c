@@ -23,21 +23,88 @@ extern "C" {
 #include <sys/inotify.h>
 #include <sys/select.h>
 #include <sys/stat.h>
+#include <dlfcn.h>
 /* Private includes ----------------------------------------------------------*/
 #include "devsdk/devsdk.h"
 #include "main_device_service.h"
 /** Private typedef ----------------------------------------------------------*/
 
+/*设备驱动初始化*/
+typedef void (*dl_device_driver_opt_init)(void *data, const iot_data_t *config);
+
+/*设备驱动启动*/
+typedef void (*dl_device_driver_opt_reconfigure)(iot_logger_t *lc, const iot_data_t *config);
+
+/*设备驱动停止*/
+typedef void (*dl_device_driver_opt_stop)(iot_logger_t *lc, bool force);
+
+/*设备驱动发现*/
+typedef void (*dl_device_driver_opt_discover)(iot_logger_t *lc);
+
+/*设备驱动get接口*/
+typedef int (*dl_device_driver_opt_get)(const char *devname, const char *param, devsdk_commandresult *readings, 
+                          iot_logger_t *lc);
+
+/*设备驱动set接口*/
+typedef int (*dl_device_driver_opt_set)(const char *devname, const char *param, const iot_data_t *values, 
+                          iot_logger_t *lc);
+
+/*响应添加设备*/
+typedef void (*dl_device_driver_add_device)(void *impl, const char *devname, const devsdk_protocols *protocols, 
+                              const devsdk_device_resources *resources, bool adminEnabled);
+
+/*响应更新设备*/
+typedef void (*dl_device_driver_update_device)(void *impl, const char *devname, const devsdk_protocols *protocols, 
+                                  bool adminEnabled);
+
+/*响应移除设备*/
+typedef void (*dl_device_driver_remove_device)(void *impl, const char *devname, const devsdk_protocols *protocols);
+
+/*启动事件*/
+typedef void *(*dl_device_driver_autoevent_start_handler)(void *impl, const char *devname, const devsdk_protocols *protocols,
+                                            const char *resource_name,
+                                            uint32_t nreadings,
+                                            const devsdk_commandrequest *requests,
+                                            uint64_t interval,
+                                            bool onChange);
+/*停止事件*/
+typedef void (*dl_device_driver_autoevent_stop_handler)(void *impl, void *handle);
 /** Private macros -----------------------------------------------------------*/
 #define ERR_CHECK(x) if(x.code){fprintf(stderr, "Error: %d: %s\n", x.code, x.reason); devsdk_service_free (service); free (impl); return x.code;}
 #define ERR_BUFSZ 1024
 #define ERR_CUSTOM_DEVICE_WRITE "PUT called for custom_device device. This is a read-only device."
 #define ERR_CUSTOM_DEVICE_NO_PARAM "No parameter attribute in GET/PUT request."
 
+#define USE_DL_OPEN 0/**< 不使用dlopen 动态库的静态链接库无法使用，导致断错误*/
+#define ERR_EXIT_MSG do{ printf("unknow this func symbol.\n"); \
+                         exit(-1); \
+                       }while(0)
+#define DEVICE_DRIVER_PATH_NAME "/home/aron566/Workspace/custom_device_driver/build/device_driver/libdevice_driver.so"
 /** Private constants --------------------------------------------------------*/
 /** Public variables ---------------------------------------------------------*/
 /** Private variables --------------------------------------------------------*/
 
+#if USE_DL_OPEN
+/*csdk user data*/
+typedef struct custom_device_driver
+{
+  iot_logger_t * lc;
+  devsdk_service_t * service;
+  void (*device_driver_reload_callback)(void);
+}custom_device_driver;
+static void *dl_device_driver_handle = NULL;
+static dl_device_driver_opt_init device_driver_opt_init = NULL;
+static dl_device_driver_opt_reconfigure device_driver_opt_reconfigure = NULL;
+static dl_device_driver_opt_stop device_driver_opt_stop = NULL;
+static dl_device_driver_opt_discover device_driver_opt_discover = NULL;
+static dl_device_driver_opt_get device_driver_opt_get = NULL;
+static dl_device_driver_opt_set device_driver_opt_set = NULL;
+static dl_device_driver_add_device device_driver_add_device = NULL;
+static dl_device_driver_update_device device_driver_update_device = NULL;
+static dl_device_driver_remove_device device_driver_remove_device = NULL;
+static dl_device_driver_autoevent_start_handler device_driver_autoevent_start_handler = NULL;
+static dl_device_driver_autoevent_stop_handler device_driver_autoevent_stop_handler = NULL;
+#endif
 /** Private function prototypes ----------------------------------------------*/
 /*初始化设备服务*/
 static bool custom_device_init(void * impl, struct iot_logger_t * lc, const iot_data_t * config);
@@ -82,6 +149,61 @@ static void custom_device_autoevent_stop_handler(void *impl, void *handle);
 *                                                                               
 ********************************************************************************
 */
+#if USE_DL_OPEN
+/**
+ * @brief 装载设备驱动.
+ */
+static void device_driver_load(void)
+{
+  dl_device_driver_handle = dlopen(DEVICE_DRIVER_PATH_NAME, RTLD_GLOBAL|RTLD_NOW);
+  if(dl_device_driver_handle == NULL)
+  {
+    fprintf(stderr, "%s\n", dlerror());
+    exit(-1);
+  }
+  else
+  {
+    device_driver_opt_init = (dl_device_driver_opt_init)dlsym(dl_device_driver_handle, "device_driver_opt_init");
+    if(!device_driver_opt_init) ERR_EXIT_MSG;
+    device_driver_opt_reconfigure = (dl_device_driver_opt_reconfigure)dlsym(dl_device_driver_handle, "device_driver_opt_reconfigure");
+    if(!device_driver_opt_reconfigure) ERR_EXIT_MSG;
+    device_driver_opt_stop = (dl_device_driver_opt_stop)dlsym(dl_device_driver_handle, "device_driver_opt_stop");
+    if(!device_driver_opt_reconfigure) ERR_EXIT_MSG;
+    device_driver_opt_discover = (dl_device_driver_opt_discover)dlsym(dl_device_driver_handle, "device_driver_opt_discover");
+    if(!device_driver_opt_reconfigure) ERR_EXIT_MSG;
+    device_driver_opt_get = (dl_device_driver_opt_get)dlsym(dl_device_driver_handle, "device_driver_opt_get");
+    if(!device_driver_opt_reconfigure) ERR_EXIT_MSG;
+    device_driver_opt_set = (dl_device_driver_opt_set)dlsym(dl_device_driver_handle, "device_driver_opt_set");
+    if(!device_driver_opt_reconfigure) ERR_EXIT_MSG;
+    device_driver_add_device = (dl_device_driver_add_device)dlsym(dl_device_driver_handle, "device_driver_add_device");
+    if(!device_driver_opt_reconfigure) ERR_EXIT_MSG;
+    device_driver_update_device = (dl_device_driver_update_device)dlsym(dl_device_driver_handle, "device_driver_update_device");
+    if(!device_driver_opt_reconfigure) ERR_EXIT_MSG;
+    device_driver_remove_device = (dl_device_driver_remove_device)dlsym(dl_device_driver_handle, "device_driver_remove_device");
+    if(!device_driver_opt_reconfigure) ERR_EXIT_MSG;
+    device_driver_autoevent_start_handler = (dl_device_driver_autoevent_start_handler)dlsym(dl_device_driver_handle, "device_driver_autoevent_start_handler");
+    if(!device_driver_opt_reconfigure) ERR_EXIT_MSG;
+    device_driver_autoevent_stop_handler = (dl_device_driver_autoevent_stop_handler)dlsym(dl_device_driver_handle, "device_driver_autoevent_stop_handler");
+    if(!device_driver_opt_reconfigure) ERR_EXIT_MSG;
+  }
+}
+#endif
+/**
+ * @brief 重装载设备驱动
+ * 
+ */
+static void device_driver_reload(void)
+{
+  // if(dl_device_driver_handle == NULL)
+  // {
+  //   return;
+  // }
+  // dlclose(dl_device_driver_handle);
+  // dl_device_driver_handle = NULL;
+  // device_driver_load();
+  printf("you can press cmd: reboot to update driver\n");
+}
+
 /**
  * @brief Function called during service start operation.
  * @param impl The context data passed in when the service was created.
@@ -126,7 +248,6 @@ static bool custom_device_get_handler(
   const char *param;
 
   custom_device_driver * driver = (custom_device_driver *) impl;
-
   for(uint32_t i = 0; i < nreadings; i++)
   {
     /*获取GET参数*/
@@ -172,7 +293,6 @@ static bool custom_device_put_handler(
   const char *param;
 
   custom_device_driver * driver = (custom_device_driver *) impl;
- 
   for(uint32_t i = 0; i < nvalues; i++)
   {
     param = devsdk_nvpairs_value (requests[i].attributes, "parameter");
@@ -202,7 +322,6 @@ static bool custom_device_put_handler(
 static void custom_device_reconfigure(void *impl, const iot_data_t *config)
 {
   custom_device_driver * driver = (custom_device_driver *) impl;
-
   device_driver_opt_reconfigure(driver->lc, config);
 }
 
@@ -214,7 +333,6 @@ static void custom_device_reconfigure(void *impl, const iot_data_t *config)
 static void custom_device_discover(void *impl) 
 {
   custom_device_driver * driver = (custom_device_driver *) impl;
-
   device_driver_opt_discover(driver->lc);
 }
 
@@ -227,7 +345,6 @@ static void custom_device_stop(void *impl, bool force)
 {
   /* Stop performs any final actions before the device service is terminated */
   custom_device_driver * driver = (custom_device_driver *) impl;
-
   device_driver_opt_stop(driver->lc, force);
 }
 
@@ -292,8 +409,10 @@ static void * custom_device_autoevent_start_handler
   bool onChange
 )
 {
-  return device_driver_autoevent_start_handler(impl, devname, protocols, resource_name,
+  void *ret = device_driver_autoevent_start_handler(impl, devname, protocols, resource_name,
                                             nreadings, requests, interval, onChange);
+  
+  return ret;
 }
 
 /**
@@ -319,7 +438,11 @@ int main (int argc, char * argv[])
 {
   sigset_t set;
   int sigret;
-  
+#if USE_DL_OPEN
+  /*加载设备驱动*/
+  device_driver_load();
+#endif
+
   custom_device_driver * impl = malloc (sizeof (custom_device_driver));
   impl->lc = NULL;
   impl->service = NULL;
@@ -344,6 +467,8 @@ int main (int argc, char * argv[])
 
   devsdk_service_t * service = devsdk_service_new("device-custom_device", "1.0", impl, custom_deviceImpls, &argc, argv, &e);
   impl->service = service;
+  impl->device_driver_reload_callback = device_driver_reload;
+
   ERR_CHECK (e);
 
   int n = 1;

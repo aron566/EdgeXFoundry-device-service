@@ -27,7 +27,7 @@ extern "C" {
 /** Private defines ----------------------------------------------------------*/
                                                                       
 /** Exported typedefines -----------------------------------------------------*/
-
+typedef void (*DRIVER_RELOAD_FUNC)(void);
 /** Exported constants -------------------------------------------------------*/
                                                                                 
 /** Exported macros-----------------------------------------------------------*/
@@ -35,7 +35,7 @@ extern "C" {
 /** Exported functions prototypes --------------------------------------------*/
 
 /*注册设备驱动*/
-void register_device_driver(iot_logger_t *lc);
+void register_device_driver(void *data);
 
 /*获取设备协议类型*/
 PROTOCOL_Type_t get_device_protocol_type(DEV_INFO_Typedef_t *dev_info);
@@ -62,6 +62,9 @@ const DEVICE_RESOURCE_MAP_Typedef_t *get_device_resource_list(void);
 
 /*获取设备上报事件确认接口*/
 const REPORT_EVENT_CONFIRM_FUNC get_device_event_confirm_func(DEVICE_Typedef_t dev_type);
+
+/**/
+const DRIVER_RELOAD_FUNC get_driver_reload_func(void);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

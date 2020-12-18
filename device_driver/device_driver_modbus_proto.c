@@ -325,7 +325,7 @@ static MODBUS_PARSE_CODE_Typedef_t modbus_wait_new_data(uint8_t addr, uint8_t cm
           CQ_skipInvaildU8Header(modbus_cb, addr);
           break;
         case MODBUS_OK:
-          CQ_ManualOffsetInc(modbus_cb ,buf_len);
+          CQ_ManualOffsetInc(modbus_cb, buf_len);
           return MODBUS_OK;
         default:
           break;

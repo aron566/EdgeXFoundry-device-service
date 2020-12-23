@@ -1,4 +1,4 @@
-@[toc](EdgeXFoundry的部署应用开发)
+@[toc](边缘计算开源框架EdgeXFoundry的部署应用开发（一）简介快速上手)
 # EdgeX 历史记录和命名
 EdgeXFoundry最初是戴尔物联网营销部特许的项目，由 CTO 戴尔客户办公室开发，于 2015 年 7 月作为名为"Fuse项目"的孵化项目开发。它最初创建为在戴尔的物联网网关介绍行上作为 IoT 软件应用程序运行。2017 年 4 月 24 日，戴尔通过 Linux 基金会将该项目引入开源。EdgeX 在 2017 年汉诺威展上正式宣布并展示。汉诺威博览会是世界上最大的工业贸易展览会之一。在展会上，Linux基金会还宣布了由50个创始成员组织（EdgeX生态系统）组成的协会，以帮助推进该项目和创建通用边缘平台的目标。
 # 功能及流程简介
@@ -109,9 +109,11 @@ docker-compose ps
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20201103110112741.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mjg5MjEwMQ==,size_16,color_FFFFFF,t_70#pic_center)
 在目录下有yaml的文件，里面官方默认屏蔽了虚拟的随机数设备服务，可以解除屏蔽自己去运行它，官网有相关教程步骤，这里不多做介绍。
 
-**这里给出一份带ui控制台的docker-compose.yml文件**
+**这里给出一份带ui控制台和消息导出服务的的docker-compose.yml文件**
 [UI项目地址](https://github.com/edgexfoundry/edgex-ui-go)
 UI使用介绍视频：[优酷](https://v.youku.com/v_show/id_XNDY5NzExNjcyNA==.html)、[youtube](https://www.youtube.com/watch?v=FuR1g64BDE8)
+消息导出：mqttclient连接`broker.mqttdashboard.com`端口：`1883`订阅主题：`EdgeXEvents`即可收到事件消息。
+
 ```yaml
 # /*******************************************************************************
 #  * Copyright 2020 Redis Labs Inc.
@@ -167,8 +169,10 @@ services:
   consul:
     image: edgexfoundry/docker-edgex-consul:1.2.0
     ports:
-      - "127.0.0.1:8400:8400"
-      - "127.0.0.1:8500:8500"
+      #- "127.0.0.1:8400:8400"
+      #- "127.0.0.1:8500:8500"
+      - "8400:8400"
+      - "8500:8500"
     container_name: edgex-core-consul
     hostname: edgex-core-consul
     networks:
@@ -183,7 +187,8 @@ services:
   redis:
     image: redis:5.0.8-alpine
     ports:
-      - "127.0.0.1:6379:6379"
+      #- "127.0.0.1:6379:6379"
+      - "6379:6379"
     container_name: edgex-redis
     hostname: edgex-redis
     networks:
@@ -218,7 +223,8 @@ services:
   system:
     image: edgexfoundry/docker-sys-mgmt-agent-go:1.2.1
     ports:
-      - "127.0.0.1:48090:48090"
+      #- "127.0.0.1:48090:48090"
+      - "48090:48090"
     container_name: edgex-sys-mgmt-agent
     hostname: edgex-sys-mgmt-agent
     networks:
@@ -242,7 +248,8 @@ services:
   notifications:
     image: edgexfoundry/docker-support-notifications-go:1.2.1
     ports:
-      - "127.0.0.1:48060:48060"
+      #- "127.0.0.1:48060:48060"
+      - "48060:48060"
     container_name: edgex-support-notifications
     hostname: edgex-support-notifications
     networks:
@@ -258,7 +265,8 @@ services:
   metadata:
     image: edgexfoundry/docker-core-metadata-go:1.2.1
     ports:
-      - "127.0.0.1:48081:48081"
+      #- "127.0.0.1:48081:48081"
+      - "48081:48081"
     container_name: edgex-core-metadata
     hostname: edgex-core-metadata
     networks:
@@ -277,8 +285,10 @@ services:
   data:
     image: edgexfoundry/docker-core-data-go:1.2.1
     ports:
-      - "127.0.0.1:48080:48080"
-      - "127.0.0.1:5563:5563"
+      #- "127.0.0.1:48080:48080"
+      #- "127.0.0.1:5563:5563"
+      - "48080:48080"
+      - "5563:5563"
     container_name: edgex-core-data
     hostname: edgex-core-data
     networks:
@@ -295,7 +305,8 @@ services:
   command:
     image: edgexfoundry/docker-core-command-go:1.2.1
     ports:
-      - "127.0.0.1:48082:48082"
+      #- "127.0.0.1:48082:48082"
+      - "48082:48082"
     container_name: edgex-core-command
     hostname: edgex-core-command
     networks:
@@ -312,7 +323,8 @@ services:
   scheduler:
     image: edgexfoundry/docker-support-scheduler-go:1.2.1
     ports:
-      - "127.0.0.1:48085:48085"
+      #- "127.0.0.1:48085:48085"
+      - "48085:48085"
     container_name: edgex-support-scheduler
     hostname: edgex-support-scheduler
     networks:
@@ -330,7 +342,8 @@ services:
   app-service-rules:
     image: edgexfoundry/docker-app-service-configurable:1.2.0
     ports:
-      - "127.0.0.1:48100:48100"
+      #- "127.0.0.1:48100:48100"
+      - "48100:48100"
     container_name: edgex-app-service-configurable-rules
     hostname: edgex-app-service-configurable-rules
     networks:
@@ -347,11 +360,37 @@ services:
 #      - logging  # uncomment if re-enabled remote logging
       - data
 
+  app-service-mqtt:
+    image: edgexfoundry/docker-app-service-configurable:1.3.0
+    ports:
+      - "48101:48101"
+    container_name: edgex-app-service-configurable-mqtt
+    hostname: edgex-app-service-configurable-mqtt
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      edgex_profile: mqtt-export
+      Service_Host: edgex-app-service-configurable-mqtt
+      Service_Port: 48101
+      MessageBus_SubscribeHost_Host: edgex-core-data
+      Binding_PublishTopic: events
+      Writable_Pipeline_Functions_MQTTSend_Addressable_Address: broker.mqttdashboard.com
+      Writable_Pipeline_Functions_MQTTSend_Addressable_Port: 1883
+      Writable_Pipeline_Functions_MQTTSend_Addressable_Protocol: tcp
+      Writable_Pipeline_Functions_MQTTSend_Addressable_Publisher: edgex
+      Writable_Pipeline_Functions_MQTTSend_Addressable_Topic: EdgeXEvents
+    depends_on:
+      - consul
+      - data
+
   rulesengine:
     image: emqx/kuiper:0.4.2-alpine
     ports:
-      - "127.0.0.1:48075:48075"
-      - "127.0.0.1:20498:20498"
+      #- "127.0.0.1:48075:48075"
+      #- "127.0.0.1:20498:20498"
+      - "48075:48075"
+      - "20498:20498"
     container_name: edgex-kuiper
     hostname: edgex-kuiper
     networks:
@@ -371,7 +410,8 @@ services:
   ui:
     image: edgexfoundry/docker-edgex-ui-go:1.2.1
     ports:
-      - "127.0.0.1:4000:4000"
+      #- "127.0.0.1:4000:4000"
+      - "4000:4000"
     container_name: edgex-ui-go
     hostname: edgex-ui-go
     networks:
@@ -409,7 +449,8 @@ services:
   device-virtual:
     image: edgexfoundry/docker-device-virtual-go:1.2.2
     ports:
-    - "127.0.0.1:49990:49990"
+    #- "127.0.0.1:49990:49990"
+    - "49990:49990"
     container_name: edgex-device-virtual
     hostname: edgex-device-virtual
     networks:
@@ -426,7 +467,8 @@ services:
   device-rest:
     image: edgexfoundry/docker-device-rest-go:1.1.1
     ports:
-      - "127.0.0.1:49986:49986"
+      #- "127.0.0.1:49986:49986"
+      - "49986:49986"
     container_name: edgex-device-rest
     hostname: edgex-device-rest
     networks:
@@ -851,81 +893,16 @@ PUT http://localhost:48082/api/v1/device/59f51186-af23-4340-823f-0bbd8a65449f/co
 
 #PUT与GET的数据不尽相同，皆是基于你所定义的设备配置文件中提供的设备资源，而设备配置文件又是基于你依靠SDK编写的设备服务驱动
 ```
-至此，皆是对官网的使用流程进行说明，下面进入正题。
-## 使用SDK开发真实设备接入服务
-### 着手编写一个温湿度设备接入
-#### 准备相关文件及目录
-建立一个文件夹如：`temperature-device-driver`
-```bash
-mkdir temperature-device-driver && cd temperature-device-driver
-```
-建立`device-temperature.c`文件、建立`res`目录
-在`temperature-device-driver`目录下建立`build.sh`脚本文件，内容如下：
+如果需要删除数据使用以下脚本`clean_edge_volume.sh`
+放置在**docker-compose.yml**相同目录下
 ```bash
 #!/bin/sh
-
-#定义SDK源码头文件目录
-SDK_INC_DIR=/home/aron566/Workspace/C_SDK/device-sdk-c/include
-
-#定义SDK动态库文件目录
-SDK_LIB_DIR=/home/aron566/Workspace/C_SDK/device-sdk-c/build/release/_CPack_Packages/Linux/TGZ/csdk-1.3.0/lib
-
-#定义编译生成的APP名称
-TARGET_APP_NAME=device_driver
-
-#定义源码文件名称
-SOURCE_FILE_NAME=device_driver.c
-
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SDK_LIB_DIR
-
-case "$1" in
-	make)
-		gcc -I$SDK_INC_DIR -L$SDK_LIB_DIR -o $TARGET_APP_NAME $SOURCE_FILE_NAME -lcsdk
-		;;
-	run)
-		./$TARGET_APP_NAME -c res
-		;;
-	*)
-		echo "Usage: $0 {make|run}"
-		exit 1
-esac
+docker-compose down
+docker volume rm edgexfoundry_consul-config
+docker volume rm edgexfoundry_consul-data
+docker volume rm edgexfoundry_db-data
+docker volume rm edgexfoundry_log-data
 ```
-添加可执行权限
-```bash
-sudo chmod +x build.sh
-```
-#### 编写温湿度设备接入设备服务
-参考阿里云方式，控制台以每个边缘网关为首向下拓展
-- 边缘网关，运行设备服务，并预先编写好设备配置文件与服务配置文件部署到网关并建立服务
- - 控制台中设备服务列表代表着不同功能的边缘网关，实际就是多协议支持的网关服务
-  - 遵照驱动中支持的通讯协议设备，由控制台端编写不同的设备配置文件（modbus温度传感器、光照等各类型传感器或者其他自定义协议设备）
-   - 动态部署使用，在控制台的**上级网关的设备服务下建立设备**，为其配置特定设备配置文件及其他参数，特别指定设备名（协议-位置信息(应包含上级网关信息+地理位置)-设备名(可重复)-地址号或者序号(同名设备不可重复)），这里设备配置即物模型可以下发给网关也可以不下发由设备服务自动获取控制台端的设备配置文件
-   - 控制台创建号设备信息后，==通过已正常通讯的上级网关设备服务下发更新后的设备驱动库文件到远程网关==，给设备服务调用，完成动态加载设备驱动。
-   - 完成驱动的更新下发后，下发新增设备后的服务配置文件即configuration.toml文件，其最大修改处应为`DeviceList`部分
-这样后台浏览设备易于查看：物理通讯TOPO关系、通讯地址及协议、地理区域信息。
+至此，皆是对官网的使用流程进行说明，下面进入正题。
 
-*记住，完善接口即可*
-```c
-#include "devsdk/devsdk.h"
-#include "edgex/edgex-base.h"
-
-#include <unistd.h>
-#include <signal.h>
-
-#define ERR_CHECK(x) if (x.code) { fprintf (stderr, "Error: %d: %s\n", x.code, x.reason); devsdk_service_free (service); free (impl); return x.code; }
-
-
-```
-#### 配置文件xx.yaml和xx.toml
-xx.yaml的修改需遵照设备服务提供的设备功能
-[官方对配置的介绍](https://blog.csdn.net/weixin_42892101/article/details/109528246)
-[其他配置的介绍](https://blog.csdn.net/keyoushide/article/details/98306622)
-#### 编译
-```bash
-./build make
-```
-#### 运行
-运行可以使用脚本，当然需要在脚本中修改定义好变量
-```bash
-./build run
-```
+# [边缘计算开源框架EdgeXFoundry的部署应用开发(二)](https://blog.csdn.net/weixin_42892101/article/details/110298580)

@@ -366,7 +366,7 @@ static bool dev_online_confirm(const char *dev_name, const char *param_name,
   dev_resource[index].default_value = diff;
 
   /*离线上报*/
-  if(diff > diff_min)
+  if(diff*1000 > diff_min)
   {
     if(results->value != NULL)
     {

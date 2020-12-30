@@ -114,7 +114,7 @@ static void write_binary_task_cb(uv_work_t *handler)
       if(update_data_get_head_info(write_info->table[seq].data, UPDATE_DATA_HEAD_SIZE+1, &package_total, 
                                       &package_num, &package_size) == true)
       {
-        file_write(write_info->filename ,write_info->table[seq].data+UPDATE_DATA_HEAD_SIZE ,1 ,(size_t)package_size ,READ_WRITE_APPEND_CREAT_FILE_B);
+        file_write(write_info->filename ,write_info->table[seq].data+UPDATE_DATA_HEAD_SIZE, 1, (size_t)package_size, READ_WRITE_APPEND_CREAT_FILE_B);
       }
     }
   }
@@ -348,7 +348,7 @@ uint16_t update_data_table_get_package_num(UPDATE_DATA_RECORD_Typedef *table, ui
   * @param   [out]package_total 头部信息描述数据总包数.
   * @param   [out]package_num 头部信息描述包号.
   * @param   [out]package_size 头部信息描述更新数据大小（去除头部信息大小）.
-  * @return  true 已满.
+  * @return  true 获取正常.
   * @author  aron566
   * @version V1.0
   * @date    2020-12-15
@@ -373,7 +373,7 @@ bool update_data_get_head_info(uint8_t *package, uint32_t size, uint16_t *packag
   * @param   [in]table 更新数据记录表.
   * @param   [in]table_size 数据表大小.
   * @param   [in]filename 文件名称.
-  * @return  None.
+  * @return  0 正常.
   * @author  aron566
   * @version V1.0
   * @date    2020-12-14

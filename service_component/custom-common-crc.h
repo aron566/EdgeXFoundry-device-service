@@ -34,14 +34,16 @@ extern "C" {
 /** Exported functions prototypes --------------------------------------------*/
 
 /*查表计算CRC16*/
-uint16_t get_crc(uint8_t *puchMsg ,uint16_t usDataLen);
+uint16_t get_crc(uint8_t *puchMsg, uint16_t usDataLen);
 /*查表计算CRC16并对比数据包中的CRC，返回结果，数据包含crc计算内容+crc结果，否则可能指针越界访问*/                                                                              
-bool get_crc_result(uint8_t *puchMsg ,uint16_t usDataLen);
+bool get_crc_result(uint8_t *puchMsg, uint16_t usDataLen);
 
 /*计算CRC*/
-uint16_t modbus_crc_return(uint8_t *Crc_Buf ,uint16_t Crc_Len);
+uint16_t modbus_crc_return(uint8_t *data, uint16_t data_len);
+/*查表法计算modbus CRC16*/
+uint16_t modbus_crc_return_with_table(uint8_t *data, uint16_t data_len);
 /*计算CRC16并对比数据包中的CRC，返回结果，数据包含crc计算内容+crc结果，否则可能指针越界访问*/ 
-uint8_t return_check_crc(uint8_t *msg ,uint32_t len);
+uint8_t modbus_get_crc_result(uint8_t *msg, uint16_t len);
 
 #ifdef __cplusplus ///<end extern c                                             
 }                                                                               

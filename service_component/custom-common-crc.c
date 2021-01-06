@@ -86,7 +86,7 @@ const uint8_t auchCRCLo[] = {
 /** Private variables --------------------------------------------------------*/
                                                                                 
 /** Private function prototypes ----------------------------------------------*/
-static uint16_t crc_cal(uint16_t Data ,uint16_t GenPoly ,uint16_t CrcData);                                                                                
+static uint16_t modbus_crc_cal(uint16_t Data ,uint16_t GenPoly ,uint16_t CrcData);                                                                                
 /** Private user code --------------------------------------------------------*/
                                                                      
 /** Private application code -------------------------------------------------*/
@@ -97,18 +97,19 @@ static uint16_t crc_cal(uint16_t Data ,uint16_t GenPoly ,uint16_t CrcData);
 ********************************************************************************
 */                                                                              
 /**
- * @brief CRC计算
+ * @brief modbus CRC计算
  * 
  * @param Data 
  * @param GenPoly 
  * @param CrcData 
  * @return uint16_t 
  */
-static uint16_t crc_cal(uint16_t Data ,uint16_t GenPoly ,uint16_t CrcData)
+static uint16_t modbus_crc_cal(uint16_t Data ,uint16_t GenPoly ,uint16_t CrcData)
 {
 	uint16_t TmpI;
 	Data *= 2;
-	for (TmpI = 8; TmpI > 0; TmpI--) {
+	for(TmpI = 8; TmpI > 0; TmpI--) 
+  {
 		Data = Data / 2;
 		if ((Data ^ CrcData) & 1)
 			CrcData = (CrcData / 2) ^ GenPoly;
@@ -132,15 +133,15 @@ static uint16_t crc_cal(uint16_t Data ,uint16_t GenPoly ,uint16_t CrcData)
   * @param usDataLen 数据长度
   * @return uint16_t 
   */
-uint16_t get_crc(uint8_t *puchMsg ,uint16_t usDataLen)
+uint16_t get_crc(uint8_t *puchMsg, uint16_t usDataLen)
 {
 	uint8_t uchCRCHi = 0xFF;  /* 高CRC字节初始化 */
 	uint8_t uchCRCLo = 0xFF;  /* 低CRC 字节初始化 */
 	int uIndex = 0;           /* CRC循环中的索引 */
 	while(usDataLen--)
 	{
-		uIndex      = uchCRCHi^*puchMsg++;
-		uchCRCHi    = uchCRCLo^auchCRCHi[uIndex];
+		uIndex      = uchCRCHi ^ *puchMsg++;
+		uchCRCHi    = uchCRCLo ^ auchCRCHi[uIndex];
 		uchCRCLo    = auchCRCLo[uIndex];
 	}
 	return (uchCRCHi<<8|uchCRCLo); 
@@ -154,7 +155,7 @@ uint16_t get_crc(uint8_t *puchMsg ,uint16_t usDataLen)
  * @return true 
  * @return false 
  */
-bool get_crc_result(uint8_t *puchMsg ,uint16_t usDataLen)
+bool get_crc_result(uint8_t *puchMsg, uint16_t usDataLen)
 {
 	if(puchMsg == NULL)
 	{
@@ -162,8 +163,8 @@ bool get_crc_result(uint8_t *puchMsg ,uint16_t usDataLen)
 	}
 	uint16_t crc_ret = get_crc(puchMsg ,usDataLen);
 	uint8_t CRC_value_L_temp = *(puchMsg + usDataLen);
-	uint8_t CRC_value_H_temp = *(puchMsg + usDataLen+1);
-	uint8_t CRC_value_L = (uint8_t)(crc_ret &0x00FF);//有无符号重要！
+	uint8_t CRC_value_H_temp = *(puchMsg + usDataLen + 1);
+	uint8_t CRC_value_L = (uint8_t)(crc_ret &0x00FF);
 	uint8_t CRC_value_H = (uint8_t)((crc_ret>>8)&0x00FF);
 
 	if(CRC_value_L == CRC_value_L_temp && CRC_value_H == CRC_value_H_temp)
@@ -181,32 +182,56 @@ bool get_crc_result(uint8_t *puchMsg ,uint16_t usDataLen)
  * @param data_len 带入CRC计算的数据长度
  * @return uint16_t 
  */
-uint16_t modbus_crc_return(uint8_t *data ,uint16_t data_len)
+uint16_t modbus_crc_return(uint8_t *data, uint16_t data_len)
 {
 	uint16_t temp;
 	uint16_t crc_ret = 0xFFFF;
 	for (temp = 0; temp < data_len; temp++)
 	{
-		crc_ret = crc_cal(data[temp], 0xA001, crc_ret);
+		crc_ret = modbus_crc_cal(data[temp], 0xA001, crc_ret);
 	}
 	return crc_ret;
 }
 
 /**
- * @brief 校验CRC
+ * @brief modbusCRC计算查表方式
+ * 
+ * @param data 带入CRC计算的数据起始
+ * @param data_len 带入CRC计算的数据长度
+ * @return uint16_t 
+ */
+uint16_t modbus_crc_return_with_table(uint8_t *data, uint16_t data_len)
+{
+    uint8_t ucCRCHi = 0xFF;
+    uint8_t ucCRCLo = 0xFF;
+    int  iIndex;
+
+    while(data_len--)
+    {
+        iIndex = ucCRCLo ^ *(data++);
+			  //
+			  //
+        ucCRCLo = (uint8_t)(ucCRCHi ^ auchCRCHi[iIndex]);
+        ucCRCHi = auchCRCLo[iIndex];
+    }
+    return (uint16_t)( ucCRCHi << 8 | ucCRCLo );
+}
+
+/**
+ * @brief 校验mdobus帧结果
  * 
  * @param msg 带入CRC计算的数据起始
  * @param len 带入CRC计算的数据长度
  * @return uint8_t 0错误 1校验正确 
  */
-uint8_t return_check_crc(uint8_t *msg ,uint32_t len)
+uint8_t modbus_get_crc_result(uint8_t *msg ,uint16_t len)
 {
 	uint8_t CRC_value_L,CRC_value_H,CRC_value_L_temp,CRC_value_H_temp;
 	uint16_t crc_ret = 0;
-	crc_ret = modbus_crc_return(msg,len);
-	CRC_value_L_temp = *(msg+len);
-	CRC_value_H_temp = *(msg+len+1);
-	CRC_value_L =(uint8_t)(crc_ret &0x00FF);//有无符号重要！
+	crc_ret = modbus_crc_return(msg, len);
+	CRC_value_L_temp = *(msg + len);
+	CRC_value_H_temp = *(msg + len + 1);
+	CRC_value_L = (uint8_t)(crc_ret &0x00FF);//有无符号重要！
 	CRC_value_H = (uint8_t)((crc_ret>>8)&0x00FF);
 	if(CRC_value_L == CRC_value_L_temp && CRC_value_H == CRC_value_H_temp)
 	{

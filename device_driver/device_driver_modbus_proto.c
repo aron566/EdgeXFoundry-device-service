@@ -25,7 +25,7 @@ extern "C" {
 /** Private macros -----------------------------------------------------------*/
 #define MODBUS_FRAME_LEN_MIN  7U   /**< modbus  报文最小长度*/
 #define MODBUS_READ_COMMAND   0x03U/**< modbus  读命令*/
-#define MODBUS_WRITE_COMMAND  0x10U/**< modbus  读命令*/
+#define MODBUS_WRITE_COMMAND  0x10U/**< modbus  写命令*/
 #define GET_READ_RESPONSE_DATA_LEN(reg_n) ((reg_n*2U+5U))/**< modbus 写命令回复数据长度*/
 #define GET_WRITE_RESPONSE_DATA_LEN 8U  /**< modbus 写命令回复数据长度*/
 /** Private constants --------------------------------------------------------*/
